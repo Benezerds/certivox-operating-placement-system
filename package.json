@@ -9,16 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@firebase/firestore": "^2.7.0",
+    "@firebase/firestore": "^4.7.0",
     "chart.js": "^3.4.4",
     "crypto-js": "^3.2.0",
     "crypto.js": "^3.2.2",
-    "firebase": "^8.14.0",
+    "firebase": "^10.14.0",
     "googleapis": "^120.0.0",
-    "next": "10.2.6",
+    "next": "14.2.3",
     "react": "^18",
     "react-dom": "^18",
     "sweetalert2": "^10.12.4"
+
   },
   "devDependencies": {
     "eslint": "^8",

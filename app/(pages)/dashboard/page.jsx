@@ -13,8 +13,9 @@ import Swal from "sweetalert2";
 import { Chart } from "chart.js/auto";
 import { useRouter } from "next/navigation";
 import { auth } from "@/app/firebase";
+import { getAuth, signOut } from "firebase/auth"; // Firebase imports
 
- const Dashboard = () => {
+const Dashboard = () => {
   const [years, setYears] = useState([]);
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(`${currentYear}`);
@@ -53,8 +54,18 @@ import { auth } from "@/app/firebase";
   const itemsPerPage = 10;
 
   const [searchQuery, setSearchQuery] = useState("");
+  const auth = getAuth();
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push("/"); // Redirect to login page after logout
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -64,7 +75,7 @@ import { auth } from "@/app/firebase";
         setIsAuthenticated(true);
         const fetchData = async () => {
           const { db } = await import("@/app/firebase.jsx");
-        
+
           setLoading(true);
           const unsubscribeData = onSnapshot(
             collection(db, `${process.env.NEXT_PUBLIC_COLLECTION}`),
@@ -75,14 +86,16 @@ import { auth } from "@/app/firebase";
                   id: doc.id,
                 }))
                 .filter((item) => {
-                  const [day, month, year] = item.Date.split(" ")[0].split("/").map(Number);
-                  const itemDate = new Date(year, month - 1, day); 
-        
+                  const [day, month, year] = item.Date.split(" ")[0]
+                    .split("/")
+                    .map(Number);
+                  const itemDate = new Date(year, month - 1, day);
+
                   const itemYear = itemDate.getFullYear();
-        
+
                   return itemYear === parseInt(selectedYear);
                 });
-        
+
               const sortedData = data.sort((a, b) => {
                 const dateA = new Date(
                   a.Date.split(" ")[1].split("/").reverse().join("-") +
@@ -96,7 +109,7 @@ import { auth } from "@/app/firebase";
                 );
                 return dateB - dateA;
               });
-        
+
               setData(sortedData);
 
               // Platform Chart
@@ -289,7 +302,6 @@ import { auth } from "@/app/firebase";
               }
 
               setLoading(false);
-
             }
           );
           return () => unsubscribeData();
@@ -325,7 +337,7 @@ import { auth } from "@/app/firebase";
   };
 
   const removeBundlingEntry = (index) => {
-    setBundling(bundling.filter(( i) => i === index));
+    setBundling(bundling.filter((i) => i === index));
   };
 
   const handleBundlingChange = (index, field, value) => {
@@ -376,7 +388,11 @@ import { auth } from "@/app/firebase";
             Swal.showLoading();
           },
         });
-        const res = doc(db, `${process.env.NEXT_PUBLIC_COLLECTION}`, String(id));
+        const res = doc(
+          db,
+          `${process.env.NEXT_PUBLIC_COLLECTION}`,
+          String(id)
+        );
         await deleteDoc(res);
         setData(data.filter((item) => item.id !== id));
       },
@@ -465,7 +481,11 @@ import { auth } from "@/app/firebase";
     });
 
     if (currentId) {
-      const docRef = doc(db, `${process.env.NEXT_PUBLIC_COLLECTION}`, String(currentId));
+      const docRef = doc(
+        db,
+        `${process.env.NEXT_PUBLIC_COLLECTION}`,
+        String(currentId)
+      );
       await updateDoc(docRef, form);
       const updatedData = data.map((item) =>
         item.id === currentId ? { id: currentId, ...form } : item
@@ -481,7 +501,10 @@ import { auth } from "@/app/firebase";
         imageAlt: "okmas-bry",
       });
     } else {
-      const docRef = await addDoc(collection(db, `${process.env.NEXT_PUBLIC_COLLECTION}`), form);
+      const docRef = await addDoc(
+        collection(db, `${process.env.NEXT_PUBLIC_COLLECTION}`),
+        form
+      );
       const newEntry = { id: docRef.id, ...from };
       setData([newEntry, ...data]);
       Swal.fire({
@@ -710,24 +733,29 @@ import { auth } from "@/app/firebase";
         <div className="flex flex-col gap-3 bg-white p-8 rounded-xl">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             {/* Platform */}
-            <div className=" shadow-xl  rounded-xl w-full min-h-2 flex flex-col  gap-4 p-8">
-              <h1 className=" text-xl font-bold text-gray-400">Platform</h1>
+            <div className="shadow-xl rounded-xl w-full min-h-2 flex flex-col gap-4 p-8">
+              <h1 className="text-xl font-bold text-gray-400">Platform</h1>
               <canvas ref={platformCanvasRef}></canvas>
             </div>
-            {/* Platform end*/}
             {/* Status */}
-            <div className=" shadow-xl rounded-xl w-full min-h-2 flex flex-col gap-4 p-8">
+            <div className="shadow-xl rounded-xl w-full min-h-2 flex flex-col gap-4 p-8">
               <h1 className="text-xl font-bold text-gray-400">Status</h1>
               <canvas ref={statusCanvasRef}></canvas>
             </div>
-            {/* Status end*/}
             {/* Quarter */}
-            <div className=" shadow-xl rounded-xl w-full min-h-2 flex flex-col gap-4 p-8">
+            <div className="shadow-xl rounded-xl w-full min-h-2 flex flex-col gap-4 p-8">
               <h1 className="text-xl font-bold text-gray-400">Quarter</h1>
               <canvas ref={quarterCanvasRef}></canvas>
             </div>
-            {/* Quarter end */}
           </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="mt-4 self-end px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition"
+          >
+            Logout
+          </button>
         </div>
         {/* Card end */}
 
@@ -1395,4 +1423,4 @@ import { auth } from "@/app/firebase";
   );
 };
 
-export default Dashboard
+export default Dashboard;

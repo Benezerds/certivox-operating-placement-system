@@ -4,19 +4,20 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { auth } from "../firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import Image from 'next/image'; // Import the Next.js Image component
+import { setPersistence, signInWithEmailAndPassword, browserSessionPersistence, browserLocalPersistence } from "firebase/auth";
+import Image from 'next/image';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
+  const [rememberMe, setRememberMe] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        router.push("/dashboard");
+        router.push("/dashboard"); // Use push so users can navigate back to the login page if desired.
       } else {
         setIsAuthenticated(true);
       }
@@ -28,7 +29,14 @@ export const LoginPage = () => {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    signInWithEmailAndPassword(auth, email, password)
+    // Determine persistence type based on "Remember Me"
+    const persistenceType = rememberMe
+      ? browserLocalPersistence
+      : browserSessionPersistence;
+
+    // Set persistence and sign in
+    setPersistence(auth, persistenceType)
+      .then(() => signInWithEmailAndPassword(auth, email, password))
       .then(() => {
         Swal.fire({
           title: "SABARR!",
@@ -44,8 +52,9 @@ export const LoginPage = () => {
           },
         });
   
+        // Delay to show loading state before redirecting
         setTimeout(() => {
-          router.push("/dashboard");
+          router.push("/dashboard"); // Keep using push to allow back navigation.
           Swal.fire({
             icon: "success",
             title: "Uhuy!",
@@ -53,7 +62,8 @@ export const LoginPage = () => {
           });
         }, 3000);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("Login failed:", error);
         Swal.fire({
           icon: "error",
           title: "Yeuhhhhh...",
@@ -63,20 +73,18 @@ export const LoginPage = () => {
   };
 
   if (!isAuthenticated) {
-    return null;
+    return null; // Avoid showing the login form until authentication state is known.
   }
 
   return (
     <section className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      {/* Use Next.js Image component with width and height specified */}
       <Image
         className="mx-auto mb-6"
         src="/cretivox_logo.png"
         alt="Cretivox Logo"
-        width={380} // Adjust as needed
-        height={246} // Adjust as needed
+        width={380}
+        height={246}
       />
-
       <div className="bg-white p-8 rounded-lg shadow-lg w-[380px]">
         <h2 className="text-center text-4xl font-bold text-gray-700 mb-8">
           Login
@@ -89,7 +97,6 @@ export const LoginPage = () => {
             <input
               type="email"
               id="email"
-              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="px-4 py-3 rounded-lg bg-gray-100 w-full border border-gray-300"
@@ -102,7 +109,6 @@ export const LoginPage = () => {
             <input
               type="password"
               id="password"
-              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="px-4 py-3 rounded-lg bg-gray-100 w-full border border-gray-300"
@@ -113,6 +119,8 @@ export const LoginPage = () => {
               <input
                 type="checkbox"
                 id="remember_me"
+                checked={rememberMe}
+                onChange={() => setRememberMe(!rememberMe)}
                 className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
               />
               <label htmlFor="remember_me" className="ml-2 block text-sm text-gray-700">

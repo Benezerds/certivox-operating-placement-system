@@ -5,7 +5,35 @@ const Tracker = () => {
     
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-semibold mb-6">Project Tracker</h1>
+      <h1 className="text-2xl font-semibold mb-6">Project Summary</h1>
+      
+      {/* Filter Options */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-4">
+          {/* Division Dropdown */}
+          <select className="border border-gray-300 p-2 rounded-lg">
+            <option value="all">ALL DIVISION</option>
+            <option value="marketing">Marketing</option>
+            <option value="product">Product</option>
+            <option value="sales">Sales</option>
+          </select>
+
+          {/* Year Dropdown */}
+          <select className="border border-gray-300 p-2 rounded-lg">
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+            <option value="2021">2021</option>
+          </select>
+        </div>
+        
+        {/* Buttons for Export and Add Project */}
+        <div className="flex items-center gap-2">
+          <button className="px-4 py-2 bg-gray-200 rounded-lg">Export CSV</button>
+          <button className="px-4 py-2 bg-black text-white rounded-lg">+ New Project</button>
+        </div>
+      </div>
+
+      {/* Table */}
       <div className="overflow-x-auto mt-6">
         <table className="w-full text-left border border-gray-300">
           <thead>
@@ -39,14 +67,29 @@ const Tracker = () => {
             )}
           </tbody>
         </table>
-        <div className="mt-4">
-          <p>Total Projects: {projects.length}</p>
+      </div>
+
+      {/* Pagination and Total Projects */}
+      <div className="flex justify-between items-center mt-4">
+        {/* Pagination Controls */}
+        <div className="flex gap-2">
+          <button className="px-3 py-1 border border-gray-300 rounded">{"<"}</button>
+          {[1, 2, 3, 4].map((page) => (
+            <button
+              key={page}
+              className="px-3 py-1 border border-gray-300 rounded"
+            >
+              {page}
+            </button>
+          ))}
+          <button className="px-3 py-1 border border-gray-300 rounded">{">"}</button>
         </div>
+
+        {/* Total Projects Count */}
+        <p>Total Project: {projects.length}</p>
       </div>
     </div>
   );
 };
-
-
 
 export default Tracker

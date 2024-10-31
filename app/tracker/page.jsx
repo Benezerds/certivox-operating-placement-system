@@ -1,8 +1,12 @@
 "use client";
 import { useState } from "react";
+import AddProject from '@/com/AddProject';  // Import the AddProject component
 const Tracker = () => {
+
   const [projects, setProjects] = useState([]);
-    
+  const [AddProject, setAddProject] = useState(false);
+
+
   return (
     <div className="p-8">
       <h1 className="text-2xl font-semibold mb-6">Project Summary</h1>
@@ -29,7 +33,13 @@ const Tracker = () => {
         {/* Buttons for Export and Add Project */}
         <div className="flex items-center gap-2">
           <button className="px-4 py-2 bg-gray-200 rounded-lg">Export CSV</button>
-          <button className="px-4 py-2 bg-black text-white rounded-lg">+ New Project</button>
+           {/* This button directly toggles the modal */}
+          <button
+            onClick={() => setAddProject(true)}  // Toggle modal visibility on click
+            className="px-4 py-2 bg-black text-white rounded-lg"
+          >
+            + New Project
+          </button>
         </div>
       </div>
 

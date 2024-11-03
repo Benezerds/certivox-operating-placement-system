@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -15,23 +15,34 @@ const AddProject = ({ onClose }) => {
   const [link, setLink] = useState('');
   const [division, setDivision] = useState('');
 
+  const sowInputRef = useRef(null); // Ref for the SOW input field
+
+  // Handle SOW dropdown changes
   const handleSowChange = (e) => {
     const value = e.target.value;
     if (value === 'custom') {
-      setIsSowCustom(true); // Switch to input field when "KETIK LAH CULUN AMAT" is selected
-      setSow('');
+      setIsSowCustom(true); // Switch to input field for custom SOW
+      setSow(''); // Reset SOW value
     } else {
-      setIsSowCustom(false);
+      setIsSowCustom(false); // Switch back to dropdown
       setSow(value);
     }
   };
 
-  const handleBackgroundClick = () => {
-    // Close modal and reset SOW to dropdown on background click
-    setIsSowCustom(false);
-    onClose();
-  };
+  // Click outside the SOW input field to revert to dropdown
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (isSowCustom && sowInputRef.current && !sowInputRef.current.contains(e.target)) {
+        setIsSowCustom(false); // Revert to dropdown
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside); // Cleanup event listener
+    };
+  }, [isSowCustom]);
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     const projectData = {
@@ -55,7 +66,7 @@ const AddProject = ({ onClose }) => {
       });
 
       if (response.ok) {
-        // Reset form
+        // Reset form on successful submission
         setSource('');
         setProjectName('');
         setProjectStatus('');
@@ -66,7 +77,7 @@ const AddProject = ({ onClose }) => {
         setSow('');
         setLink('');
         setDivision('');
-        setIsSowCustom(false);
+        setIsSowCustom(false); // Reset custom SOW
         onClose();
       } else {
         console.error('Failed to add project');
@@ -77,14 +88,9 @@ const AddProject = ({ onClose }) => {
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      onClick={handleBackgroundClick} // Close modal on background click
-    >
-      <div
-        className="bg-white p-8 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto relative shadow-lg"
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
-      >
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto relative shadow-lg">
+        {/* X button to close the modal */}
         <button onClick={onClose} className="absolute top-4 right-4 text-red-500 hover:text-red-700">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -94,6 +100,7 @@ const AddProject = ({ onClose }) => {
         <h2 className="text-xl font-semibold mb-4">Add Project</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Source */}
           <div>
             <label className="block font-semibold">Source</label>
             <select
@@ -108,6 +115,7 @@ const AddProject = ({ onClose }) => {
             </select>
           </div>
 
+          {/* Project Name */}
           <div>
             <label className="block font-semibold">Project Name</label>
             <input
@@ -120,6 +128,7 @@ const AddProject = ({ onClose }) => {
             />
           </div>
 
+          {/* Project Status and Date */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block font-semibold">Project Status</label>
@@ -151,6 +160,7 @@ const AddProject = ({ onClose }) => {
             </div>
           </div>
 
+          {/* Quarter */}
           <div>
             <label className="block font-semibold">Quarter</label>
             <select
@@ -167,6 +177,7 @@ const AddProject = ({ onClose }) => {
             </select>
           </div>
 
+          {/* Brand Category */}
           <div>
             <label className="block font-semibold">Brand Category</label>
             <input
@@ -179,6 +190,7 @@ const AddProject = ({ onClose }) => {
             />
           </div>
 
+          {/* Platform */}
           <div>
             <label className="block font-semibold">Platform</label>
             <div className="flex flex-col space-y-2">
@@ -198,16 +210,17 @@ const AddProject = ({ onClose }) => {
             </div>
           </div>
 
+          {/* SOW */}
           <div>
             <label className="block font-semibold">SOW</label>
             {isSowCustom ? (
               <input
+                ref={sowInputRef} // Reference for the SOW input
                 type="text"
                 value={sow}
                 onChange={(e) => setSow(e.target.value)}
                 placeholder="Enter custom SOW"
                 className="border border-gray-300 p-2 rounded w-full"
-                onBlur={() => setIsSowCustom(false)} // Reset to dropdown on blur
                 required
               />
             ) : (
@@ -224,6 +237,7 @@ const AddProject = ({ onClose }) => {
             )}
           </div>
 
+          {/* Division */}
           <div>
             <label className="block font-semibold">Division</label>
             <select
@@ -238,6 +252,7 @@ const AddProject = ({ onClose }) => {
             </select>
           </div>
 
+          {/* Link */}
           <div>
             <label className="block font-semibold">Link</label>
             <input
@@ -249,6 +264,7 @@ const AddProject = ({ onClose }) => {
             />
           </div>
 
+          {/* Submit Button */}
           <button type="submit" className="w-full bg-black text-white py-2 rounded-lg mt-4">
             Add Project
           </button>

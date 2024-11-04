@@ -10,37 +10,56 @@ const AddProject = ({ onClose }) => {
   const [quarter, setQuarter] = useState('');
   const [brandCategory, setBrandCategory] = useState('');
   const [platform, setPlatform] = useState('');
-  const [sow, setSow] = useState(''); // State to store the SOW value
-  const [isSowCustom, setIsSowCustom] = useState(false); // State to toggle between dropdown and input
+  const [customPlatform, setCustomPlatform] = useState(''); // Custom platform text
+  const [sowType, setSowType] = useState(''); // SOW type dropdown value
+  const [isSowCustom, setIsSowCustom] = useState(false);
   const [link, setLink] = useState('');
   const [division, setDivision] = useState('');
+  const [sowList, setSowList] = useState([{ id: 1, sow: '', content: '' }]); // List of SOWs for bundling
 
   const sowInputRef = useRef(null); // Ref for the SOW input field
 
   // Handle SOW dropdown changes
   const handleSowChange = (e) => {
     const value = e.target.value;
-    if (value === 'custom') {
+    setSowType(value);
+
+    if (value === 'bundling') {
+      setIsSowCustom(false); // Not using custom field for bundling
+      setSowList([{ id: 1, sow: '', content: '' }]); // Reset SOW list for bundling
+    } else if (value === 'custom') {
       setIsSowCustom(true); // Switch to input field for custom SOW
-      setSow(''); // Reset SOW value
+      setSowList([{ id: 1, sow: '', content: '' }]); // Reset SOWs for custom
     } else {
-      setIsSowCustom(false); // Switch back to dropdown
-      setSow(value);
+      setIsSowCustom(false); // Switch back to dropdown for non-bundling, non-custom
+      setSowList([{ id: 1, sow: '', content: '' }]); // Reset list
     }
   };
 
-  // Click outside the SOW input field to revert to dropdown
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (isSowCustom && sowInputRef.current && !sowInputRef.current.contains(e.target)) {
-        setIsSowCustom(false); // Revert to dropdown
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside); // Cleanup event listener
-    };
-  }, [isSowCustom]);
+  // Add another SOW field
+  const addSowField = () => {
+    const newSowId = sowList.length + 1;
+    setSowList([...sowList, { id: newSowId, sow: '', content: '' }]);
+  };
+
+  // Remove an SOW field by ID
+  const removeSowField = (id) => {
+    const updatedSowList = sowList.filter((sow) => sow.id !== id);
+    // Reassign IDs to keep SOW numbering continuous
+    const reIndexedSowList = updatedSowList.map((sow, index) => ({
+      ...sow,
+      id: index + 1,
+    }));
+    setSowList(reIndexedSowList);
+  };
+
+  // Handle SOW input changes for bundling
+  const handleSowInputChange = (id, field, value) => {
+    const updatedSowList = sowList.map((sow) =>
+      sow.id === id ? { ...sow, [field]: value } : sow
+    );
+    setSowList(updatedSowList);
+  };
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -52,8 +71,8 @@ const AddProject = ({ onClose }) => {
       startDate,
       quarter,
       brandCategory,
-      platform,
-      sow,
+      platform: platform === "Apa kek" ? customPlatform : platform, // If "Apa kek" is selected, use customPlatform value
+      sow: sowType === 'bundling' ? sowList : sowType, // Include bundling SOWs or custom SOW
       link,
       division,
     };
@@ -74,10 +93,11 @@ const AddProject = ({ onClose }) => {
         setQuarter('');
         setBrandCategory('');
         setPlatform('');
-        setSow('');
+        setCustomPlatform(''); // Reset custom platform
+        setSowType('');
+        setSowList([{ id: 1, sow: '', content: '' }]); // Reset SOW list
         setLink('');
         setDivision('');
-        setIsSowCustom(false); // Reset custom SOW
         onClose();
       } else {
         console.error('Failed to add project');
@@ -96,7 +116,7 @@ const AddProject = ({ onClose }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-        
+
         <h2 className="text-xl font-semibold mb-4">Add Project</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -208,34 +228,94 @@ const AddProject = ({ onClose }) => {
                 </label>
               ))}
             </div>
+            {/* Custom Platform */}
+            {platform === "Apa kek" && (
+              <input
+                type="text"
+                value={customPlatform}
+                onChange={(e) => setCustomPlatform(e.target.value)}
+                placeholder="Enter custom platform"
+                className="border border-gray-300 p-2 rounded w-full mt-2"
+              />
+            )}
           </div>
 
           {/* SOW */}
           <div>
             <label className="block font-semibold">SOW</label>
-            {isSowCustom ? (
+            <select
+              value={sowType}
+              onChange={handleSowChange}
+              className="border border-gray-300 p-2 rounded w-full"
+              required
+            >
+              <option value="">Choose one</option>
+              <option value="bundling">Bundling</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          {/* Custom SOW Field */}
+          {isSowCustom && (
+            <div>
               <input
-                ref={sowInputRef} // Reference for the SOW input
+                ref={sowInputRef}
                 type="text"
-                value={sow}
-                onChange={(e) => setSow(e.target.value)}
+                value={sowList[0].sow}
+                onChange={(e) => handleSowInputChange(1, 'sow', e.target.value)}
                 placeholder="Enter custom SOW"
                 className="border border-gray-300 p-2 rounded w-full"
                 required
               />
-            ) : (
-              <select
-                value={sow}
-                onChange={handleSowChange}
-                className="border border-gray-300 p-2 rounded w-full"
-                required
+            </div>
+          )}
+
+          {/* Bundling SOW fields */}
+          {sowType === 'bundling' && (
+            <div>
+              {sowList.map((sowItem) => (
+                <div key={sowItem.id} className="mb-4">
+                  <div className="flex justify-between items-center">
+                    <label className="font-semibold">
+                      SOW {sowItem.id}
+                    </label>
+                    {sowList.length > 1 && (
+                      <button
+                        type="button"
+                        className="text-red-500 hover:text-red-700"
+                        onClick={() => removeSowField(sowItem.id)}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={sowItem.sow}
+                    onChange={(e) => handleSowInputChange(sowItem.id, 'sow', e.target.value)}
+                    placeholder="Enter SOW"
+                    className="border border-gray-300 p-2 rounded w-full mb-2"
+                    required
+                  />
+                  <input
+                    type="text"
+                    value={sowItem.content}
+                    onChange={(e) => handleSowInputChange(sowItem.id, 'content', e.target.value)}
+                    placeholder="Enter Content"
+                    className="border border-gray-300 p-2 rounded w-full"
+                    required
+                  />
+                </div>
+              ))}
+              <button
+                type="button"
+                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
+                onClick={addSowField}
               >
-                <option value="">Choose one</option>
-                <option value="bundling">Bundling</option>
-                <option value="custom">KETIK LAH CULUN AMAT</option>
-              </select>
-            )}
-          </div>
+                + Add Another SOW
+              </button>
+            </div>
+          )}
 
           {/* Division */}
           <div>

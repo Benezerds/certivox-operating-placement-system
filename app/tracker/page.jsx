@@ -1,5 +1,8 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "@/app/firebase"; // Make sure the Firebase setup is correct
 import AddProject from "components/AddProject"; // Import the AddProject component
 
 const Tracker = () => {
@@ -12,15 +15,33 @@ const Tracker = () => {
   const rowsPerPage = 4; // Set the number of rows per page to 4
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Fetch projects from Firestore and listen for changes
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "Projects"), (snapshot) => {
+      const fetchedProjects = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setProjects(fetchedProjects);
+    });
+
+    // Cleanup the listener when the component unmounts
+    return () => unsubscribe();
+  }, []);
+
   // Filter projects based on the search query and selected filters
   const filteredProjects = projects
     .filter((project) =>
-      project.brand.toLowerCase().includes(searchQuery.toLowerCase())
+      project.brand?.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .filter(
-      (project) => selectedDivision === "all" || project.division === selectedDivision
+      (project) =>
+        selectedDivision === "all" || project.division === selectedDivision
     )
-    .filter((project) => selectedYear === "all" || project.date.startsWith(selectedYear));
+    .filter(
+      (project) =>
+        selectedYear === "all" || project.date?.toDate().getFullYear() === parseInt(selectedYear)
+    );
 
   const totalPages = Math.ceil(filteredProjects.length / rowsPerPage);
   const displayedProjects = filteredProjects.slice(
@@ -36,10 +57,8 @@ const Tracker = () => {
 
   return (
     <div className="flex flex-col h-screen justify-between p-8">
-      {/* This div will act as a spacer for the top section */}
       <div className="flex-grow"></div>
 
-      {/* Project Summary Table Section */}
       <div className="flex flex-col">
         <h1 className="text-2xl font-semibold mb-6">Project Summary</h1>
 
@@ -54,7 +73,7 @@ const Tracker = () => {
             >
               <option value="all">ALL DIVISION</option>
               <option value="marketing">Marketing</option>
-              <option value="product">Community</option>
+              <option value="community">Community</option>
             </select>
 
             {/* Year Dropdown */}
@@ -128,11 +147,13 @@ const Tracker = () => {
                 displayedProjects.map((project, idx) => (
                   <tr key={idx} className="border-b">
                     <td className="p-2 text-sm">{project.source || "N/A"}</td>
-                    <td className="p-2 text-sm">{project.project || "N/A"}</td>
-                    <td className="p-2 text-sm">{project.status || "N/A"}</td>
-                    <td className="p-2 text-sm">{project.date || "N/A"}</td>
+                    <td className="p-2 text-sm">{project.projectName || "N/A"}</td>
+                    <td className="p-2 text-sm">{project.projectStatus || "N/A"}</td>
+                    <td className="p-2 text-sm">
+                      {project.date ? project.date.toDate().toLocaleDateString() : "N/A"}
+                    </td>
                     <td className="p-2 text-sm">{project.quarter || "N/A"}</td>
-                    <td className="p-2 text-sm">{project.category || "N/A"}</td>
+                    <td className="p-2 text-sm">{project.brandCategory || "N/A"}</td>
                     <td className="p-2 text-sm">{project.brand || "N/A"}</td>
                     <td className="p-2 text-sm">{project.platform || "N/A"}</td>
                     <td className="p-2 text-sm">{project.sow || "N/A"}</td>

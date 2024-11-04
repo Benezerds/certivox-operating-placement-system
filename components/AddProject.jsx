@@ -63,27 +63,26 @@ const AddProject = ({ onClose }) => {
     setSowList(updatedSowList);
   };
 
-  // **Submit the project to Firestore**
+  // Submit the project to Firestore
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Create the project data object
     const projectData = {
       source,
       projectName,
       projectStatus,
-      date: startDate, // Make sure the date is a valid JS Date
+      date: startDate ? startDate : new Date(), // Ensure there's a valid date or use the current date
       quarter,
       brandCategory,
-      platform: platform === "Apa kek" ? customPlatform : platform, // If "Apa kek" is selected, use custom platform value
+      platform: platform === "Apa kek" ? customPlatform : platform, // Custom platform handling
       sow: sowType === 'bundling' ? sowList : sowType, // Include bundling SOWs or custom SOW
       link,
       division,
     };
 
     try {
-      // **Save project to Firestore**
-      await addDoc(collection(db, 'Projects'), projectData); // Add project to the "Projects" collection in Firestore
+      await addDoc(collection(db, "Projects"), projectData); // Add project to Firestore
+      onClose(); // Close modal after submission
 
       // Reset form fields after successful submission
       setSource('');
@@ -98,13 +97,11 @@ const AddProject = ({ onClose }) => {
       setSowList([{ id: 1, sow: '', content: '' }]); // Reset SOW list
       setLink('');
       setDivision('');
-
-      // Close the form modal
-      onClose();
     } catch (error) {
       console.error('Error adding project:', error);
     }
-  };
+  }
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -353,4 +350,4 @@ const AddProject = ({ onClose }) => {
   );
 };
 
-export default AddProject;
+export default AddProject

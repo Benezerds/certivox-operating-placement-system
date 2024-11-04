@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { addDoc, collection } from "firebase/firestore";  // Import Firestore addDoc and collection
+import { db } from '@/app/firebase';  // Make sure the Firebase setup is correct
 
 const AddProject = ({ onClose }) => {
   const [source, setSource] = useState('');
@@ -61,49 +63,46 @@ const AddProject = ({ onClose }) => {
     setSowList(updatedSowList);
   };
 
-  // Handle form submission
+  // **Submit the project to Firestore**
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Create the project data object
     const projectData = {
       source,
       projectName,
       projectStatus,
-      startDate,
+      date: startDate, // Make sure the date is a valid JS Date
       quarter,
       brandCategory,
-      platform: platform === "Apa kek" ? customPlatform : platform, // If "Apa kek" is selected, use customPlatform value
+      platform: platform === "Apa kek" ? customPlatform : platform, // If "Apa kek" is selected, use custom platform value
       sow: sowType === 'bundling' ? sowList : sowType, // Include bundling SOWs or custom SOW
       link,
       division,
     };
 
     try {
-      const response = await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(projectData),
-      });
+      // **Save project to Firestore**
+      await addDoc(collection(db, 'Projects'), projectData); // Add project to the "Projects" collection in Firestore
 
-      if (response.ok) {
-        // Reset form on successful submission
-        setSource('');
-        setProjectName('');
-        setProjectStatus('');
-        setStartDate(null);
-        setQuarter('');
-        setBrandCategory('');
-        setPlatform('');
-        setCustomPlatform(''); // Reset custom platform
-        setSowType('');
-        setSowList([{ id: 1, sow: '', content: '' }]); // Reset SOW list
-        setLink('');
-        setDivision('');
-        onClose();
-      } else {
-        console.error('Failed to add project');
-      }
+      // Reset form fields after successful submission
+      setSource('');
+      setProjectName('');
+      setProjectStatus('');
+      setStartDate(null);
+      setQuarter('');
+      setBrandCategory('');
+      setPlatform('');
+      setCustomPlatform(''); // Reset custom platform
+      setSowType('');
+      setSowList([{ id: 1, sow: '', content: '' }]); // Reset SOW list
+      setLink('');
+      setDivision('');
+
+      // Close the form modal
+      onClose();
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error adding project:', error);
     }
   };
 

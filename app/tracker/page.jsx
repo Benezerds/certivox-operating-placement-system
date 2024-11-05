@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "@/app/firebase"; // Make sure the Firebase setup is correct
+import { db } from "@/app/firebase"; // Ensure Firebase is set up correctly
 import AddProject from "components/AddProject"; // Import the AddProject component
 
 const Tracker = () => {
@@ -10,7 +10,7 @@ const Tracker = () => {
   const [showAddProject, setShowAddProject] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDivision, setSelectedDivision] = useState("all");
-  const [selectedYear, setSelectedYear] = useState("2023");
+  const [selectedYear, setSelectedYear] = useState("2024");
 
   const rowsPerPage = 4; // Set the number of rows per page to 4
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,6 +22,10 @@ const Tracker = () => {
         id: doc.id,
         ...doc.data(),
       }));
+
+      // Log the fetched projects to inspect the data
+      console.log(fetchedProjects);
+
       setProjects(fetchedProjects);
     });
 
@@ -29,7 +33,25 @@ const Tracker = () => {
     return () => unsubscribe();
   }, []);
 
-  // Filter projects based on the search query and selected filters
+  // Function to safely handle different formats of the 'date' field
+  const getProjectDate = (project) => {
+    if (project.date?.toDate) {
+      // If it's a Firestore Timestamp, convert to JS Date
+      return project.date.toDate();
+    }
+    if (project.date instanceof Date) {
+      // If it's already a Date object
+      return project.date;
+    }
+    if (typeof project.date === "string") {
+      // If it's a string, try to parse it as a Date
+      return new Date(project.date);
+    }
+    // If no valid date, return null
+    return null;
+  };
+
+  // Filter projects based on the search query, division, and year
   const filteredProjects = projects
     .filter((project) =>
       project.brand?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -38,10 +60,14 @@ const Tracker = () => {
       (project) =>
         selectedDivision === "all" || project.division === selectedDivision
     )
-    .filter(
-      (project) =>
-        selectedYear === "all" || project.date?.toDate().getFullYear() === parseInt(selectedYear)
-    );
+    .filter((project) => {
+      const projectDate = getProjectDate(project);
+      return (
+        selectedYear === "all" ||
+        (projectDate instanceof Date &&
+          projectDate.getFullYear() === parseInt(selectedYear))
+      );
+    });
 
   const totalPages = Math.ceil(filteredProjects.length / rowsPerPage);
   const displayedProjects = filteredProjects.slice(
@@ -57,8 +83,10 @@ const Tracker = () => {
 
   return (
     <div className="flex flex-col h-screen justify-between p-8">
+      {/* This div will act as a spacer for the top section */}
       <div className="flex-grow"></div>
 
+      {/* Project Summary Table Section */}
       <div className="flex flex-col">
         <h1 className="text-2xl font-semibold mb-6">Project Summary</h1>
 
@@ -72,8 +100,8 @@ const Tracker = () => {
               className="border border-gray-300 p-2 rounded-lg"
             >
               <option value="all">ALL DIVISION</option>
-              <option value="marketing">Marketing</option>
-              <option value="community">Community</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Community">Community</option>
             </select>
 
             {/* Year Dropdown */}
@@ -98,7 +126,9 @@ const Tracker = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="border border-gray-300 p-2 rounded-lg w-64 mr-2"
             />
-            <button className="px-4 py-2 bg-gray-200 rounded-lg">Export CSV</button>
+            <button className="px-4 py-2 bg-gray-200 rounded-lg">
+              Export CSV
+            </button>
             <button
               onClick={() => setShowAddProject((prev) => !prev)}
               className="px-4 py-2 bg-black text-white rounded-lg"
@@ -130,7 +160,10 @@ const Tracker = () => {
                   "Division",
                   "Link",
                 ].map((header) => (
-                  <th key={header} className="p-2 border-b border-gray-300 text-sm font-medium">
+                  <th
+                    key={header}
+                    className="p-2 border-b border-gray-300 text-sm font-medium"
+                  >
                     {header}
                   </th>
                 ))}
@@ -150,7 +183,9 @@ const Tracker = () => {
                     <td className="p-2 text-sm">{project.projectName || "N/A"}</td>
                     <td className="p-2 text-sm">{project.projectStatus || "N/A"}</td>
                     <td className="p-2 text-sm">
-                      {project.date ? project.date.toDate().toLocaleDateString() : "N/A"}
+                      {getProjectDate(project)
+                        ? getProjectDate(project).toLocaleDateString()
+                        : "N/A"}
                     </td>
                     <td className="p-2 text-sm">{project.quarter || "N/A"}</td>
                     <td className="p-2 text-sm">{project.brandCategory || "N/A"}</td>
@@ -158,7 +193,9 @@ const Tracker = () => {
                     <td className="p-2 text-sm">{project.platform || "N/A"}</td>
                     <td className="p-2 text-sm">{project.sow || "N/A"}</td>
                     <td className="p-2 text-sm">{project.division || "N/A"}</td>
-                    <td className="p-2 text-sm">{project.link || "N/A"}</td>
+                    <td className="p-2 text-sm">
+                      {project.link ? <a href={project.link} target="_blank">Link</a> : "N/A"}
+                    </td>
                   </tr>
                 ))
               )}

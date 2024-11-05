@@ -82,22 +82,22 @@ const Tracker = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen justify-between p-8">
+    <div className="flex flex-col justify-between h-screen p-8">
       {/* This div will act as a spacer for the top section */}
       <div className="flex-grow"></div>
 
       {/* Project Summary Table Section */}
       <div className="flex flex-col">
-        <h1 className="text-2xl font-semibold mb-6">Project Summary</h1>
+        <h1 className="mb-6 text-2xl font-semibold">Project Summary</h1>
 
         {/* Filter Options */}
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             {/* Division Dropdown */}
             <select
               value={selectedDivision}
               onChange={(e) => setSelectedDivision(e.target.value)}
-              className="border border-gray-300 p-2 rounded-lg"
+              className="p-2 border border-gray-300 rounded-lg"
             >
               <option value="all">ALL DIVISION</option>
               <option value="Marketing">Marketing</option>
@@ -108,7 +108,7 @@ const Tracker = () => {
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
-              className="border border-gray-300 p-2 rounded-lg"
+              className="p-2 border border-gray-300 rounded-lg"
             >
               <option value="2024">2024</option>
               <option value="2023">2023</option>
@@ -124,14 +124,14 @@ const Tracker = () => {
               placeholder="Search by brand"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="border border-gray-300 p-2 rounded-lg w-64 mr-2"
+              className="w-64 p-2 mr-2 border border-gray-300 rounded-lg"
             />
             <button className="px-4 py-2 bg-gray-200 rounded-lg">
               Export CSV
             </button>
             <button
               onClick={() => setShowAddProject((prev) => !prev)}
-              className="px-4 py-2 bg-black text-white rounded-lg"
+              className="px-4 py-2 text-white bg-black rounded-lg"
             >
               + New Project
             </button>
@@ -162,7 +162,7 @@ const Tracker = () => {
                 ].map((header) => (
                   <th
                     key={header}
-                    className="p-2 border-b border-gray-300 text-sm font-medium"
+                    className="p-2 text-sm font-medium border-b border-gray-300"
                   >
                     {header}
                   </th>
@@ -170,31 +170,43 @@ const Tracker = () => {
               </tr>
             </thead>
             <tbody>
-              {displayedProjects.length === 0 ? (
+              {projects.length === 0 ? (
                 <tr>
                   <td colSpan={11} className="p-4 text-center text-gray-500">
                     No projects available
                   </td>
                 </tr>
               ) : (
-                displayedProjects.map((project, idx) => (
+                projects.map((project, idx) => (
                   <tr key={idx} className="border-b">
                     <td className="p-2 text-sm">{project.source || "N/A"}</td>
-                    <td className="p-2 text-sm">{project.projectName || "N/A"}</td>
-                    <td className="p-2 text-sm">{project.projectStatus || "N/A"}</td>
+                    <td className="p-2 text-sm">
+                      {project.projectName || "N/A"}
+                    </td>
+                    <td className="p-2 text-sm">
+                      {project.projectStatus || "N/A"}
+                    </td>
                     <td className="p-2 text-sm">
                       {getProjectDate(project)
                         ? getProjectDate(project).toLocaleDateString()
                         : "N/A"}
                     </td>
                     <td className="p-2 text-sm">{project.quarter || "N/A"}</td>
-                    <td className="p-2 text-sm">{project.brandCategory || "N/A"}</td>
+                    <td className="p-2 text-sm">
+                      {project.brandCategory || "N/A"}
+                    </td>
                     <td className="p-2 text-sm">{project.brand || "N/A"}</td>
                     <td className="p-2 text-sm">{project.platform || "N/A"}</td>
                     <td className="p-2 text-sm">{project.sow || "N/A"}</td>
                     <td className="p-2 text-sm">{project.division || "N/A"}</td>
                     <td className="p-2 text-sm">
-                      {project.link ? <a href={project.link} target="_blank">Link</a> : "N/A"}
+                      {project.link ? (
+                        <a href={project.link} target="_blank">
+                          Link
+                        </a>
+                      ) : (
+                        "N/A"
+                      )}
                     </td>
                   </tr>
                 ))
@@ -204,7 +216,7 @@ const Tracker = () => {
         </div>
 
         {/* Pagination and Total Projects */}
-        <div className="flex justify-between items-center mt-4">
+        <div className="flex items-center justify-between mt-4">
           <div className="flex gap-2">
             <button
               onClick={() => goToPage(currentPage - 1)}
@@ -233,7 +245,7 @@ const Tracker = () => {
             </button>
           </div>
 
-          <p>Total Projects: {filteredProjects.length}</p>
+          <p>Total Projects: {projects.length}</p>
         </div>
       </div>
     </div>

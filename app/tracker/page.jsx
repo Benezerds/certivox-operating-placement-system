@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/app/firebase"; // Ensure Firebase is set up correctly
 import AddProject from "components/project/AddProject"; // Import the AddProject component
+import ProjectTable from "@/components/project/ProjectTable";
 
 const Tracker = () => {
   const [projects, setProjects] = useState([]);
@@ -11,9 +12,6 @@ const Tracker = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDivision, setSelectedDivision] = useState("all");
   const [selectedYear, setSelectedYear] = useState("2024");
-
-  const rowsPerPage = 4; // Set the number of rows per page to 4
-  const [currentPage, setCurrentPage] = useState(1);
 
   // Fetch projects from Firestore and listen for changes
   useEffect(() => {
@@ -40,50 +38,17 @@ const Tracker = () => {
       return project.date.toDate();
     }
     if (project.date instanceof Date) {
-      // If it's already a Date object
       return project.date;
     }
     if (typeof project.date === "string") {
-      // If it's a string, try to parse it as a Date
       return new Date(project.date);
     }
-    // If no valid date, return null
     return null;
   };
 
-  // Filter projects based on the search query, division, and year
-  const filteredProjects = projects
-    .filter((project) =>
-      project.brand?.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .filter(
-      (project) =>
-        selectedDivision === "all" || project.division === selectedDivision
-    )
-    .filter((project) => {
-      const projectDate = getProjectDate(project);
-      return (
-        selectedYear === "all" ||
-        (projectDate instanceof Date &&
-          projectDate.getFullYear() === parseInt(selectedYear))
-      );
-    });
-
-  const totalPages = Math.ceil(filteredProjects.length / rowsPerPage);
-  const displayedProjects = filteredProjects.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
-
-  const goToPage = (page) => {
-    if (page > 0 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
-
   return (
+    // Data Grid
     <div className="flex flex-col justify-between h-screen p-8">
-      {/* This div will act as a spacer for the top section */}
       <div className="flex-grow"></div>
 
       {/* Project Summary Table Section */}
@@ -142,111 +107,9 @@ const Tracker = () => {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto max-h-[260px]">
-          <table className="w-full text-left border border-gray-300">
-            <thead>
-              <tr>
-                {[
-                  "Source",
-                  "Project",
-                  "Status",
-                  "Date",
-                  "Quarter",
-                  "Category",
-                  "Brand",
-                  "Platform",
-                  "SOW",
-                  "Division",
-                  "Link",
-                ].map((header) => (
-                  <th
-                    key={header}
-                    className="p-2 text-sm font-medium border-b border-gray-300"
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {projects.length === 0 ? (
-                <tr>
-                  <td colSpan={11} className="p-4 text-center text-gray-500">
-                    No projects available
-                  </td>
-                </tr>
-              ) : (
-                projects.map((project, idx) => (
-                  <tr key={idx} className="border-b">
-                    <td className="p-2 text-sm">{project.source || "N/A"}</td>
-                    <td className="p-2 text-sm">
-                      {project.projectName || "N/A"}
-                    </td>
-                    <td className="p-2 text-sm">
-                      {project.projectStatus || "N/A"}
-                    </td>
-                    <td className="p-2 text-sm">
-                      {getProjectDate(project)
-                        ? getProjectDate(project).toLocaleDateString()
-                        : "N/A"}
-                    </td>
-                    <td className="p-2 text-sm">{project.quarter || "N/A"}</td>
-                    <td className="p-2 text-sm">
-                      {project.brandCategory || "N/A"}
-                    </td>
-                    <td className="p-2 text-sm">{project.brand || "N/A"}</td>
-                    <td className="p-2 text-sm">{project.platform || "N/A"}</td>
-                    <td className="p-2 text-sm">{project.sow || "N/A"}</td>
-                    <td className="p-2 text-sm">{project.division || "N/A"}</td>
-                    <td className="p-2 text-sm">
-                      {project.link ? (
-                        <a href={project.link} target="_blank">
-                          Link
-                        </a>
-                      ) : (
-                        "N/A"
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <ProjectTable projects={projects} getProjectDate={getProjectDate} />
 
-        {/* Pagination and Total Projects */}
-        <div className="flex items-center justify-between mt-4">
-          <div className="flex gap-2">
-            <button
-              onClick={() => goToPage(currentPage - 1)}
-              className="px-3 py-1 border border-gray-300 rounded"
-              disabled={currentPage === 1}
-            >
-              {"<"}
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => goToPage(page)}
-                className={`px-3 py-1 border border-gray-300 rounded ${
-                  page === currentPage ? "bg-gray-300" : ""
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-            <button
-              onClick={() => goToPage(currentPage + 1)}
-              className="px-3 py-1 border border-gray-300 rounded"
-              disabled={currentPage === totalPages}
-            >
-              {">"}
-            </button>
-          </div>
-
-          <p>Total Projects: {projects.length}</p>
-        </div>
+        <p>Total Projects: {projects.length}</p>
       </div>
     </div>
   );

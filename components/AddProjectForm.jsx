@@ -149,7 +149,7 @@ const AddProjectForm = ({ onClose }) => {
         </div>
       </div>
 
-      {/* Quarter */}
+      {/* Quarters */}
       <div>
         <label className="block font-semibold">Quarter</label>
         <select

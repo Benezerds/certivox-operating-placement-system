@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/app/firebase"; // Ensure Firebase is set up correctly
-import AddProject from "components/AddProject"; // Import the AddProject component
+import AddProject from "components/project/AddProject"; // Import the AddProject component
 
 const Tracker = () => {
   const [projects, setProjects] = useState([]);

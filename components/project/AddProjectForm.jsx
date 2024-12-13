@@ -11,7 +11,8 @@ const AddProjectForm = ({ onClose }) => {
   const [projectStatus, setProjectStatus] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [quarter, setQuarter] = useState('');
-  const [brandCategory, setBrandCategory] = useState('');
+  const [Category, setCategory] = useState('');
+  const [brand, setBrand] = useState('');
   const [platform, setPlatform] = useState('');
   const [customPlatform, setCustomPlatform] = useState('');
   const [sowType, setSowType] = useState('');
@@ -26,7 +27,9 @@ const AddProjectForm = ({ onClose }) => {
     const value = e.target.value;
     setSowType(value);
     setIsSowCustom(value === 'custom');
-    setSowList([{ id: 1, sow: '', content: '' }]);
+    if (value !== 'custom') {
+      setSowList([{ id: 1, sow: '', content: '' }]);
+    }
   };
 
   const addSowField = () => {
@@ -52,16 +55,22 @@ const AddProjectForm = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const projectData = {
       source,
       projectName,
       projectStatus,
       date: startDate || new Date(),
       quarter,
-      brandCategory,
+      Category,
+      brand,
       platform: platform === "Apa kek" ? customPlatform : platform,
-      sow: sowType === 'bundling' ? sowList : sowType,
+      sow:
+        sowType === 'bundling'
+          ? sowList
+          : sowType === 'custom'
+          ? sowList[0].sow // Retrieve the first custom SOW value
+          : sowType,
       link,
       division,
     };
@@ -69,13 +78,14 @@ const AddProjectForm = ({ onClose }) => {
     try {
       await addDoc(collection(db, "Projects"), projectData);
       onClose();
-
+  
       setSource('');
       setProjectName('');
       setProjectStatus('');
       setStartDate(null);
       setQuarter('');
-      setBrandCategory('');
+      setCategory('');
+      setBrand('');
       setPlatform('');
       setCustomPlatform('');
       setSowType('');
@@ -166,14 +176,27 @@ const AddProjectForm = ({ onClose }) => {
         </select>
       </div>
 
-      {/* Brand Category */}
+      {/* Category */}
       <div>
-        <label className="block font-semibold">Brand Category</label>
+        <label className="block font-semibold">Category</label>
         <input
           type="text"
-          value={brandCategory}
-          onChange={(e) => setBrandCategory(e.target.value)}
-          placeholder="Enter brand category"
+          value={Category}
+          onChange={(e) => setCategory(e.target.value)}
+          placeholder="Enter category"
+          className="border border-gray-300 p-2 rounded w-full"
+          required
+        />
+      </div>
+
+      {/* Brand*/}
+      <div>
+        <label className="block font-semibold">Brand</label>
+        <input
+          type="text"
+          value={brand}
+          onChange={(e) => setBrand(e.target.value)}
+          placeholder="Enter brand"
           className="border border-gray-300 p-2 rounded w-full"
           required
         />

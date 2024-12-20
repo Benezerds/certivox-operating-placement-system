@@ -1,14 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc, updateDoc} from "firebase/firestore";
 import { db } from "@/app/firebase"; // Ensure Firebase is set up correctly
 import AddProject from "components/project/AddProject"; // Import the AddProject component
 import ProjectTable from "@/components/project/ProjectTable";
+import EditProject from "@/components/project/EditProject";
 
 const Tracker = () => {
   const [projects, setProjects] = useState([]);
   const [showAddProject, setShowAddProject] = useState(false);
+  const [editProject, setEditProject] = useState(null); 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDivision, setSelectedDivision] = useState("all");
   const [selectedYear, setSelectedYear] = useState("2024");
@@ -45,6 +47,19 @@ const Tracker = () => {
     }
     return null;
   };
+  const handleDelete = async (id) => {
+    try {
+      await deleteDoc(doc(db, "Projects", id));
+      setProjects((prevProjects) =>
+        prevProjects.filter((project) => project.id !== id)
+      );
+      console.log(`Project with ID ${id} deleted successfully.`);
+    } catch (error) {
+      console.error("Error deleting project:", error);
+    }
+  };
+
+  
 
   return (
     // Data Grid
@@ -107,8 +122,11 @@ const Tracker = () => {
           </div>
         </div>
 
-        <ProjectTable projects={projects} getProjectDate={getProjectDate} />
-
+        <ProjectTable projects={projects} getProjectDate={getProjectDate}
+          onDelete={handleDelete}
+          
+        />
+          
         <p>Total Projects: {projects.length}</p>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import React from "react";
 
-const ProjectTable = ({ projects, getProjectDate }) => {
+const ProjectTable = ({ projects, getProjectDate, onDelete, onEdit }) => {
     console.log(projects);
   return (
     <div className="overflow-x-auto max-h-[260px]">
@@ -19,6 +19,7 @@ const ProjectTable = ({ projects, getProjectDate }) => {
               "SOW",
               "Division",
               "Link",
+              "Action",
             ].map((header) => (
               <th
                 key={header}
@@ -61,6 +62,20 @@ const ProjectTable = ({ projects, getProjectDate }) => {
                   ) : (
                     "N/A"
                   )}
+                </td>
+                <td className="p-2 text-sm">
+                  <button
+                    className="mr-2 text-blue-500 hover:underline"
+                    onClick={() => onEdit(project)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="text-red-500 hover:underline"
+                    onClick={() => onDelete(project.id)}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))

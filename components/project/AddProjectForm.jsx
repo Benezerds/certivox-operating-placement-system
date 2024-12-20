@@ -1,4 +1,3 @@
-// AddProjectForm.jsx
 import React, { useState, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -55,7 +54,7 @@ const AddProjectForm = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const projectData = {
       source,
       projectName,
@@ -67,9 +66,9 @@ const AddProjectForm = ({ onClose }) => {
       platform: platform === "Apa kek" ? customPlatform : platform,
       sow:
         sowType === 'bundling'
-          ? sowList
+          ? sowList // Save the full array of SOW objects
           : sowType === 'custom'
-          ? sowList[0].sow // Retrieve the first custom SOW value
+          ? sowList[0] // Save only the first object for custom
           : sowType,
       link,
       division,
@@ -78,7 +77,7 @@ const AddProjectForm = ({ onClose }) => {
     try {
       await addDoc(collection(db, "Projects"), projectData);
       onClose();
-  
+
       setSource('');
       setProjectName('');
       setProjectStatus('');
@@ -220,7 +219,6 @@ const AddProjectForm = ({ onClose }) => {
             </label>
           ))}
         </div>
-        {/* Custom Platform */}
         {platform === "Apa kek" && (
           <input
             type="text"
@@ -247,7 +245,6 @@ const AddProjectForm = ({ onClose }) => {
         </select>
       </div>
 
-      {/* Custom SOW Field */}
       {isSowCustom && (
         <div>
           <input
@@ -255,22 +252,19 @@ const AddProjectForm = ({ onClose }) => {
             type="text"
             value={sowList[0].sow}
             onChange={(e) => handleSowInputChange(1, 'sow', e.target.value)}
-            placeholder="Enter custom SOW"
+            placeholder="Enter custom SOW and Content (e.g., 'Design: Create visuals')"
             className="border border-gray-300 p-2 rounded w-full"
             required
           />
         </div>
       )}
 
-      {/* Bundling SOW fields */}
       {sowType === 'bundling' && (
         <div>
           {sowList.map((sowItem) => (
             <div key={sowItem.id} className="mb-4">
               <div className="flex justify-between items-center">
-                <label className="font-semibold">
-                  SOW {sowItem.id}
-                </label>
+                <label className="font-semibold">SOW {sowItem.id}</label>
                 {sowList.length > 1 && (
                   <button
                     type="button"
@@ -342,6 +336,6 @@ const AddProjectForm = ({ onClose }) => {
       </button>
     </form>
   );
-}
+};
 
 export default AddProjectForm;

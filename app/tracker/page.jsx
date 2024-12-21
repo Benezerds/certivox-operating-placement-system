@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, onSnapshot, doc, deleteDoc } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  doc,
+  deleteDoc,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "@/app/firebase"; // Ensure Firebase is set up correctly
 import AddProject from "components/project/AddProject"; // Import the AddProject component
 import ProjectTable from "@/components/project/ProjectTable";
@@ -14,14 +21,22 @@ const Tracker = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDivision, setSelectedDivision] = useState("all");
   const [selectedYear, setSelectedYear] = useState("2024");
+  const [currentPage, setCurrentPage] = useState(1); // Track the current page
+  const itemsPerPage = 4; // Number of items per page
 
   // Fetch projects from Firestore and listen for changes
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "Projects"), (snapshot) => {
-      const fetchedProjects = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const fetchedProjects = snapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        .sort((a, b) => {
+          const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+          const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+          return dateB - dateA; // Sort by descending order of createdAt
+        });
 
       setProjects(fetchedProjects);
     });
@@ -30,18 +45,12 @@ const Tracker = () => {
     return () => unsubscribe();
   }, []);
 
-  // Function to safely handle different formats of the 'date' field
+  // Function to safely handle different formats of the 'createdAt' field
   const getProjectDate = (project) => {
-    if (project.date?.toDate) {
-      return project.date.toDate(); // Firestore Timestamp
+    if (project.createdAt?.toDate) {
+      return project.createdAt.toDate(); // Firestore Timestamp
     }
-    if (project.date instanceof Date) {
-      return project.date; // Already a JavaScript Date object
-    }
-    if (typeof project.date === "string") {
-      return new Date(project.date); // Parse string to Date
-    }
-    return null; // Handle invalid formats gracefully
+    return new Date(); // Default to the current date
   };
 
   const handleDelete = async (id) => {
@@ -56,8 +65,41 @@ const Tracker = () => {
     }
   };
 
+  const handleAddProject = async (projectData) => {
+    try {
+      await addDoc(collection(db, "Projects"), {
+        ...projectData,
+        createdAt: serverTimestamp(), // Add server timestamp
+      });
+      console.log("Project added successfully.");
+    } catch (error) {
+      console.error("Error adding project:", error);
+    }
+  };
+
   const handleEdit = (project) => {
     setEditProject(project); // Open the EditProject modal with the selected project
+  };
+
+  // Logic for paginated projects
+  const paginatedProjects = projects.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const totalPages = Math.ceil(projects.length / itemsPerPage);
+
+  // Handle page navigation
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   return (
@@ -113,7 +155,7 @@ const Tracker = () => {
             </button>
 
             {showAddProject && (
-              <AddProject onClose={() => setShowAddProject(false)} />
+              <AddProject onAdd={handleAddProject} onClose={() => setShowAddProject(false)} />
             )}
           </div>
         </div>
@@ -128,14 +170,42 @@ const Tracker = () => {
 
         {/* Project Table */}
         <ProjectTable
-          projects={projects}
+          projects={paginatedProjects}
           getProjectDate={getProjectDate}
           onDelete={handleDelete}
           onEdit={handleEdit}
         />
 
+        {/* Pagination */}
+        <div className="flex items-center justify-center mt-4 gap-4">
+          <button
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+            className={`px-4 py-2 rounded-lg border ${
+              currentPage === 1
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-white text-black hover:bg-gray-100"
+            }`}
+          >
+            &lt; Back
+          </button>
+          <span className="px-4 py-2 text-lg font-semibold">{currentPage}</span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className={`px-4 py-2 rounded-lg border ${
+              currentPage === totalPages
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-white text-black hover:bg-gray-100"
+            }`}
+          >
+            Next &gt;
+          </button>
+        </div>
+
         <p>Total Projects: {projects.length}</p>
       </div>
+      
     </div>
   );
 };

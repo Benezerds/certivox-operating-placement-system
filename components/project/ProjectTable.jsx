@@ -67,7 +67,7 @@ const ProjectTable = ({ projects, getProjectDate, onDelete, onEdit }) => {
                     : "N/A"}
                 </td>
                 <td className="p-2 text-sm">{project.quarter || "N/A"}</td>
-                <td className="p-2 text-sm">{project.brandCategory || "N/A"}</td>
+                <td className="p-2 text-sm">{project.category || "N/A"}</td>
                 <td className="p-2 text-sm">{project.brand || "N/A"}</td>
                 <td className="p-2 text-sm">{project.platform || "N/A"}</td>
                 {/* Updated SOW rendering */}

@@ -1,58 +1,112 @@
 import React, { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/app/firebase";
 
 const EditProject = ({ project, onClose }) => {
-  const [formData, setFormData] = useState({
-    source: "",
-    projectName: "",
-    projectStatus: "",
-    date: "",
-    quarter: "",
-    category: "",
-    brand: "",
-    platform: "",
-    sow: "",
-    division: "",
-    link: "",
-  });
+  const [source, setSource] = useState("");
+  const [projectName, setProjectName] = useState("");
+  const [projectStatus, setProjectStatus] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [quarter, setQuarter] = useState("");
+  const [category, setCategory] = useState("");
+  const [brand, setBrand] = useState("");
+  const [platform, setPlatform] = useState("");
+  const [customPlatform, setCustomPlatform] = useState("");
+  const [sowType, setSowType] = useState("");
+  const [isSowCustom, setIsSowCustom] = useState(false);
+  const [link, setLink] = useState("");
+  const [division, setDivision] = useState("");
+  const [customSow, setCustomSow] = useState("");
+  const [bundlingSowList, setBundlingSowList] = useState([{ id: 1, sow: "", content: "" }]);
 
   useEffect(() => {
     if (project) {
-      setFormData({
-        source: project.source || "",
-        projectName: project.projectName || "",
-        projectStatus: project.projectStatus || "",
-        date: project.date || "",
-        quarter: project.quarter || "",
-        category: project.category || "",
-        brand: project.brand || "",
-        platform: project.platform || "",
-        sow: project.sow || "",
-        division: project.division || "",
-        link: project.link || "",
-      });
+      const validDate = project.date?.toDate ? project.date.toDate() : project.date;
+      setSource(project.source || "");
+      setProjectName(project.projectName || "");
+      setProjectStatus(project.projectStatus || "");
+      setStartDate(validDate ? new Date(validDate) : null);
+      setQuarter(project.quarter || "");
+      setCategory(project.category || "");
+      setBrand(project.brand || "");
+      setPlatform(project.platform || "");
+      setCustomPlatform(project.platform === "Apa kek" ? project.customPlatform || "" : "");
+
+      if (typeof project.sow === "string") {
+        setSowType("custom");
+        setIsSowCustom(true);
+        setCustomSow(project.sow);
+      } else if (Array.isArray(project.sow)) {
+        setSowType("bundling");
+        setIsSowCustom(false);
+        setBundlingSowList(project.sow);
+      } else {
+        setSowType("");
+        setIsSowCustom(false);
+        setBundlingSowList([{ id: 1, sow: "", content: "" }]);
+      }
+
+      setLink(project.link || "");
+      setDivision(project.division || "");
     }
   }, [project]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleSowChange = (e) => {
+    const value = e.target.value;
+    setSowType(value);
+    setIsSowCustom(value === "custom");
+    if (value !== "custom") {
+      setCustomSow("");
+    } else {
+      setBundlingSowList([{ id: 1, sow: "", content: "" }]);
+    }
   };
 
-  const handleSave = async () => {
-    if (!project.id) {
-      console.error("Project ID is missing. Cannot save changes.");
-      return;
-    }
+  const handleBundlingSowInputChange = (id, field, value) => {
+    const updatedSowList = bundlingSowList.map((sow) =>
+      sow.id === id ? { ...sow, [field]: value } : sow
+    );
+    setBundlingSowList(updatedSowList);
+  };
+
+  const addBundlingSowField = () => {
+    const newSowId = bundlingSowList.length + 1;
+    setBundlingSowList([...bundlingSowList, { id: newSowId, sow: "", content: "" }]);
+  };
+
+  const removeBundlingSowField = (id) => {
+    const updatedSowList = bundlingSowList.filter((sow) => sow.id !== id);
+    const reIndexedSowList = updatedSowList.map((sow, index) => ({
+      ...sow,
+      id: index + 1,
+    }));
+    setBundlingSowList(reIndexedSowList);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const projectData = {
+      source,
+      projectName,
+      projectStatus,
+      date: startDate || new Date(),
+      quarter,
+      category,
+      brand,
+      platform: platform === "Apa kek" ? customPlatform : platform,
+      sow: sowType === "bundling" ? bundlingSowList : sowType === "custom" ? customSow : sowType,
+      link,
+      division,
+    };
 
     try {
-      const projectRef = doc(db, "Projects", project.id); // Reference to the specific project
-      await updateDoc(projectRef, {
-        ...formData,
-        date: formData.date || new Date(), // Ensure the date is saved correctly
-      });
-
-      console.log("Project updated successfully:", formData);
-      onClose(); // Close the modal after saving
+      const projectRef = doc(db, "Projects", project.id);
+      await updateDoc(projectRef, projectData);
+      onClose();
+      console.log("Project updated successfully:", projectData);
     } catch (error) {
       console.error("Error updating project:", error);
     }
@@ -84,21 +138,13 @@ const EditProject = ({ project, onClose }) => {
 
         <h2 className="text-xl font-semibold mb-4">Edit Project</h2>
 
-        {/* Form */}
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSave();
-          }}
-        >
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Source */}
           <div>
             <label className="block font-semibold">Source</label>
             <select
-              name="source"
-              value={formData.source}
-              onChange={handleChange}
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
               className="border border-gray-300 p-2 rounded w-full"
               required
             >
@@ -113,9 +159,8 @@ const EditProject = ({ project, onClose }) => {
             <label className="block font-semibold">Project Name</label>
             <input
               type="text"
-              name="projectName"
-              value={formData.projectName}
-              onChange={handleChange}
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
               placeholder="Enter project name"
               className="border border-gray-300 p-2 rounded w-full"
               required
@@ -127,26 +172,27 @@ const EditProject = ({ project, onClose }) => {
             <div>
               <label className="block font-semibold">Project Status</label>
               <select
-                name="projectStatus"
-                value={formData.projectStatus}
-                onChange={handleChange}
+                value={projectStatus}
+                onChange={(e) => setProjectStatus(e.target.value)}
                 className="border border-gray-300 p-2 rounded w-full"
                 required
               >
                 <option value="">Choose one</option>
-                <option value="Planning">Planning</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Completed">Completed</option>
+                <option value="Development">Development</option>
+                <option value="Content Proposal">Content Proposal</option>
+                <option value="Ongoing">Ongoing</option>
+                <option value="Editing">Editing</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Published">Published</option>
               </select>
             </div>
 
             <div>
               <label className="block font-semibold">Date</label>
-              <input
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                placeholderText="Enter date"
                 className="border border-gray-300 p-2 rounded w-full"
                 required
               />
@@ -157,9 +203,8 @@ const EditProject = ({ project, onClose }) => {
           <div>
             <label className="block font-semibold">Quarter</label>
             <select
-              name="quarter"
-              value={formData.quarter}
-              onChange={handleChange}
+              value={quarter}
+              onChange={(e) => setQuarter(e.target.value)}
               className="border border-gray-300 p-2 rounded w-full"
               required
             >
@@ -176,9 +221,8 @@ const EditProject = ({ project, onClose }) => {
             <label className="block font-semibold">Category</label>
             <input
               type="text"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
               placeholder="Enter category"
               className="border border-gray-300 p-2 rounded w-full"
               required
@@ -190,9 +234,8 @@ const EditProject = ({ project, onClose }) => {
             <label className="block font-semibold">Brand</label>
             <input
               type="text"
-              name="brand"
-              value={formData.brand}
-              onChange={handleChange}
+              value={brand}
+              onChange={(e) => setBrand(e.target.value)}
               placeholder="Enter brand"
               className="border border-gray-300 p-2 rounded w-full"
               required
@@ -202,46 +245,114 @@ const EditProject = ({ project, onClose }) => {
           {/* Platform */}
           <div>
             <label className="block font-semibold">Platform</label>
-            <select
-              name="platform"
-              value={formData.platform}
-              onChange={handleChange}
-              className="border border-gray-300 p-2 rounded w-full"
-              required
-            >
-              <option value="">Choose one</option>
-              <option value="Instagram">Instagram</option>
-              <option value="TikTok">TikTok</option>
-              <option value="YouTube">YouTube</option>
-              <option value="Website">Website</option>
-            </select>
+            <div className="flex flex-col space-y-2">
+              {["Instagram", "Tik Tok", "Youtube", "Website", "Apa kek"].map((plat) => (
+                <label key={plat} className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="platform"
+                    value={plat}
+                    checked={platform === plat}
+                    onChange={() => setPlatform(plat)}
+                    className="form-radio"
+                  />
+                  <span>{plat}</span>
+                </label>
+              ))}
+            </div>
+            {platform === "Apa kek" && (
+              <input
+                type="text"
+                value={customPlatform}
+                onChange={(e) => setCustomPlatform(e.target.value)}
+                placeholder="Enter custom platform"
+                className="border border-gray-300 p-2 rounded w-full mt-2"
+              />
+            )}
           </div>
 
           {/* SOW */}
           <div>
-            <label className="block font-semibold">SOW (Statement of Work)</label>
-            <textarea
-              name="sow"
-              value={formData.sow}
-              onChange={handleChange}
-              rows="3"
+            <label className="block font-semibold">SOW</label>
+            <select
+              value={sowType}
+              onChange={handleSowChange}
               className="border border-gray-300 p-2 rounded w-full"
-              placeholder="Enter SOW details"
-            ></textarea>
+              required
+            >
+              <option value="">Choose one</option>
+              <option value="bundling">Bundling</option>
+              <option value="custom">Custom</option>
+            </select>
           </div>
+
+          {isSowCustom && (
+            <div>
+              <input
+                type="text"
+                value={customSow}
+                onChange={(e) => setCustomSow(e.target.value)}
+                placeholder="Enter custom SOW"
+                className="border border-gray-300 p-2 rounded w-full"
+              />
+            </div>
+          )}
+
+          {!isSowCustom && sowType === "bundling" && (
+            <div>
+              {bundlingSowList.map((sowItem, idx) => (
+                <div key={idx} className="mb-4">
+                  <div className="flex justify-between items-center">
+                    <label className="font-semibold">SOW {sowItem.id}</label>
+                    {bundlingSowList.length > 1 && (
+                      <button
+                        type="button"
+                        className="text-red-500 hover:text-red-700"
+                        onClick={() => removeBundlingSowField(sowItem.id)}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={sowItem.sow}
+                    onChange={(e) => handleBundlingSowInputChange(sowItem.id, "sow", e.target.value)}
+                    placeholder="Enter SOW"
+                    className="border border-gray-300 p-2 rounded w-full mb-2"
+                  />
+                  <input
+                    type="text"
+                    value={sowItem.content}
+                    onChange={(e) => handleBundlingSowInputChange(sowItem.id, "content", e.target.value)}
+                    placeholder="Enter Content"
+                    className="border border-gray-300 p-2 rounded w-full"
+                  />
+                </div>
+              ))}
+              <button
+                type="button"
+                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+                onClick={addBundlingSowField}
+              >
+                + Add Another SOW
+              </button>
+            </div>
+          )}
 
           {/* Division */}
           <div>
             <label className="block font-semibold">Division</label>
-            <input
-              type="text"
-              name="division"
-              value={formData.division}
-              onChange={handleChange}
-              placeholder="Enter division"
+            <select
+              value={division}
+              onChange={(e) => setDivision(e.target.value)}
               className="border border-gray-300 p-2 rounded w-full"
               required
-            />
+            >
+              <option value="">Choose one</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Community">Community</option>
+            </select>
           </div>
 
           {/* Link */}
@@ -249,28 +360,19 @@ const EditProject = ({ project, onClose }) => {
             <label className="block font-semibold">Link</label>
             <input
               type="url"
-              name="link"
-              value={formData.link}
-              onChange={handleChange}
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
               placeholder="Enter link"
               className="border border-gray-300 p-2 rounded w-full"
             />
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-4 mt-6">
+          <div className="flex justify-end">
             <button
               type="submit"
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
-              Save
-            </button>
-            <button
-              type="button"
-              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-              onClick={onClose}
-            >
-              Cancel
+              Update Project
             </button>
           </div>
         </form>

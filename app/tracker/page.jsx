@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, onSnapshot, doc, deleteDoc, updateDoc} from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc } from "firebase/firestore";
 import { db } from "@/app/firebase"; // Ensure Firebase is set up correctly
 import AddProject from "components/project/AddProject"; // Import the AddProject component
 import ProjectTable from "@/components/project/ProjectTable";
@@ -10,7 +10,7 @@ import EditProject from "@/components/project/EditProject";
 const Tracker = () => {
   const [projects, setProjects] = useState([]);
   const [showAddProject, setShowAddProject] = useState(false);
-  const [editProject, setEditProject] = useState(null); 
+  const [editProject, setEditProject] = useState(null); // For storing the selected project to edit
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDivision, setSelectedDivision] = useState("all");
   const [selectedYear, setSelectedYear] = useState("2024");
@@ -23,9 +23,6 @@ const Tracker = () => {
         ...doc.data(),
       }));
 
-      // Log the fetched projects to inspect the data
-      console.log(fetchedProjects);
-
       setProjects(fetchedProjects);
     });
 
@@ -36,17 +33,17 @@ const Tracker = () => {
   // Function to safely handle different formats of the 'date' field
   const getProjectDate = (project) => {
     if (project.date?.toDate) {
-      // If it's a Firestore Timestamp, convert to JS Date
-      return project.date.toDate();
+      return project.date.toDate(); // Firestore Timestamp
     }
     if (project.date instanceof Date) {
-      return project.date;
+      return project.date; // Already a JavaScript Date object
     }
     if (typeof project.date === "string") {
-      return new Date(project.date);
+      return new Date(project.date); // Parse string to Date
     }
-    return null;
+    return null; // Handle invalid formats gracefully
   };
+
   const handleDelete = async (id) => {
     try {
       await deleteDoc(doc(db, "Projects", id));
@@ -59,10 +56,11 @@ const Tracker = () => {
     }
   };
 
-  
+  const handleEdit = (project) => {
+    setEditProject(project); // Open the EditProject modal with the selected project
+  };
 
   return (
-    // Data Grid
     <div className="flex flex-col justify-between h-screen p-8">
       <div className="flex-grow"></div>
 
@@ -106,9 +104,7 @@ const Tracker = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-64 p-2 mr-2 border border-gray-300 rounded-lg"
             />
-            <button className="px-4 py-2 bg-gray-200 rounded-lg">
-              Export CSV
-            </button>
+            <button className="px-4 py-2 bg-gray-200 rounded-lg">Export CSV</button>
             <button
               onClick={() => setShowAddProject((prev) => !prev)}
               className="px-4 py-2 text-white bg-black rounded-lg"
@@ -122,11 +118,22 @@ const Tracker = () => {
           </div>
         </div>
 
-        <ProjectTable projects={projects} getProjectDate={getProjectDate}
+        {/* Edit Project Modal */}
+        {editProject && (
+          <EditProject
+            project={editProject}
+            onClose={() => setEditProject(null)} // Close the modal
+          />
+        )}
+
+        {/* Project Table */}
+        <ProjectTable
+          projects={projects}
+          getProjectDate={getProjectDate}
           onDelete={handleDelete}
-          
+          onEdit={handleEdit}
         />
-          
+
         <p>Total Projects: {projects.length}</p>
       </div>
     </div>

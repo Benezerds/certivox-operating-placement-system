@@ -10,7 +10,7 @@ const AddProjectForm = ({ onClose }) => {
   const [projectStatus, setProjectStatus] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [quarter, setQuarter] = useState('');
-  const [Category, setCategory] = useState('');
+  const [category, setCategory] = useState('');
   const [brand, setBrand] = useState('');
   const [platform, setPlatform] = useState('');
   const [customPlatform, setCustomPlatform] = useState('');
@@ -18,38 +18,39 @@ const AddProjectForm = ({ onClose }) => {
   const [isSowCustom, setIsSowCustom] = useState(false);
   const [link, setLink] = useState('');
   const [division, setDivision] = useState('');
-  const [sowList, setSowList] = useState([{ id: 1, sow: '', content: '' }]);
-
-  const sowInputRef = useRef(null);
+  const [customSow, setCustomSow] = useState('');
+  const [bundlingSowList, setBundlingSowList] = useState([{ id: 1, sow: '', content: '' }]);
 
   const handleSowChange = (e) => {
     const value = e.target.value;
     setSowType(value);
     setIsSowCustom(value === 'custom');
     if (value !== 'custom') {
-      setSowList([{ id: 1, sow: '', content: '' }]);
+      setCustomSow('');
+    } else {
+      setBundlingSowList([{ id: 1, sow: '', content: '' }]);
     }
   };
 
-  const addSowField = () => {
-    const newSowId = sowList.length + 1;
-    setSowList([...sowList, { id: newSowId, sow: '', content: '' }]);
+  const addBundlingSowField = () => {
+    const newSowId = bundlingSowList.length + 1;
+    setBundlingSowList([...bundlingSowList, { id: newSowId, sow: '', content: '' }]);
   };
 
-  const removeSowField = (id) => {
-    const updatedSowList = sowList.filter((sow) => sow.id !== id);
+  const removeBundlingSowField = (id) => {
+    const updatedSowList = bundlingSowList.filter((sow) => sow.id !== id);
     const reIndexedSowList = updatedSowList.map((sow, index) => ({
       ...sow,
       id: index + 1,
     }));
-    setSowList(reIndexedSowList);
+    setBundlingSowList(reIndexedSowList);
   };
 
-  const handleSowInputChange = (id, field, value) => {
-    const updatedSowList = sowList.map((sow) =>
+  const handleBundlingSowInputChange = (id, field, value) => {
+    const updatedSowList = bundlingSowList.map((sow) =>
       sow.id === id ? { ...sow, [field]: value } : sow
     );
-    setSowList(updatedSowList);
+    setBundlingSowList(updatedSowList);
   };
 
   const handleSubmit = async (e) => {
@@ -61,14 +62,14 @@ const AddProjectForm = ({ onClose }) => {
       projectStatus,
       date: startDate || new Date(),
       quarter,
-      Category,
+      category,
       brand,
       platform: platform === "Apa kek" ? customPlatform : platform,
       sow:
         sowType === 'bundling'
-          ? sowList // Save the full array of SOW objects
+          ? bundlingSowList
           : sowType === 'custom'
-          ? sowList[0] // Save only the first object for custom
+          ? customSow
           : sowType,
       link,
       division,
@@ -88,7 +89,8 @@ const AddProjectForm = ({ onClose }) => {
       setPlatform('');
       setCustomPlatform('');
       setSowType('');
-      setSowList([{ id: 1, sow: '', content: '' }]);
+      setBundlingSowList([{ id: 1, sow: '', content: '' }]);
+      setCustomSow('');
       setLink('');
       setDivision('');
     } catch (error) {
@@ -180,7 +182,7 @@ const AddProjectForm = ({ onClose }) => {
         <label className="block font-semibold">Category</label>
         <input
           type="text"
-          value={Category}
+          value={category}
           onChange={(e) => setCategory(e.target.value)}
           placeholder="Enter category"
           className="border border-gray-300 p-2 rounded w-full"
@@ -248,28 +250,27 @@ const AddProjectForm = ({ onClose }) => {
       {isSowCustom && (
         <div>
           <input
-            ref={sowInputRef}
             type="text"
-            value={sowList[0].sow}
-            onChange={(e) => handleSowInputChange(1, 'sow', e.target.value)}
-            placeholder="Enter custom SOW and Content (e.g., 'Design: Create visuals')"
+            value={customSow}
+            onChange={(e) => setCustomSow(e.target.value)}
+            placeholder="Enter custom SOW"
             className="border border-gray-300 p-2 rounded w-full"
             required
           />
         </div>
       )}
 
-      {sowType === 'bundling' && (
+      {!isSowCustom && sowType === 'bundling' && (
         <div>
-          {sowList.map((sowItem) => (
-            <div key={sowItem.id} className="mb-4">
+          {bundlingSowList.map((sowItem, idx) => (
+            <div key={idx} className="mb-4">
               <div className="flex justify-between items-center">
                 <label className="font-semibold">SOW {sowItem.id}</label>
-                {sowList.length > 1 && (
+                {bundlingSowList.length > 1 && (
                   <button
                     type="button"
                     className="text-red-500 hover:text-red-700"
-                    onClick={() => removeSowField(sowItem.id)}
+                    onClick={() => removeBundlingSowField(sowItem.id)}
                   >
                     Remove
                   </button>
@@ -278,7 +279,7 @@ const AddProjectForm = ({ onClose }) => {
               <input
                 type="text"
                 value={sowItem.sow}
-                onChange={(e) => handleSowInputChange(sowItem.id, 'sow', e.target.value)}
+                onChange={(e) => handleBundlingSowInputChange(sowItem.id, 'sow', e.target.value)}
                 placeholder="Enter SOW"
                 className="border border-gray-300 p-2 rounded w-full mb-2"
                 required
@@ -286,7 +287,7 @@ const AddProjectForm = ({ onClose }) => {
               <input
                 type="text"
                 value={sowItem.content}
-                onChange={(e) => handleSowInputChange(sowItem.id, 'content', e.target.value)}
+                onChange={(e) => handleBundlingSowInputChange(sowItem.id, 'content', e.target.value)}
                 placeholder="Enter Content"
                 className="border border-gray-300 p-2 rounded w-full"
                 required
@@ -296,7 +297,7 @@ const AddProjectForm = ({ onClose }) => {
           <button
             type="button"
             className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
-            onClick={addSowField}
+            onClick={addBundlingSowField}
           >
             + Add Another SOW
           </button>

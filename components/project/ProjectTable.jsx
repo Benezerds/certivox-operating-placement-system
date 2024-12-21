@@ -99,9 +99,9 @@ const ProjectTable = ({ projects, getProjectDate, onDelete, onEdit }) => {
                   )}
                 </td>
                 <td className="p-2 text-sm">
-                  <button
+                <button
                     className="mr-2 text-blue-500 hover:underline"
-                    onClick={() => onEdit(project)}
+                    onClick={() => onEdit(project)} // Pass project to onEdit
                   >
                     Edit
                   </button>

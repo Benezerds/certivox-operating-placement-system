@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { useRouter } from "next/router";
+"use client"; // Ensures this is a client-side component
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // Correct useRouter for Next.js App Router
 
 const Sidebar = () => {
   const [isExpanded, setIsExpanded] = useState(false); // For toggle

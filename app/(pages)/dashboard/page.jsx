@@ -14,8 +14,28 @@ import { Chart } from "chart.js/auto";
 import { useRouter } from "next/navigation";
 import { auth } from "@/app/firebase";
 import { getAuth, signOut } from "firebase/auth"; // Firebase imports
+import Sidebar from "./Sidebar"; // Import the Sidebar component
+import PerformanceMetrics from './PerformanceMetrics';
 
-const Dashboard = () => {
+function Dashboard() {
+  //Test Data and Metrics
+  const performanceData = [
+    {
+      label: 'Total Projects',
+      data: [80, 85, 90, 95, 100],
+      isPositive: true,
+      percentage: '+10%',
+      days: '7 days'
+    },
+    {
+      label: 'Average Time on Page',
+      data: [2, 2.5, 2.3, 2.8, 3],
+      isPositive: true,
+      percentage: '+15%',
+      days: '7 days'
+    }
+  ];
+  //End of Test Data
   const [years, setYears] = useState([]);
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(`${currentYear}`);
@@ -67,6 +87,7 @@ const Dashboard = () => {
     }
   };
 
+  //Checking Authentication
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (!user) {
@@ -99,13 +120,13 @@ const Dashboard = () => {
               const sortedData = data.sort((a, b) => {
                 const dateA = new Date(
                   a.Date.split(" ")[1].split("/").reverse().join("-") +
-                    " " +
-                    a.Date.split(" ")[0]
+                  " " +
+                  a.Date.split(" ")[0]
                 );
                 const dateB = new Date(
                   b.Date.split(" ")[1].split("/").reverse().join("-") +
-                    " " +
-                    b.Date.split(" ")[0]
+                  " " +
+                  b.Date.split(" ")[0]
                 );
                 return dateB - dateA;
               });
@@ -341,8 +362,7 @@ const Dashboard = () => {
   };
 
   const handleBundlingChange = (index, field, value) => {
-    const updatedEntries = bundling.map((entry, i) =>
-      i === index ? { ...entry, [field]: value } : entry
+    const updatedEntries = bundling.map((entry, i) => i === index ? { ...entry, [field]: value } : entry
     );
     setBundling(updatedEntries);
   };
@@ -402,8 +422,7 @@ const Dashboard = () => {
       Swal.fire({
         title: "Deleted!",
         text: "Sip sudah ke hapus datanya ya.",
-        imageUrl:
-          "https://ik.imagekit.io/bg2tcoygm/okmas-bry.jpeg?updatedAt=1724386481864&tr=n-ik_ml_thumbnail&ik-t=1724386877&ik-s=03d45975f41bb74c6d4fbf6fc7e0f8eb584791ab&ik-auth-version=ml",
+        imageUrl: "https://ik.imagekit.io/bg2tcoygm/okmas-bry.jpeg?updatedAt=1724386481864&tr=n-ik_ml_thumbnail&ik-t=1724386877&ik-s=03d45975f41bb74c6d4fbf6fc7e0f8eb584791ab&ik-auth-version=ml",
         imageWidth: 400,
         imageHeight: 400,
         imageAlt: "okmas-bry",
@@ -487,15 +506,13 @@ const Dashboard = () => {
         String(currentId)
       );
       await updateDoc(docRef, form);
-      const updatedData = data.map((item) =>
-        item.id === currentId ? { id: currentId, ...form } : item
+      const updatedData = data.map((item) => item.id === currentId ? { id: currentId, ...form } : item
       );
       setData(updatedData);
       Swal.fire({
         title: "Updated!",
         text: "Sip sudah ke update ya.",
-        imageUrl:
-          "https://ik.imagekit.io/bg2tcoygm/okmas-bry.jpeg?updatedAt=1724386481864&tr=n-ik_ml_thumbnail&ik-t=1724386877&ik-s=03d45975f41bb74c6d4fbf6fc7e0f8eb584791ab&ik-auth-version=ml",
+        imageUrl: "https://ik.imagekit.io/bg2tcoygm/okmas-bry.jpeg?updatedAt=1724386481864&tr=n-ik_ml_thumbnail&ik-t=1724386877&ik-s=03d45975f41bb74c6d4fbf6fc7e0f8eb584791ab&ik-auth-version=ml",
         imageWidth: 400,
         imageHeight: 400,
         imageAlt: "okmas-bry",
@@ -510,8 +527,7 @@ const Dashboard = () => {
       Swal.fire({
         title: "Added!",
         text: "Sip sudah ke tambah ya.",
-        imageUrl:
-          "https://ik.imagekit.io/bg2tcoygm/okmas-bry.jpeg?updatedAt=1724386481864&tr=n-ik_ml_thumbnail&ik-t=1724386877&ik-s=03d45975f41bb74c6d4fbf6fc7e0f8eb584791ab&ik-auth-version=ml",
+        imageUrl: "https://ik.imagekit.io/bg2tcoygm/okmas-bry.jpeg?updatedAt=1724386481864&tr=n-ik_ml_thumbnail&ik-t=1724386877&ik-s=03d45975f41bb74c6d4fbf6fc7e0f8eb584791ab&ik-auth-version=ml",
         imageWidth: 400,
         imageHeight: 400,
         imageAlt: "okmas-bry",
@@ -649,8 +665,7 @@ const Dashboard = () => {
     setSearchQuery(term.toLowerCase());
   };
 
-  const filteredData = data.filter((item) =>
-    item.Brand.toLowerCase().includes(searchQuery)
+  const filteredData = data.filter((item) => item.Brand.toLowerCase().includes(searchQuery)
   );
 
   const totalPage = Math.ceil(data.length / itemsPerPage);
@@ -665,8 +680,7 @@ const Dashboard = () => {
   };
 
   const handleNext = () => {
-    setCurrentPage((prev) =>
-      prev * itemsPerPage < data.length ? prev + 1 : prev
+    setCurrentPage((prev) => prev * itemsPerPage < data.length ? prev + 1 : prev
     );
   };
 
@@ -728,6 +742,42 @@ const Dashboard = () => {
 
   return (
     <>
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <Sidebar />
+
+      {/* Main Content */}
+      <div className="flex-1 bg-gray-100 p-6">
+        <header className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition"
+          >
+            Logout
+          </button>
+        </header>
+
+        {/* Replace this with your existing dashboard content */}
+        {/* Performance Metrics Section */}
+        <section className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">Performance</h2>
+          <div className="flex flex-wrap gap-4">
+            {performanceData.map((metric, index) => (
+              <PerformanceMetrics
+                key={index}
+                data={metric.data}
+                label={metric.label}
+                isPositive={metric.isPositive}
+                percentage={metric.percentage}
+                days={metric.days}
+              />
+            ))}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
       <section className="min-h-dvh bg-[#003285] flex flex-col  gap-3 p-10 ">
         {/* Card */}
         <div className="flex flex-col gap-3 bg-white p-8 rounded-xl">
@@ -801,8 +851,7 @@ const Dashboard = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M5 10V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1v6M5 19v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1M10 3v4a1 1 0 0 1-1 1H5m2.665 9H6.647A1.647 1.647 0 0 1 5 15.353v-1.706A1.647 1.647 0 0 1 6.647 12h1.018M16 12l1.443 4.773L19 12m-6.057-.152-.943-.02a1.34 1.34 0 0 0-1.359 1.22 1.32 1.32 0 0 0 1.172 1.421l.536.059a1.273 1.273 0 0 1 1.226 1.718c-.2.571-.636.754-1.337.754h-1.13"
-                    />
+                      d="M5 10V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1v6M5 19v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1M10 3v4a1 1 0 0 1-1 1H5m2.665 9H6.647A1.647 1.647 0 0 1 5 15.353v-1.706A1.647 1.647 0 0 1 6.647 12h1.018M16 12l1.443 4.773L19 12m-6.057-.152-.943-.02a1.34 1.34 0 0 0-1.359 1.22 1.32 1.32 0 0 0 1.172 1.421l.536.059a1.273 1.273 0 0 1 1.226 1.718c-.2.571-.636.754-1.337.754h-1.13" />
                   </svg>
                   Export CSV
                 </button>
@@ -824,8 +873,7 @@ const Dashboard = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M5 12h14m-7 7V5"
-                    />
+                      d="M5 12h14m-7 7V5" />
                   </svg>
                   Add new project
                 </button>
@@ -843,8 +891,7 @@ const Dashboard = () => {
                   type="search"
                   placeholder="Search Brand..."
                   className="w-full outline-none bg-transparent text-gray-600 text-sm"
-                  onChange={(e) => handleSearch(e.target.value)}
-                />
+                  onChange={(e) => handleSearch(e.target.value)} />
               </div>
             </div>
           </div>
@@ -866,8 +913,7 @@ const Dashboard = () => {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M6 13.5V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 9.75V10.5"
-                />
+                  d="M6 13.5V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 9.75V10.5" />
               </svg>
 
               <select
@@ -978,8 +1024,7 @@ const Dashboard = () => {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth="2"
-                                d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
-                              />
+                                d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
                             </svg>
                             Edit
                           </button>
@@ -1001,8 +1046,7 @@ const Dashboard = () => {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth="2"
-                                d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
-                              />
+                                d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
                             </svg>
                             Delete
                           </button>
@@ -1035,22 +1079,19 @@ const Dashboard = () => {
                     stroke="currentColor"
                     strokeWidth="1.25"
                     strokeLinecap="round"
-                    strokeline="round"
-                  />
+                    strokeline="round" />
                   <path
                     d="M1.1665 4L4.49984 7.33333"
                     stroke="currentColor"
                     strokeWidth="1.25"
                     strokeLinecap="round"
-                    strokeline="round"
-                  />
+                    strokeline="round" />
                   <path
                     d="M1.1665 4.00002L4.49984 0.666687"
                     stroke="currentColor"
                     strokeWidth="1.25"
                     strokeLinecap="round"
-                    strokeline="round"
-                  />
+                    strokeline="round" />
                 </svg>
                 <p className="text-sm ml-3 font-medium leading-none ">
                   Previous
@@ -1078,22 +1119,19 @@ const Dashboard = () => {
                     stroke="currentColor"
                     strokeWidth="1.25"
                     strokeLinecap="round"
-                    strokeline="round"
-                  />
+                    strokeline="round" />
                   <path
                     d="M9.5 7.33333L12.8333 4"
                     stroke="currentColor"
                     strokeWidth="1.25"
                     strokeLinecap="round"
-                    strokeline="round"
-                  />
+                    strokeline="round" />
                   <path
                     d="M9.5 0.666687L12.8333 4.00002"
                     stroke="currentColor"
                     strokeWidth="1.25"
                     strokeLinecap="round"
-                    strokeline="round"
-                  />
+                    strokeline="round" />
                 </svg>
               </div>
             </div>
@@ -1113,7 +1151,7 @@ const Dashboard = () => {
                   onClick={() => {
                     setShowModalForm(false);
                     resetForm();
-                  }}
+                  } }
                   className="group flex items-center gap-2 cursor-pointer group justify-end duration-300 transition-all"
                 >
                   <h1 className="text-md group-hover:text-gray-600 ">Close</h1>
@@ -1131,8 +1169,7 @@ const Dashboard = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M6 18 17.94 6M18 18 6.06 6"
-                    />
+                      d="M6 18 17.94 6M18 18 6.06 6" />
                   </svg>
                 </div>
               </div>
@@ -1182,8 +1219,7 @@ const Dashboard = () => {
                   name="Brand"
                   id="Brand"
                   className="bg-gray-200 rounded-md mt-2 mb-4 p-2"
-                  required
-                />
+                  required />
 
                 {/* Brand Category */}
                 <label htmlFor="BrandCategory">Brand Category</label>
@@ -1194,8 +1230,7 @@ const Dashboard = () => {
                   name="Brand Category"
                   id="Brand Category"
                   className="bg-gray-200 rounded-md mt-2 mb-4 p-2"
-                  required
-                />
+                  required />
 
                 {/* Quarter */}
                 <label htmlFor="Quarter">Quarter</label>
@@ -1235,8 +1270,7 @@ const Dashboard = () => {
                         checked={platform.includes(platformOption)}
                         onChange={handleCheckboxChange}
                         className="form-checkbox"
-                        required={platform.length === 0}
-                      />
+                        required={platform.length === 0} />
                       <span>{platformOption}</span>
                     </label>
                   ))}
@@ -1249,8 +1283,7 @@ const Dashboard = () => {
                       placeholder="Enter other platform"
                       className="bg-gray-200 rounded-md mt-2 py-[9px] px-2 w-full"
                       required
-                      autoFocus
-                    />
+                      autoFocus />
                   )}
                 </div>
 
@@ -1263,12 +1296,11 @@ const Dashboard = () => {
                     onChange={handleCustomChangeSow}
                     onBlur={() => {
                       if (customSow.trim() === "") setSow("");
-                    }}
+                    } }
                     placeholder="Enter other SOW"
                     className="bg-gray-200 rounded-md mt-2 mb-4 py-[9px] px-2"
                     required
-                    autoFocus
-                  />
+                    autoFocus />
                 ) : (
                   <select
                     name="SOW"
@@ -1309,26 +1341,20 @@ const Dashboard = () => {
                           type="text"
                           placeholder="Enter SOW"
                           value={entry.SOW || ""}
-                          onChange={(e) =>
-                            handleBundlingChange(index, "SOW", e.target.value)
-                          }
+                          onChange={(e) => handleBundlingChange(index, "SOW", e.target.value)}
                           required
-                          className="rounded-lg border-2 px-2 py-[9px]"
-                        />
+                          className="rounded-lg border-2 px-2 py-[9px]" />
                         <input
                           type="text"
                           placeholder="Enter Content"
                           value={entry.Content || ""}
-                          onChange={(e) =>
-                            handleBundlingChange(
-                              index,
-                              "Content",
-                              e.target.value
-                            )
-                          }
+                          onChange={(e) => handleBundlingChange(
+                            index,
+                            "Content",
+                            e.target.value
+                          )}
                           required
-                          className="rounded-lg border-2 px-2 py-[9px]"
-                        />
+                          className="rounded-lg border-2 px-2 py-[9px]" />
                       </div>
                     ))}
                     <button
@@ -1351,8 +1377,7 @@ const Dashboard = () => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth="2"
-                            d="M5 12h14m-7 7V5"
-                          />
+                            d="M5 12h14m-7 7V5" />
                         </svg>
                       </span>
                       <h1 className="text-white">Add Another SOW</h1>
@@ -1368,12 +1393,9 @@ const Dashboard = () => {
                   onChange={(e) => setContent(e.target.value)}
                   name="Content"
                   id="Content"
-                  className={`bg-gray-200 rounded-md mt-2 mb-4 py-[9px] px-2 ${
-                    !contentEnabled ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`bg-gray-200 rounded-md mt-2 mb-4 py-[9px] px-2 ${!contentEnabled ? "opacity-50 cursor-not-allowed" : ""}`}
                   required
-                  disabled={!contentEnabled}
-                />
+                  disabled={!contentEnabled} />
 
                 {/* Status */}
                 <label htmlFor="">Status</label>
@@ -1403,8 +1425,7 @@ const Dashboard = () => {
                   onChange={(e) => setLink(e.target.value)}
                   name="Link"
                   className="bg-gray-200 rounded-md mt-2 mb-4 p-2"
-                  required
-                />
+                  required />
 
                 {/* Button Submit */}
                 <button
@@ -1421,6 +1442,6 @@ const Dashboard = () => {
       </section>
     </>
   );
-};
+}
 
 export default Dashboard;

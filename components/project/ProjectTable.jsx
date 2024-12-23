@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { format, isValid } from 'date-fns';  
 
 const ProjectTable = ({ projects, getProjectDate, onDelete, onEdit }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,9 +62,10 @@ const ProjectTable = ({ projects, getProjectDate, onDelete, onEdit }) => {
                 <td className="p-2 text-sm">{project.projectName || "N/A"}</td>
                 <td className="p-2 text-sm">{project.projectStatus || "N/A"}</td>
                 <td className="p-2 text-sm">
-                  {getProjectDate(project)
-                    ? getProjectDate(project).toLocaleDateString()
-                    : "N/A"}
+                  {project.date && isValid(new Date(project.date)) // Check if the date is valid
+                    ? format(new Date(project.date), 'yyyy-MM-dd') // Format the date
+                    : 'N/A' // Fallback to N/A if invalid
+                  }
                 </td>
                 <td className="p-2 text-sm">{project.quarter || "N/A"}</td>
                 <td className="p-2 text-sm">{project.category || "N/A"}</td>

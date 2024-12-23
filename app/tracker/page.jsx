@@ -20,7 +20,7 @@ const Tracker = () => {
   const [editProject, setEditProject] = useState(null); // For storing the selected project to edit
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDivision, setSelectedDivision] = useState("all");
-  const [selectedYear, setSelectedYear] = useState("2024");
+  const [selectedYear, setSelectedYear] = useState("all");
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const itemsPerPage = 4; // Number of items per page
 
@@ -32,6 +32,16 @@ const Tracker = () => {
           id: doc.id,
           ...doc.data(),
         }))
+        .filter((project) => {
+          // Filter by division if a specific division is selected
+          const divisionMatch = selectedDivision === "all" || project.division === selectedDivision;
+
+          // Filter by year
+          const yearMatch = selectedYear === "all" || 
+            (project.createdAt && project.createdAt.toDate().getFullYear().toString() === selectedYear);
+
+          return divisionMatch && yearMatch;
+        })
         .sort((a, b) => {
           const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
           const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
@@ -130,6 +140,7 @@ const Tracker = () => {
               onChange={(e) => setSelectedYear(e.target.value)}
               className="p-2 border border-gray-300 rounded-lg"
             >
+              <option value="All Years">All Years</option>
               <option value="2024">2024</option>
               <option value="2023">2023</option>
               <option value="2022">2022</option>

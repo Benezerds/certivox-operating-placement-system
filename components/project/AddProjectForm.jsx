@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import { format, parseISO, isValid } from "date-fns";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from '@/app/firebase';
 
@@ -55,12 +54,13 @@ const AddProjectForm = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const utcStartDate = startDate ? parseISO(startDate).toISOString() : null;
 
     const projectData = {
       source,
       projectName,
       projectStatus,
-      date: startDate || new Date(),
+      date: utcStartDate,
       quarter,
       category,
       brand,
@@ -150,12 +150,14 @@ const AddProjectForm = ({ onClose }) => {
 
         <div>
           <label className="block font-semibold">Date</label>
-          <DatePicker
-            selected={startDate}
-            onChange={(date) => setStartDate(date)}
-            placeholderText="Enter date"
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)} // Update state with selected date
             className="border border-gray-300 p-2 rounded w-full"
             required
+            min="2000-01-01" // Set minimum date
+            max={format(new Date(), "yyyy-MM-dd")}  // Set maximum date to today
           />
         </div>
       </div>

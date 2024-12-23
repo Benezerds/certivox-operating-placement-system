@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { format, parseISO, isValid } from "date-fns";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/app/firebase";
 
@@ -23,11 +22,13 @@ const EditProject = ({ project, onClose }) => {
 
   useEffect(() => {
     if (project) {
-      const validDate = project.date?.toDate ? project.date.toDate() : project.date;
+      const validDate = project.date && isValid(new Date(project.date))
+        ? format(new Date(project.date), "yyyy-MM-dd")
+        : "";
       setSource(project.source || "");
       setProjectName(project.projectName || "");
       setProjectStatus(project.projectStatus || "");
-      setStartDate(validDate ? new Date(validDate) : null);
+      setStartDate(validDate);
       setQuarter(project.quarter || "");
       setCategory(project.category || "");
       setBrand(project.brand || "");
@@ -92,7 +93,7 @@ const EditProject = ({ project, onClose }) => {
       source,
       projectName,
       projectStatus,
-      date: startDate || new Date(),
+      date: startDate ? format(parseISO(startDate), "yyyy-MM-dd'T'HH:mm:ssXXX") : null, // Convert to ISO string
       quarter,
       category,
       brand,
@@ -189,12 +190,14 @@ const EditProject = ({ project, onClose }) => {
 
             <div>
               <label className="block font-semibold">Date</label>
-              <DatePicker
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
-                placeholderText="Enter date"
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)} // Update date as a string
                 className="border border-gray-300 p-2 rounded w-full"
                 required
+                min="2000-01-01" // Minimum date
+                max={format(new Date(), "yyyy-MM-dd")} // Maximum date is today
               />
             </div>
           </div>

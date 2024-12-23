@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getYear, parseISO } from "date-fns";
+
 import {
   collection,
   onSnapshot,
@@ -24,6 +26,7 @@ const Tracker = () => {
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const itemsPerPage = 4; // Number of items per page
 
+  
   // Fetch projects from Firestore and listen for changes
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "Projects"), (snapshot) => {
@@ -33,19 +36,39 @@ const Tracker = () => {
           ...doc.data(),
         }))
         .filter((project) => {
-          // Filter by division if a specific division is selected
-          const divisionMatch = selectedDivision === "all" || project.division === selectedDivision;
+          // Filter by division
+          const divisionMatch =
+            selectedDivision === "all" || project.division === selectedDivision;
 
           // Filter by year
-          const yearMatch = selectedYear === "all" || 
-            (project.createdAt && project.createdAt.toDate().getFullYear().toString() === selectedYear);
+          const yearMatch =
+            selectedYear === "all" ||
+            (project.date && getYear(parseISO(project.date)) === Number(selectedYear));
 
-          return divisionMatch && yearMatch;
+
+            return divisionMatch && yearMatch;
         })
         .sort((a, b) => {
+          // Sort by division (alphabetically)
+          if (a.division && b.division && a.division !== b.division) {
+            return a.division.localeCompare(b.division);
+          }
+
+          // If divisions are the same, sort by year (descending)
+          const yearA = a.createdAt?.toDate
+            ? a.createdAt.toDate().getFullYear()
+            : 0;
+          const yearB = b.createdAt?.toDate
+            ? b.createdAt.toDate().getFullYear()
+            : 0;
+          if (yearA !== yearB) {
+            return yearB - yearA;
+          }
+
+          // Finally, sort by date created (descending)
           const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
           const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
-          return dateB - dateA; // Sort by descending order of createdAt
+          return dateB - dateA;
         });
 
       setProjects(fetchedProjects);
@@ -53,7 +76,7 @@ const Tracker = () => {
 
     // Cleanup the listener when the component unmounts
     return () => unsubscribe();
-  }, []);
+  }, [selectedDivision, selectedYear]);
 
   // Function to safely handle different formats of the 'createdAt' field
   const getProjectDate = (project) => {
@@ -126,7 +149,10 @@ const Tracker = () => {
             {/* Division Dropdown */}
             <select
               value={selectedDivision}
-              onChange={(e) => setSelectedDivision(e.target.value)}
+              onChange={(e) => {
+                setSelectedDivision(e.target.value);
+                setCurrentPage(1); // Reset to first page
+              }}
               className="p-2 border border-gray-300 rounded-lg"
             >
               <option value="all">ALL DIVISION</option>
@@ -137,15 +163,19 @@ const Tracker = () => {
             {/* Year Dropdown */}
             <select
               value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
+              onChange={(e) => {
+                setSelectedYear(e.target.value);
+                setCurrentPage(1); // Reset to first page
+              }}
               className="p-2 border border-gray-300 rounded-lg"
             >
-              <option value="All Years">All Years</option>
+              <option value="all">All Years</option>
               <option value="2024">2024</option>
               <option value="2023">2023</option>
               <option value="2022">2022</option>
               <option value="2021">2021</option>
             </select>
+
           </div>
 
           {/* Search Bar and Buttons */}

@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { format, parseISO, isValid } from "date-fns";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, doc, getDocs } from "firebase/firestore";
 import { db } from '@/app/firebase';
 
 const AddProjectForm = ({ onClose }) => {
@@ -10,6 +10,7 @@ const AddProjectForm = ({ onClose }) => {
   const [startDate, setStartDate] = useState(null);
   const [quarter, setQuarter] = useState('');
   const [category, setCategory] = useState('');
+  const [categories, setCategories] = useState([]);
   const [brand, setBrand] = useState('');
   const [platform, setPlatform] = useState('');
   const [customPlatform, setCustomPlatform] = useState('');
@@ -19,6 +20,25 @@ const AddProjectForm = ({ onClose }) => {
   const [division, setDivision] = useState('');
   const [customSow, setCustomSow] = useState('');
   const [bundlingSowList, setBundlingSowList] = useState([{ id: 1, sow: '', content: '' }]);
+
+  // Fetch categories from Firestore
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categoryCollection = collection(db, "Categories");
+        const categorySnapshot = await getDocs(categoryCollection);
+        const categoryList = categorySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCategories(categoryList);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleSowChange = (e) => {
     const value = e.target.value;
@@ -55,6 +75,7 @@ const AddProjectForm = ({ onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const utcStartDate = startDate ? parseISO(startDate).toISOString() : null;
+    const categoryRef = category ? doc(db, "Categories", category) : null;
 
     const projectData = {
       source,
@@ -62,7 +83,7 @@ const AddProjectForm = ({ onClose }) => {
       projectStatus,
       date: utcStartDate,
       quarter,
-      category,
+      category: categoryRef,
       brand,
       platform: platform === "Apa kek" ? customPlatform : platform,
       sow:
@@ -179,17 +200,22 @@ const AddProjectForm = ({ onClose }) => {
         </select>
       </div>
 
-      {/* Category */}
+      {/* Category Dropdown */}
       <div>
         <label className="block font-semibold">Category</label>
-        <input
-          type="text"
+        <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          placeholder="Enter category"
           className="border border-gray-300 p-2 rounded w-full"
           required
-        />
+        >
+          <option value="">Choose one</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.category_name} {/* Assuming category_name is the field storing the name */}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Brand*/}

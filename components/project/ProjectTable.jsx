@@ -1,7 +1,34 @@
-import React, { useState } from "react";
-import { format, isValid } from 'date-fns';  
+import React, { useState, useEffect } from "react";
+import { format, isValid } from "date-fns";
+import { getDoc } from "firebase/firestore";
 
-const ProjectTable = ({ projects, getProjectDate, onDelete, onEdit }) => {
+const ProjectTable = ({ projects, onDelete, onEdit }) => {
+  const [resolvedProjects, setResolvedProjects] = useState([]);
+
+  useEffect(() => {
+    const resolveProjectData = async () => {
+      const updatedProjects = await Promise.all(
+        projects.map(async (project) => {
+          let categoryName = "N/A";
+          if (project.category) {
+            try {
+              const categoryDoc = await getDoc(project.category); // Resolving Firestore reference
+              if (categoryDoc.exists()) {
+                categoryName = categoryDoc.data().category_name || "N/A"; // Assuming 'category_name' is the field storing the name
+              }
+            } catch (error) {
+              console.error("Error fetching category:", error);
+            }
+          }
+          return { ...project, category: categoryName }; // Replace category reference with its name
+        })
+      );
+      setResolvedProjects(updatedProjects);
+    };
+
+    resolveProjectData();
+  }, [projects]);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState(null);
 
@@ -20,6 +47,7 @@ const ProjectTable = ({ projects, getProjectDate, onDelete, onEdit }) => {
     setIsModalOpen(false);
     setProjectToDelete(null);
   };
+
   return (
     <div className="overflow-x-auto max-h-[260px]">
       <table className="w-full text-left border border-gray-300">
@@ -49,42 +77,38 @@ const ProjectTable = ({ projects, getProjectDate, onDelete, onEdit }) => {
           </tr>
         </thead>
         <tbody>
-          {projects.length === 0 ? (
+          {resolvedProjects.length === 0 ? (
             <tr>
               <td colSpan={12} className="p-4 text-center text-gray-500">
                 No projects available
               </td>
             </tr>
           ) : (
-            projects.map((project, idx) => (
+            resolvedProjects.map((project, idx) => (
               <tr key={idx} className="border-b">
                 <td className="p-2 text-sm">{project.source || "N/A"}</td>
                 <td className="p-2 text-sm">{project.projectName || "N/A"}</td>
                 <td className="p-2 text-sm">{project.projectStatus || "N/A"}</td>
                 <td className="p-2 text-sm">
                   {project.date && isValid(new Date(project.date)) // Check if the date is valid
-                    ? format(new Date(project.date), 'yyyy-MM-dd') // Format the date
-                    : 'N/A' // Fallback to N/A if invalid
-                  }
+                    ? format(new Date(project.date), "yyyy-MM-dd") // Format the date
+                    : "N/A"} 
                 </td>
                 <td className="p-2 text-sm">{project.quarter || "N/A"}</td>
                 <td className="p-2 text-sm">{project.category || "N/A"}</td>
                 <td className="p-2 text-sm">{project.brand || "N/A"}</td>
                 <td className="p-2 text-sm">{project.platform || "N/A"}</td>
-                {/* Updated SOW rendering */}
                 <td className="p-2 text-sm">
                   {Array.isArray(project.sow) ? (
                     <ul>
                       {project.sow.map((sowItem, sowIdx) => (
                         <li key={sowIdx}>
-                          {sowItem.sow}: {sowItem.content}
+                          {sowItem?.sow || "N/A"}: {sowItem?.content || "N/A"}
                         </li>
                       ))}
                     </ul>
-                  ) : typeof project.sow === "object" ? (
-                    <span>
-                      {project.sow.sow}
-                    </span>
+                  ) : typeof project.sow === "object" && project.sow !== null ? (
+                    <span>{project.sow?.sow || "N/A"}</span>
                   ) : (
                     project.sow || "N/A"
                   )}
@@ -92,7 +116,11 @@ const ProjectTable = ({ projects, getProjectDate, onDelete, onEdit }) => {
                 <td className="p-2 text-sm">{project.division || "N/A"}</td>
                 <td className="p-2 text-sm">
                   {project.link ? (
-                    <a href={project.link} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={project.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       Link
                     </a>
                   ) : (
@@ -100,26 +128,25 @@ const ProjectTable = ({ projects, getProjectDate, onDelete, onEdit }) => {
                   )}
                 </td>
                 <td className="p-2 text-sm">
-                <button
+                  <button
                     className="mr-2 text-blue-500 hover:underline"
                     onClick={() => onEdit(project)} // Pass project to onEdit
                   >
                     Edit
                   </button>
                   <button
-                      className="text-red-500 hover:underline hover:text-red-600"
-                      onClick={() => handleDeleteClick(project)}
-                    >
-                      Delete
+                    className="text-red-500 hover:underline hover:text-red-600"
+                    onClick={() => handleDeleteClick(project)}
+                  >
+                    Delete
                   </button>
-
                 </td>
               </tr>
             ))
           )}
         </tbody>
       </table>
-          {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">

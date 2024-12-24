@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { format, parseISO, isValid } from "date-fns";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "@/app/firebase";
 
 const EditProject = ({ project, onClose }) => {
@@ -10,6 +10,7 @@ const EditProject = ({ project, onClose }) => {
   const [startDate, setStartDate] = useState(null);
   const [quarter, setQuarter] = useState("");
   const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState([]);
   const [brand, setBrand] = useState("");
   const [platform, setPlatform] = useState("");
   const [customPlatform, setCustomPlatform] = useState("");
@@ -21,20 +22,40 @@ const EditProject = ({ project, onClose }) => {
   const [bundlingSowList, setBundlingSowList] = useState([{ id: 1, sow: "", content: "" }]);
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categoryCollection = collection(db, "Categories");
+        const categorySnapshot = await getDocs(categoryCollection);
+        const categoryList = categorySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCategories(categoryList);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+  
+    fetchCategories();
+  
     if (project) {
       const validDate = project.date && isValid(new Date(project.date))
         ? format(new Date(project.date), "yyyy-MM-dd")
         : "";
+  
       setSource(project.source || "");
       setProjectName(project.projectName || "");
       setProjectStatus(project.projectStatus || "");
       setStartDate(validDate);
       setQuarter(project.quarter || "");
-      setCategory(project.category || "");
+  
+      // Ensure the category ID is set correctly
+      setCategory (project.category || "");
+  
       setBrand(project.brand || "");
       setPlatform(project.platform || "");
       setCustomPlatform(project.platform === "Apa kek" ? project.customPlatform || "" : "");
-
+  
       if (typeof project.sow === "string") {
         setSowType("custom");
         setIsSowCustom(true);
@@ -48,11 +69,12 @@ const EditProject = ({ project, onClose }) => {
         setIsSowCustom(false);
         setBundlingSowList([{ id: 1, sow: "", content: "" }]);
       }
-
+  
       setLink(project.link || "");
       setDivision(project.division || "");
     }
   }, [project]);
+  
 
   const handleSowChange = (e) => {
     const value = e.target.value;
@@ -89,13 +111,15 @@ const EditProject = ({ project, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const categoryRef = category ? doc(db, "Categories", category) : null;
+
     const projectData = {
       source,
       projectName,
       projectStatus,
       date: startDate ? format(parseISO(startDate), "yyyy-MM-dd'T'HH:mm:ssXXX") : null, // Convert to ISO string
       quarter,
-      category,
+      category: categoryRef,
       brand,
       platform: platform === "Apa kek" ? customPlatform : platform,
       sow: sowType === "bundling" ? bundlingSowList : sowType === "custom" ? customSow : sowType,
@@ -106,7 +130,9 @@ const EditProject = ({ project, onClose }) => {
     try {
       const projectRef = doc(db, "Projects", project.id);
       await updateDoc(projectRef, projectData);
-      onClose();
+  
+      // Update the project prop to reflect the changes
+      onClose(projectData); // Pass the updated project back to the parent
       console.log("Project updated successfully:", projectData);
     } catch (error) {
       console.error("Error updating project:", error);
@@ -193,13 +219,13 @@ const EditProject = ({ project, onClose }) => {
               <input
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)} // Update date as a string
-                className="border border-gray-300 p-2 rounded w-full"
-                required
+                className="border border-gray-300 p-2 rounded w-full bg-gray-200 text-gray-600 cursor-not-allowed"
                 min="2000-01-01" // Minimum date
                 max={format(new Date(), "yyyy-MM-dd")} // Maximum date is today
+                readOnly // Makes the field uneditable
               />
             </div>
+
           </div>
 
           {/* Quarter */}
@@ -222,15 +248,24 @@ const EditProject = ({ project, onClose }) => {
           {/* Category */}
           <div>
             <label className="block font-semibold">Category</label>
-            <input
-              type="text"
-              value={category}
+            <select
+              value={category} // Ensure the value is bound to the category state
               onChange={(e) => setCategory(e.target.value)}
-              placeholder="Enter category"
               className="border border-gray-300 p-2 rounded w-full"
               required
-            />
+            >
+              <option value="">Choose one</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.category_name} {/* Ensure the category_name is the correct field */}
+                </option>
+              ))}
+            </select>
           </div>
+
+
+
+
 
           {/* Brand */}
           <div>

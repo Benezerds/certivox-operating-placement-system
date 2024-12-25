@@ -14,7 +14,6 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${inter.className}`}>
         <div className="flex w-screen h-screen">
-          <Sidebar />
           <div className="flex-1 overflow-y-auto">{children}</div>
         </div>
       </body>

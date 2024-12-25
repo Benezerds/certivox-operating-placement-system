@@ -1,5 +1,6 @@
-"use client";
-import { useEffect, useState } from "react";
+'use client'
+
+import { useState } from "react";
 import { getAuth, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth } from "@/app/firebase";
@@ -35,23 +36,6 @@ function Dashboard() {
       console.error("Logout error:", error);
     }
   };
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (!user) {
-        router.push("/"); // Redirect to login if not authenticated
-      } else {
-        setIsAuthenticated(true);
-      }
-    });
-
-    // Cleanup subscription
-    return () => unsubscribe();
-  }, [router]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
 
   return (
     <div className="mt-8 ml-8">

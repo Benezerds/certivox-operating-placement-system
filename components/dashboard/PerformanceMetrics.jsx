@@ -1,30 +1,46 @@
-// components/PerformanceMetrics.jsx
 "use client"; // Ensure this is a client component
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 
 const PerformanceMetrics = ({ data, label, isPositive, percentage, days }) => {
   const chartRef = useRef(null);
+  const [chartWidth, setChartWidth] = useState(400); // Initial width for chart
+  const [chartHeight, setChartHeight] = useState(200); // Initial height for chart
+
+  useEffect(() => {
+    // Dynamically adjust chart size based on the parent container's width
+    const resizeObserver = new ResizeObserver(() => {
+      if (chartRef.current) {
+        setChartWidth(chartRef.current.clientWidth);
+        setChartHeight(chartRef.current.clientHeight);
+      }
+    });
+
+    resizeObserver.observe(chartRef.current);
+
+    return () => resizeObserver.disconnect();
+  }, []);
 
   useEffect(() => {
     // D3.js code to draw the chart
     if (data && chartRef.current) {
       drawChart();
     }
-  }, [data]);
+  }, [data, chartWidth, chartHeight]); // Re-run drawing logic when size or data changes
 
   const drawChart = () => {
     // Clear any existing SVG
     d3.select(chartRef.current).selectAll('*').remove();
 
-    // Set up the SVG canvas dimensions
-    const width = 400;
-    const height = 200;
+    // Set up the SVG canvas dimensions dynamically based on the container size
+    const width = chartWidth;
+    const height = chartHeight;
 
     const svg = d3.select(chartRef.current)
       .attr('width', width)
-      .attr('height', height);
+      .attr('height', height)
+      .attr('viewBox', `0 0 ${width} ${height}`) // Ensure the chart scales properly
 
     // Your D3.js chart code goes here
     // For example, we can create a simple line chart
@@ -50,7 +66,7 @@ const PerformanceMetrics = ({ data, label, isPositive, percentage, days }) => {
   };
 
   return (
-    <div className="flex flex-col p-6 text-base rounded-xl border border-neutral-200 min-w-[288px] w-[432px]">
+    <div className="flex flex-col p-6 text-base rounded-xl border border-neutral-200 min-w-[288px] w-full max-w-[432px]">
       <div className="font-medium text-neutral-900">{label}</div>
       <div className="mt-2 text-3xl font-bold text-neutral-900">{data[data.length - 1]}</div>
       <div className="flex items-start mt-2">
@@ -59,7 +75,7 @@ const PerformanceMetrics = ({ data, label, isPositive, percentage, days }) => {
           {percentage}
         </div>
       </div>
-      <svg ref={chartRef} className="mt-4"></svg>
+      <div ref={chartRef} className="w-full mt-4" style={{ height: '200px' }}></div> {/* Responsive container for chart */}
     </div>
   );
 };

@@ -14,7 +14,6 @@ import { Chart } from "chart.js/auto";
 import { useRouter } from "next/navigation";
 import { auth } from "@/app/firebase";
 import { getAuth, signOut } from "firebase/auth"; // Firebase imports
-import Sidebar from "./Sidebar"; // Import the Sidebar component
 import PerformanceMetrics from './PerformanceMetrics';
 
 function Dashboard() {
@@ -743,9 +742,6 @@ function Dashboard() {
   return (
     <>
     <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <Sidebar />
-
       {/* Main Content */}
       <div className="flex-1 bg-gray-100 p-6">
         <header className="flex justify-between items-center mb-6">

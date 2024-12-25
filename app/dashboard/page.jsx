@@ -1,12 +1,15 @@
-'use client'
+"use client";
 
-import { useState } from "react";
-import { getAuth, signOut } from "firebase/auth";
+import { useEffect, useState } from "react";
+import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth } from "@/app/firebase";
 import PerformanceMetrics from "@/components/dashboard/PerformanceMetrics";
 
 function Dashboard() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
+
   const performanceData = [
     {
       label: "Total Projects",
@@ -24,18 +27,33 @@ function Dashboard() {
     },
   ];
 
-  const auth = getAuth();
-  const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
   const handleLogout = async () => {
     try {
-      await signOut(auth);
-      router.push("/"); // Redirect to login page after logout
+      await signOut(auth); // Firebase sign-out
+      router.push("/auth"); // Redirect to the login page
     } catch (error) {
       console.error("Logout error:", error);
     }
   };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        setIsAuthenticated(false); // User is not authenticated
+        router.push("/auth"); // Redirect to login page
+      } else {
+        setIsAuthenticated(true); // User is authenticated
+      }
+    });
+
+    // Cleanup subscription when the component is unmounted
+    return () => unsubscribe();
+  }, [router]);
+
+  // Return null or loading screen if not authenticated
+  if (!isAuthenticated) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="mt-8 ml-8">

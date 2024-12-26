@@ -17,6 +17,8 @@ import { db } from "@/app/firebase"; // Ensure Firebase is set up correctly
 import AddProject from "components/project/AddProject"; // Import the AddProject component
 import ProjectTable from "@/components/project/ProjectTable";
 import EditProject from "@/components/project/EditProject";
+import ExportCSV from "@/components/project/ExportCsv";
+
 
 const Tracker = () => {
   const [projects, setProjects] = useState([]);
@@ -198,7 +200,9 @@ const Tracker = () => {
           : "Invalid Date"
         : "N/A",
       project.quarter || "N/A",
-      project.categoryRef || "N/A", // Assumes resolved category name is already in the data
+      typeof project.categoryRef === "object" && project.categoryRef !== null
+        ? project.categoryRef.category_name || project.categoryRef.id || "N/A"
+        : project.categoryRef || "N/A", // Convert object to string or fallback to raw value
       project.brand || "N/A",
       project.platform || "N/A",
       Array.isArray(project.sow)
@@ -222,6 +226,7 @@ const Tracker = () => {
     link.click();
     document.body.removeChild(link);
   };
+  
   
   
   
@@ -316,12 +321,9 @@ const Tracker = () => {
             >
               Search
             </button>
-            <button
-              onClick={handleExportCSV}
-              className="px-4 py-2 bg-gray-200 rounded-lg"
-            >
-              Export CSV
-            </button>
+            <div className="flex items-center gap-2">
+               <ExportCSV projects={projects} setNotification={setNotification} />
+            </div>
 
 
             <button

@@ -120,13 +120,17 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
                       href={project.link}
                       target="_blank"
                       rel="noopener noreferrer"
+                      style={{ color: "blue", textDecoration: "underline" }} // Ensure default look
                     >
-                      Link
+                      {project.link}
                     </a>
                   ) : (
                     "N/A"
                   )}
                 </td>
+
+                  
+
                 <td className="p-2 text-sm">
                   <button
                     className="mr-2 text-blue-500 hover:underline"

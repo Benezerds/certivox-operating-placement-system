@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getYear, parseISO } from "date-fns";
+import { format, isValid } from "date-fns";
 
 import {
   collection,
@@ -10,6 +11,7 @@ import {
   deleteDoc,
   addDoc,
   serverTimestamp,
+  getDoc
 } from "firebase/firestore";
 import { db } from "@/app/firebase"; // Ensure Firebase is set up correctly
 import AddProject from "components/project/AddProject"; // Import the AddProject component
@@ -161,7 +163,72 @@ const Tracker = () => {
       setCurrentPage(currentPage - 1);
     }
   };
+  
+  
+  
+  
+  const handleExportCSV = () => {
+    if (!projects || projects.length === 0) {
+      setNotification({ message: "No data available to export.", visible: true });
+      setTimeout(() => setNotification({ message: "", visible: false }), 3000);
+      return;
+    }
+  
+    const headers = [
+      "Source",
+      "Project",
+      "Status",
+      "Date",
+      "Quarter",
+      "Category",
+      "Brand",
+      "Platform",
+      "SOW",
+      "Division",
+      "Link",
+    ];
+  
+    const rows = projects.map((project) => [
+      project.source || "N/A",
+      project.projectName || "N/A",
+      project.projectStatus || "N/A",
+      project.date
+        ? isValid(new Date(project.date))
+          ? format(new Date(project.date), "yyyy-MM-dd")
+          : "Invalid Date"
+        : "N/A",
+      project.quarter || "N/A",
+      project.categoryRef || "N/A", // Assumes resolved category name is already in the data
+      project.brand || "N/A",
+      project.platform || "N/A",
+      Array.isArray(project.sow)
+        ? project.sow.map((sowItem) => `${sowItem?.sow || "N/A"}: ${sowItem?.content || "N/A"}`).join("; ")
+        : typeof project.sow === "object" && project.sow !== null
+        ? `${project.sow?.sow || "N/A"}: ${project.sow?.content || "N/A"}`
+        : project.sow || "N/A",
+      project.division || "N/A",
+      project.link || "N/A",
+    ]);
+  
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
+  
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "projects.csv");
+    document.body.appendChild(link); // Required for Firefox
+    link.click();
+    document.body.removeChild(link);
+  };
+  
+  
+  
+  
+  
 
+  
   return (
     
     <div className="flex flex-col justify-between h-screen p-8">
@@ -249,7 +316,14 @@ const Tracker = () => {
             >
               Search
             </button>
-            <button className="px-4 py-2 bg-gray-200 rounded-lg">Export CSV</button>
+            <button
+              onClick={handleExportCSV}
+              className="px-4 py-2 bg-gray-200 rounded-lg"
+            >
+              Export CSV
+            </button>
+
+
             <button
               onClick={() => setShowAddProject((prev) => !prev)}
               className="px-4 py-2 text-white bg-black rounded-lg"

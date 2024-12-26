@@ -18,6 +18,7 @@ import EditProject from "@/components/project/EditProject";
 
 const Tracker = () => {
   const [projects, setProjects] = useState([]);
+  const [filteredProjects, setFilteredProjects] = useState([]);
   const [showAddProject, setShowAddProject] = useState(false);
   const [editProject, setEditProject] = useState(null); // For storing the selected project to edit
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,8 +26,8 @@ const Tracker = () => {
   const [selectedYear, setSelectedYear] = useState("all");
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const itemsPerPage = 4; // Number of items per page
+  const [notification, setNotification] = useState({ message: "", visible: false });
 
-  
   // Fetch projects from Firestore and listen for changes
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "Projects"), (snapshot) => {
@@ -72,6 +73,7 @@ const Tracker = () => {
         });
 
       setProjects(fetchedProjects);
+      setFilteredProjects(fetchedProjects);
     });
 
     // Cleanup the listener when the component unmounts
@@ -85,6 +87,31 @@ const Tracker = () => {
     }
     return new Date(); // Default to the current date
   };
+  const handleSearch = () => {
+    const lowerCaseQuery = searchQuery.toLowerCase().trim();
+  
+    if (lowerCaseQuery === "") {
+      setProjects(filteredProjects); // Reset to filteredProjects
+      setTimeout(() => setNotification({ message: "", visible: false }), 3000); // Hide after 3 seconds
+      return;
+    }
+  
+    const filtered = filteredProjects.filter((project) =>
+      project.brand?.toLowerCase().startsWith(lowerCaseQuery)
+    );
+  
+    if (filtered.length > 0) {
+      setProjects(filtered);
+    } else {
+      setNotification({
+        message: "No projects match the entered brand ",
+        visible: true,
+      });
+      setTimeout(() => setNotification({ message: "", visible: false }), 3000); // Hide after 3 seconds
+    }
+  };
+  
+  
 
   const handleDelete = async (id) => {
     try {
@@ -136,7 +163,29 @@ const Tracker = () => {
   };
 
   return (
+    
     <div className="flex flex-col justify-between h-screen p-8">
+      {/* Notification */}
+        {notification.visible && (
+          <div
+            style={{
+              position: "fixed",
+              bottom: "20px",
+              left: "20px",
+              backgroundColor: "#f8d7da", // Light red background
+              color: "#721c24", // Dark red text
+              padding: "10px 20px",
+              border: "1px solid #f5c6cb", // Red border
+              borderRadius: "8px",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+              fontSize: "14px",
+              fontWeight: "bold",
+              zIndex: 1000,
+            }}
+          >
+            {notification.message}
+          </div>
+        )}
       <div className="flex-grow"></div>
 
       {/* Project Summary Table Section */}
@@ -185,8 +234,22 @@ const Tracker = () => {
               placeholder="Search by brand"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearch();
+              
+                }
+              
+              }}
+              required
               className="w-64 p-2 mr-2 border border-gray-300 rounded-lg"
             />
+            <button
+              onClick={handleSearch}
+              className="px-4 py-2 text-white bg-blue-500 rounded-lg"
+            >
+              Search
+            </button>
             <button className="px-4 py-2 bg-gray-200 rounded-lg">Export CSV</button>
             <button
               onClick={() => setShowAddProject((prev) => !prev)}
@@ -211,6 +274,7 @@ const Tracker = () => {
 
         {/* Project Table */}
         <ProjectTable
+        
           projects={paginatedProjects}
           getProjectDate={getProjectDate}
           onDelete={handleDelete}

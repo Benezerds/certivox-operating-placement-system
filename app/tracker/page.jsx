@@ -241,7 +241,6 @@ const Tracker = () => {
                 }
               
               }}
-              required
               className="w-64 p-2 mr-2 border border-gray-300 rounded-lg"
             />
             <button

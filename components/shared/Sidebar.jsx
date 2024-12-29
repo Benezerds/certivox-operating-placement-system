@@ -9,7 +9,10 @@ import {
   WalletIcon,
   Bars3Icon,
   ChevronDoubleLeftIcon,
+  ArrowLeftEndOnRectangleIcon,
 } from "@heroicons/react/24/solid";
+import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/app/firebase";
 
 const Sidebar = () => {
   const [isExpanded, setIsExpanded] = useState(true); // Sidebar starts expanded
@@ -25,6 +28,15 @@ const Sidebar = () => {
 
   const handleToggle = () => {
     setIsExpanded((prev) => !prev);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // Firebase sign-out
+      router.push("/auth"); // Redirect to the login page
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   // Track the current path manually
@@ -82,7 +94,9 @@ const Sidebar = () => {
                   isExpanded ? "justify-start" : "justify-center"
                 }`}
               >
-                {item.icon}
+                <div className="flex items-center justify-center w-8 h-8">
+                  {item.icon}
+                </div>
                 <span className={`${!isExpanded && "hidden"} text-sm`}>
                   {item.name}
                 </span>
@@ -91,6 +105,20 @@ const Sidebar = () => {
           ))}
         </ul>
       </nav>
+      {/* Logout Button */}
+      <div className="mt-auto p-4 border-t">
+        <button
+          onClick={handleLogout}
+          className={`flex items-center justify-center w-full px-4 py-2 text-white bg-red-500 rounded-lg transition-all hover:bg-red-600 ${
+            isExpanded ? "justify-start" : "justify-center"
+          }`}
+        >
+          <span className="flex items-center">
+          <ArrowLeftEndOnRectangleIcon className="w-6 h-6" />
+          {isExpanded && <span className="ml-3">Logout</span>}
+          </span>
+        </button>
+      </div>
     </aside>
   );
 };

@@ -58,13 +58,6 @@ function Dashboard() {
   return (
     <div className="mt-8 ml-8">
       {/* Main Content */}
-      <button
-        onClick={handleLogout}
-        className="h-12 px-4 py-2 text-white bg-red-500 rounded-lg w-44 hover:bg-red-600"
-      >
-        Logout
-      </button>
-
       <h2 className="mb-4 text-2xl font-bold text-gray-800">
         Performance Metrics
       </h2>

@@ -20,10 +20,10 @@ const Sidebar = () => {
   const router = useRouter();
 
   const menuItems = [
-    { name: "Home", icon: <HomeIcon className="w-6 h-6 mr-3" />, path: "/dashboard" },
-    { name: "Projects", icon: <ClipboardDocumentIcon className="w-6 h-6 mr-3" />, path: "/dashboard/project" },
-    { name: "Data", icon: <ChartBarIcon className="w-6 h-6 mr-3" />, path: "/dashboard/data" },
-    { name: "Budget", icon: <WalletIcon className="w-6 h-6 mr-3" />, path: "/dashboard/budget" },
+    { name: "Home", icon: <HomeIcon className="w-6 h-6" />, path: "/dashboard" },
+    { name: "Projects", icon: <ClipboardDocumentIcon className="w-6 h-6" />, path: "/dashboard/project" },
+    { name: "Data", icon: <ChartBarIcon className="w-6 h-6" />, path: "/dashboard/data" },
+    { name: "Budget", icon: <WalletIcon className="w-6 h-6" />, path: "/dashboard/budget" },
   ];
 
   const handleToggle = () => {
@@ -72,7 +72,7 @@ const Sidebar = () => {
           {isExpanded ? (
             <ChevronDoubleLeftIcon className="w-6 h-6" />
           ) : (
-            <Bars3Icon className="w-6 h-6" />
+            <Bars3Icon className="flex items-center w-6 h-6" />
           )}
         </button>
       </div>
@@ -94,7 +94,7 @@ const Sidebar = () => {
                   isExpanded ? "justify-start" : "justify-center"
                 }`}
               >
-                <div className="flex items-center justify-center w-8 h-8">
+                <div className="flex items-center justify-center w-8 h-8 mr-3">
                   {item.icon}
                 </div>
                 <span className={`${!isExpanded && "hidden"} text-sm`}>
@@ -115,7 +115,7 @@ const Sidebar = () => {
         >
           <span className="flex items-center">
           <ArrowLeftEndOnRectangleIcon className="w-6 h-6" />
-          {isExpanded && <span className="ml-3">Logout</span>}
+          {isExpanded && <span className="ml-2">Logout</span>}
           </span>
         </button>
       </div>

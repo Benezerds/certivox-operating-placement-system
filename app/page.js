@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
 import { auth } from "@/app/firebase"; // Adjust the import path as necessary
-import { LoginPage } from "./auth/login";
 
 export default function Home() {
   const router = useRouter();
@@ -20,7 +19,6 @@ export default function Home() {
 
   return (
     <>
-      <LoginPage /> {/* Include LoginPage if needed */}
     </>
   );
 }

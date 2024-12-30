@@ -20,10 +20,10 @@ const Sidebar = () => {
   const router = useRouter();
 
   const menuItems = [
-    { name: "Home", icon: <HomeIcon className="w-6 h-6 mr-3" />, path: "dashboard" },
-    { name: "Projects", icon: <ClipboardDocumentIcon className="w-6 h-6 mr-3" />, path: "/projects" },
-    { name: "Data", icon: <ChartBarIcon className="w-6 h-6 mr-3" />, path: "/data" },
-    { name: "Budget", icon: <WalletIcon className="w-6 h-6 mr-3" />, path: "/budget" },
+    { name: "Home", icon: <HomeIcon className="w-6 h-6 mr-3" />, path: "/dashboard" },
+    { name: "Projects", icon: <ClipboardDocumentIcon className="w-6 h-6 mr-3" />, path: "/dashboard/project" },
+    { name: "Data", icon: <ChartBarIcon className="w-6 h-6 mr-3" />, path: "/dashboard/data" },
+    { name: "Budget", icon: <WalletIcon className="w-6 h-6 mr-3" />, path: "/dashboard/budget" },
   ];
 
   const handleToggle = () => {
@@ -106,7 +106,7 @@ const Sidebar = () => {
         </ul>
       </nav>
       {/* Logout Button */}
-      <div className="mt-auto p-4 border-t">
+      <div className="p-4 mt-auto border-t">
         <button
           onClick={handleLogout}
           className={`flex items-center justify-center w-full px-4 py-2 text-white bg-red-500 rounded-lg transition-all hover:bg-red-600 ${

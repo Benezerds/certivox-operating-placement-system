@@ -7,7 +7,7 @@ import { auth } from "../firebase";
 import { setPersistence, signInWithEmailAndPassword, browserSessionPersistence, browserLocalPersistence } from "firebase/auth";
 import Image from 'next/image';
 
-export const LoginPage = () => {
+function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -77,7 +77,7 @@ export const LoginPage = () => {
   }
 
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+    <section className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <Image
         className="mx-auto mb-6"
         src="/cretivox_logo.png"
@@ -86,12 +86,12 @@ export const LoginPage = () => {
         height={246}
       />
       <div className="bg-white p-8 rounded-lg shadow-lg w-[380px]">
-        <h2 className="text-center text-4xl font-bold text-gray-700 mb-8">
+        <h2 className="mb-8 text-4xl font-bold text-center text-gray-700">
           Login
         </h2>
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
           <div>
-            <label htmlFor="email" className="block text-xl font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block mb-2 text-xl font-medium text-gray-700">
               Email
             </label>
             <input
@@ -99,11 +99,11 @@ export const LoginPage = () => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="px-4 py-3 rounded-lg bg-gray-100 w-full border border-gray-300"
+              className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg"
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-xl font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block mb-2 text-xl font-medium text-gray-700">
               Password
             </label>
             <input
@@ -111,7 +111,7 @@ export const LoginPage = () => {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="px-4 py-3 rounded-lg bg-gray-100 w-full border border-gray-300"
+              className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg"
             />
           </div>
           <div className="flex items-center justify-between mt-4">
@@ -121,9 +121,9 @@ export const LoginPage = () => {
                 id="remember_me"
                 checked={rememberMe}
                 onChange={() => setRememberMe(!rememberMe)}
-                className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                className="w-4 h-4 text-indigo-600 border-gray-300 rounded"
               />
-              <label htmlFor="remember_me" className="ml-2 block text-sm text-gray-700">
+              <label htmlFor="remember_me" className="block ml-2 text-sm text-gray-700">
                 Remember me
               </label>
             </div>
@@ -133,7 +133,7 @@ export const LoginPage = () => {
           </div>
           <button
             type="submit"
-            className="mt-6 px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-300"
+            className="px-4 py-3 mt-6 text-white transition-all duration-300 bg-black rounded-lg hover:bg-gray-800"
           >
             Login
           </button>
@@ -142,3 +142,5 @@ export const LoginPage = () => {
     </section>
   );
 };
+
+export default Auth;

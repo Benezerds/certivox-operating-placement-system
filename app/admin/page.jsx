@@ -1,36 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getYear, parseISO } from "date-fns";
-import { format, isValid } from "date-fns";
-
-import {
-  collection,
-  onSnapshot,
-  doc,
-  deleteDoc,
-  addDoc,
-  serverTimestamp,
-  getDoc
-} from "firebase/firestore";
-import { db } from "@/app/firebase"; // Ensure Firebase is set up correctly
-import AddUser from "app/admin/AddUser"; // Import the AddUser component
-import UserTable from "@//project/UserTable";
-import EditUser from "@/components/project/EditUser";
-import ExportCSV from "@/components/project/ExportCsv";
-
-
-const Tracker = () => {
-  const [projects, setProjects] = useState([]);
-  const [filteredProjects, setFilteredProjects] = useState([]);
-  const [showAddProject, setShowAddProject] = useState(false);
-  const [editProject, setEditProject] = useState(null); // For storing the selected project to edit
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDivision, setSelectedDivision] = useState("all");
-  const [selectedYear, setSelectedYear] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1); // Track the current page
-  const itemsPerPage = 4; // Number of items per page
-  const [notification, setNotification] = useState({ message: "", visible: false });
+import { useEffect, useState } from "react";
+import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { auth } from "@/app/firebase";
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

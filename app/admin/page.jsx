@@ -10,6 +10,23 @@ function Dashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
+  const performanceData = [
+    {
+      label: "Total Projects",
+      data: [80, 85, 90, 95, 100],
+      isPositive: true,
+      percentage: "+10%",
+      days: "7 days",
+    },
+    {
+      label: "Average Time on Page",
+      data: [2, 2.5, 2.3, 2.8, 3],
+      isPositive: true,
+      percentage: "+15%",
+      days: "7 days",
+    },
+  ];
+
   const handleLogout = async () => {
     try {
       await signOut(auth); // Firebase sign-out

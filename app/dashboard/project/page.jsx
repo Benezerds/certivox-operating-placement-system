@@ -227,43 +227,12 @@ const Tracker = () => {
     document.body.removeChild(link);
   };
   
-  
-  
-  
-  
-  
-
-  
   return (
-    
-    <div className="flex flex-col justify-between h-screen p-8">
-      {/* Notification */}
-        {notification.visible && (
-          <div
-            style={{
-              position: "fixed",
-              bottom: "20px",
-              left: "20px",
-              backgroundColor: "#f8d7da", // Light red background
-              color: "#721c24", // Dark red text
-              padding: "10px 20px",
-              border: "1px solid #f5c6cb", // Red border
-              borderRadius: "8px",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-              fontSize: "14px",
-              fontWeight: "bold",
-              zIndex: 1000,
-            }}
-          >
-            {notification.message}
-          </div>
-        )}
-      <div className="flex-grow"></div>
-
+    <div className="flex flex-col h-screen p-8">
       {/* Project Summary Table Section */}
       <div className="flex flex-col">
         <h1 className="mb-6 text-2xl font-semibold">Project Summary</h1>
-
+  
         {/* Filter Options */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
@@ -280,7 +249,7 @@ const Tracker = () => {
               <option value="Marketing">Marketing</option>
               <option value="Community">Community</option>
             </select>
-
+  
             {/* Year Dropdown */}
             <select
               value={selectedYear}
@@ -296,9 +265,8 @@ const Tracker = () => {
               <option value="2022">2022</option>
               <option value="2021">2021</option>
             </select>
-
           </div>
-
+  
           {/* Search Bar and Buttons */}
           <div className="flex items-center gap-2">
             <input
@@ -309,9 +277,7 @@ const Tracker = () => {
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleSearch();
-              
                 }
-              
               }}
               className="w-64 p-2 mr-2 border border-gray-300 rounded-lg"
             />
@@ -322,23 +288,22 @@ const Tracker = () => {
               Search
             </button>
             <div className="flex items-center gap-2">
-               <ExportCSV projects={projects} setNotification={setNotification} />
+              <ExportCSV projects={projects} setNotification={setNotification} />
             </div>
-
-
+  
             <button
               onClick={() => setShowAddProject((prev) => !prev)}
               className="px-4 py-2 text-white bg-black rounded-lg"
             >
               + New Project
             </button>
-
+  
             {showAddProject && (
               <AddProject onAdd={handleAddProject} onClose={() => setShowAddProject(false)} />
             )}
           </div>
         </div>
-
+  
         {/* Edit Project Modal */}
         {editProject && (
           <EditProject
@@ -346,18 +311,17 @@ const Tracker = () => {
             onClose={() => setEditProject(null)} // Close the modal
           />
         )}
-
+  
         {/* Project Table */}
         <ProjectTable
-        
           projects={paginatedProjects}
           getProjectDate={getProjectDate}
           onDelete={handleDelete}
           onEdit={handleEdit}
         />
-
+  
         {/* Pagination */}
-        <div className="flex items-center justify-center mt-4 gap-4">
+        <div className="flex items-center justify-center gap-4 mt-4">
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 1}
@@ -382,12 +346,12 @@ const Tracker = () => {
             Next &gt;
           </button>
         </div>
-
+  
         <p>Total Projects: {projects.length}</p>
       </div>
-      
     </div>
   );
+  
 };
 
 export default Tracker;

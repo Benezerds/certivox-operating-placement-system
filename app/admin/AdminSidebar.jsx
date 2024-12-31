@@ -10,6 +10,7 @@ import {
   Bars3Icon,
   ChevronDoubleLeftIcon,
   ArrowLeftEndOnRectangleIcon,
+  UserCircleIcon,
 } from "@heroicons/react/24/solid";
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/app/firebase";
@@ -24,6 +25,7 @@ const Sidebar = () => {
     { name: "Projects", icon: <ClipboardDocumentIcon className="w-6 h-6" />, path: "/dashboard/project" },
     { name: "Data", icon: <ChartBarIcon className="w-6 h-6" />, path: "/dashboard/data" },
     { name: "Budget", icon: <WalletIcon className="w-6 h-6" />, path: "/dashboard/budget" },
+    { name: "Admin", icon: <UserCircleIcon className="w-6 h-6" />, path: "/admin" },
   ];
 
   const handleToggle = () => {

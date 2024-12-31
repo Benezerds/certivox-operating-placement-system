@@ -229,9 +229,9 @@ const Tracker = () => {
   
   return (
     <div className="flex flex-col h-screen p-8">
-      {/* Project Summary Table Section */}
+      {/* Project Table Section */}
       <div className="flex flex-col">
-        <h1 className="mb-6 text-2xl font-semibold">Project Summary</h1>
+        <h1 className="mb-6 text-2xl font-semibold">Project</h1>
   
         {/* Filter Options */}
         <div className="flex items-center justify-between mb-4">

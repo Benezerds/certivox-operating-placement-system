@@ -7,6 +7,7 @@ import { auth } from "@/app/firebase";
 import AddUser from "./AddUser";
 import EditUser from "./EditUser";
 import CsvExport from "./CsvExport";
+import UserTable from "./UserTable";
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -78,6 +79,11 @@ const AdminPage = () => {
     } catch (error) {
       console.error("Error adding user:", error);
     }
+  };
+
+  const handleEditUser = (user) => {
+    setSelectedUser(user);
+    setShowEditUser(true);
   };
 
   // Update user
@@ -177,50 +183,26 @@ const AdminPage = () => {
       <div className="bg-white mx-8 shadow-md rounded-lg p-6">
         {loading ? (
           <div>Loading users...</div>
-        ) : filteredUsers.length === 0 ? (
-          <div>No users found</div>
         ) : (
-          <div>
-            <div className="grid grid-cols-5 gap-4 font-semibold text-gray-600 border-b pb-2">
-              <span>Full Name</span>
-              <span>Email</span>
-              <span>Role</span>
-              <span>Last Active</span>
-              <span>Actions</span>
-            </div>
-            {filteredUsers.map((user) => (
-              <div
-                key={user.id}
-                className="grid grid-cols-5 gap-4 items-center text-gray-800 border-b py-2"
-              >
-                <span>{user.name}</span>
-                <span className="text-gray-500">{user.email}</span>
-                <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-center">
-                  {user.role}
-                </span>
-                <span className="text-gray-500">{user.lastActive || "Unknown"}</span>
-                <div className="flex gap-2">
-                  <button
-                    className="bg-gray-300 text-gray-700 px-3 py-1 rounded-md hover:bg-gray-400"
-                    onClick={() => handleEditUser(user)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
-                    onClick={() => handleDeleteUser(user.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+          <UserTable
+            users={users}
+            filteredUsers={filteredUsers}
+            onEdit={handleEditUser}
+            onDelete={handleDeleteUser}
+            loading={loading}
+          />
         )}
       </div>
 
-      {/* Modals */}
-      {showAddUser && <AddUser onClose={() => setShowAddUser(false)} onUserAdded={handleUserAdded} />}
+      {/* Add User Modal */}
+      {showAddUser && (
+        <AddUser
+          onClose={() => setShowAddUser(false)}
+          onUserAdded={handleUserAdded}
+        />
+      )}
+
+      {/* Edit User Modal */}
       {showEditUser && selectedUser && (
         <EditUser
           user={selectedUser}

@@ -4,7 +4,8 @@ const EditUser = ({ user, onClose, onUpdateUser }) => {
   const [name, setName] = useState(user.name || "");
   const [email, setEmail] = useState(user.email || "");
   const [role, setRole] = useState(user.role || "");
-  const [password, setPassword] = useState(""); // Add password field
+  const [password, setPassword] = useState(""); // Field for a new password
+  const [showPassword, setShowPassword] = useState(false); // Toggle for password visibility
 
   useEffect(() => {
     if (user) {
@@ -27,7 +28,7 @@ const EditUser = ({ user, onClose, onUpdateUser }) => {
       name,
       email,
       role,
-      password, // Include password in the update
+      password: password || user.password, // Only update password if a new value is provided
     };
 
     // Notify parent component of the updated user
@@ -85,12 +86,22 @@ const EditUser = ({ user, onClose, onUpdateUser }) => {
           </div>
           <div>
             <label className="block font-semibold">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-300 p-2 rounded"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Leave blank to keep current password"
+                className="w-full border border-gray-300 p-2 rounded"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500 underline"
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
           </div>
           <button
             type="submit"

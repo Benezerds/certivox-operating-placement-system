@@ -7,6 +7,7 @@ const AddUserForm = ({ onClose, onUserAdded }) => {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false); // Submission state
   const [errorMessage, setErrorMessage] = useState(null); // Error state
+  const [showPassword, setShowPassword] = useState(false); // Show/Hide password
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,7 +17,8 @@ const AddUserForm = ({ onClose, onUserAdded }) => {
     // Validate required fields
     if (!name || !email || !role || !password) {
       alert("All fields are required!");
-      return; // Ensure the function stops if validation fails
+      setIsSubmitting(false);
+      return;
     }
 
     try {
@@ -81,13 +83,22 @@ const AddUserForm = ({ onClose, onUserAdded }) => {
       </div>
       <div>
         <label className="block font-semibold">Password</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border border-gray-300 p-2 rounded"
-          required
-        />
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border border-gray-300 p-2 rounded"
+            required
+          />
+          <button
+            type="button"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? "Hide" : "Show"}
+          </button>
+        </div>
       </div>
       {errorMessage && (
         <div className="text-red-500 text-sm">{errorMessage}</div>

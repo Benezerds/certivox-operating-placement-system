@@ -8,6 +8,8 @@ import AddUser from "./AddUser";
 import EditUser from "./EditUser";
 import CsvExport from "./CsvExport";
 import UserTable from "./UserTable";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "@/app/firebase"; // Adjust the path based on your project structure
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -29,24 +31,23 @@ const AdminPage = () => {
     }
   };
 
-  // Fetch users via API
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/users");
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data);
-        setFilteredUsers(data);
-      } else {
-        console.error("Failed to fetch users:", await response.text());
-      }
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    } finally {
-      setLoading(false);
-    }
+  const fetchUsers = () => {
+    const usersCollection = collection(db, "Users");
+  
+    // Set up a real-time listener
+    const unsubscribe = onSnapshot(usersCollection, (snapshot) => {
+      const userList = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setUsers(userList);
+      setFilteredUsers(userList);
+    });
+  
+    // Return the unsubscribe function to clean up the listener
+    return unsubscribe;
   };
+  
 
   // Handle user search
   const handleSearch = (e) => {
@@ -73,6 +74,7 @@ const AdminPage = () => {
         const addedUser = await response.json();
         setUsers((prev) => [...prev, addedUser]);
         setFilteredUsers((prev) => [...prev, addedUser]);
+        await fetchUsers();
       } else {
         console.error("Failed to add user:", await response.text());
       }
@@ -130,17 +132,32 @@ const AdminPage = () => {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (!user) {
         setIsAuthenticated(false);
         router.push("/auth");
       } else {
         setIsAuthenticated(true);
-        await fetchUsers();
+  
+        // Set up Firestore real-time listener for users
+        const unsubscribeFirestore = onSnapshot(collection(db, "Users"), (snapshot) => {
+          const userList = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setUsers(userList);
+          setFilteredUsers(userList);
+        });
+  
+        // Cleanup Firestore listener when component unmounts
+        return () => unsubscribeFirestore();
       }
     });
-    return () => unsubscribe();
+  
+    // Cleanup Auth listener when component unmounts
+    return () => unsubscribeAuth();
   }, [router]);
+  
 
   if (!isAuthenticated) {
     return <div>Loading...</div>;

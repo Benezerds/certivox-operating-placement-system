@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { signOut, onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth } from "@/app/firebase";
 import AddUser from "../../components/admin/AddUser";
@@ -9,7 +9,7 @@ import EditUser from "../../components/admin/EditUser";
 import CsvExport from "../../components/admin/CsvExport";
 import UserTable from "../../components/admin/UserTable";
 import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "@/app/firebase"; // Adjust the path based on your project structure
+import { db } from "@/app/firebase";
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -22,18 +22,9 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(false); // Loading state
   const router = useRouter();
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      router.push("/auth");
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  };
-
   const fetchUsers = () => {
     const usersCollection = collection(db, "Users");
-  
+
     // Set up a real-time listener
     const unsubscribe = onSnapshot(usersCollection, (snapshot) => {
       const userList = snapshot.docs.map((doc) => ({
@@ -43,11 +34,10 @@ const AdminPage = () => {
       setUsers(userList);
       setFilteredUsers(userList);
     });
-  
+
     // Return the unsubscribe function to clean up the listener
     return unsubscribe;
   };
-  
 
   // Handle user search
   const handleSearch = (e) => {
@@ -138,7 +128,7 @@ const AdminPage = () => {
         router.push("/auth");
       } else {
         setIsAuthenticated(true);
-  
+
         // Set up Firestore real-time listener for users
         const unsubscribeFirestore = onSnapshot(collection(db, "Users"), (snapshot) => {
           const userList = snapshot.docs.map((doc) => ({
@@ -148,16 +138,15 @@ const AdminPage = () => {
           setUsers(userList);
           setFilteredUsers(userList);
         });
-  
+
         // Cleanup Firestore listener when component unmounts
         return () => unsubscribeFirestore();
       }
     });
-  
+
     // Cleanup Auth listener when component unmounts
     return () => unsubscribeAuth();
   }, [router]);
-  
 
   if (!isAuthenticated) {
     return <div>Loading...</div>;
@@ -168,12 +157,6 @@ const AdminPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between px-8 py-4 bg-white shadow">
         <h1 className="text-xl font-bold text-gray-800">User Management</h1>
-        <button
-          className="px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600"
-          onClick={handleLogout}
-        >
-          Logout
-        </button>
       </div>
 
       {/* Search, Export, Add User */}

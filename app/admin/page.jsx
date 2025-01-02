@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth } from "@/app/firebase";
-import AddUser from "./AddUser";
-import EditUser from "./EditUser";
-import CsvExport from "./CsvExport";
-import UserTable from "./UserTable";
+import AddUser from "../../components/admin/AddUser";
+import EditUser from "../../components/admin/EditUser";
+import CsvExport from "../../components/admin/CsvExport";
+import UserTable from "../../components/admin/UserTable";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/app/firebase"; // Adjust the path based on your project structure
 
@@ -164,12 +164,12 @@ const AdminPage = () => {
   }
 
   return (
-    <div className="flex flex-col bg-gray-100 min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-100">
       {/* Header */}
-      <div className="flex justify-between items-center px-8 py-4 bg-white shadow">
+      <div className="flex items-center justify-between px-8 py-4 bg-white shadow">
         <h1 className="text-xl font-bold text-gray-800">User Management</h1>
         <button
-          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+          className="px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600"
           onClick={handleLogout}
         >
           Logout
@@ -177,18 +177,18 @@ const AdminPage = () => {
       </div>
 
       {/* Search, Export, Add User */}
-      <div className="flex justify-between items-center px-8 py-4">
+      <div className="flex items-center justify-between px-8 py-4">
         <input
           type="text"
           value={searchQuery}
           onChange={handleSearch}
           placeholder="Search users"
-          className="border border-gray-300 px-4 py-2 rounded-lg w-1/2"
+          className="w-1/2 px-4 py-2 border border-gray-300 rounded-lg"
         />
         <div className="flex space-x-4">
           <CsvExport users={filteredUsers} />
           <button
-            className="bg-gray-800 text-white px-6 py-2 rounded-md hover:bg-gray-700"
+            className="px-6 py-2 text-white bg-gray-800 rounded-md hover:bg-gray-700"
             onClick={() => setShowAddUser(true)}
           >
             Add User
@@ -197,7 +197,7 @@ const AdminPage = () => {
       </div>
 
       {/* User Table */}
-      <div className="bg-white mx-8 shadow-md rounded-lg p-6">
+      <div className="p-6 mx-8 bg-white rounded-lg shadow-md">
         {loading ? (
           <div>Loading users...</div>
         ) : (

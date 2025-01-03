@@ -14,7 +14,7 @@ import {
   UsersIcon,
   AdjustmentsHorizontalIcon
 } from "@heroicons/react/24/solid";
-import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { auth } from "@/app/firebase";
 
 const Sidebar = () => {
@@ -28,8 +28,8 @@ const Sidebar = () => {
     { name: "Data", icon: <ChartBarIcon className="w-6 h-6" />, path: "/dashboard/data" },
     { name: "Budget", icon: <WalletIcon className="w-6 h-6" />, path: "/dashboard/budget" },
     { name: "Admin", icon: <UserCircleIcon className="w-6 h-6" />, path: "/admin" },
-    { name: "Users", icon: <UsersIcon className="w-6 h-6" />, path: "/admin" },
-    { name: "Setup", icon: <AdjustmentsHorizontalIcon className="w-6 h-6" />, path: "/admin" },
+    { name: "Users", icon: <UsersIcon className="w-6 h-6" />, path: "/admin/users" },
+    { name: "Roles", icon: <AdjustmentsHorizontalIcon className="w-6 h-6" />, path: "/admin/setup" },
   ];
 
   const handleToggle = () => {
@@ -48,9 +48,15 @@ const Sidebar = () => {
   // Track the current path manually
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setCurrentPath(window.location.pathname); // Get the current path from the window object
+      const path = window.location.pathname;
+      if (path === "/admin") {
+        setCurrentPath("/admin/users"); // Default to Users under Admin
+        router.push("/admin/users"); // Redirect to UsersPage under Admin
+      } else {
+        setCurrentPath(path); // Set the current path based on the actual path
+      }
     }
-  }, [router]); // Update when router changes
+  }, [router]);
 
   return (
     <aside
@@ -66,7 +72,7 @@ const Sidebar = () => {
             src="/cretivox_logo.png"
             alt="Cretivox Logo"
             className={`h-8 transition-all duration-300 ${
-              isExpanded ? "w-auto" : "w-0 hidden"
+              isExpanded ? "w-auto" : "hidden"
             }`}
           />
         </h1>
@@ -90,15 +96,14 @@ const Sidebar = () => {
             <li key={index}>
               <a
                 onClick={() => {
-                  router.push(item.path)
+                  router.push(item.path);
                   setCurrentPath(item.path); // Update the current path on click
                 }}
-                
-                className={`flex items-center px-6 py-2 rounded-md cursor-pointer hover:bg-gray-100 hover:text-gray-900 transition ${
+                className={`flex items-center px-6 py-2 rounded-md cursor-pointer hover:bg-gray-100 transition ${
                   currentPath === item.path
-                  ? "bg-gray-200 text-gray-900" : "hover:bg-gray-100 hover:text-gray-900"}
-                  isExpanded ? "justify-start" : "justify-center"
-                }`}
+                    ? "bg-gray-200 text-gray-900"
+                    : "hover:bg-gray-100 hover:text-gray-900"
+                } ${isExpanded ? "justify-start" : "justify-center"}`}
               >
                 <div className="flex items-center justify-center w-8 h-8 mr-3">
                   {item.icon}
@@ -111,6 +116,7 @@ const Sidebar = () => {
           ))}
         </ul>
       </nav>
+
       {/* Logout Button */}
       <div className="p-4 mt-auto border-t">
         <button
@@ -119,10 +125,8 @@ const Sidebar = () => {
             isExpanded ? "justify-start" : "justify-center"
           }`}
         >
-          <span className="flex items-center">
           <ArrowLeftEndOnRectangleIcon className="w-6 h-6" />
           {isExpanded && <span className="ml-2">Logout</span>}
-          </span>
         </button>
       </div>
     </aside>

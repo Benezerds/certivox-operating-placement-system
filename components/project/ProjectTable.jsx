@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { format, isValid } from "date-fns";
 import { getDoc } from "firebase/firestore";
+import { useRouter } from "next/navigation"; // Import useRouter
 
 const ProjectTable = ({ projects, onDelete, onEdit }) => {
   const [resolvedProjects, setResolvedProjects] = useState([]);
+  const router = useRouter(); // Initialize router for navigation
 
   useEffect(() => {
     const resolveProjectData = async () => {
@@ -14,7 +16,8 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
             try {
               const categoryDoc = await getDoc(project.category); // Resolving Firestore reference
               if (categoryDoc.exists()) {
-                categoryName = categoryDoc.data().category_name || "N/A"; // Assuming 'category_name' is the field storing the name
+                categoryName =
+                  categoryDoc.data().category_name || "N/A"; // Assuming 'category_name' is the field storing the name
               }
             } catch (error) {
               console.error("Error fetching category:", error);
@@ -87,12 +90,20 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
             resolvedProjects.map((project, idx) => (
               <tr key={idx} className="border-b">
                 <td className="p-2 text-sm">{project.source || "N/A"}</td>
-                <td className="p-2 text-sm">{project.projectName || "N/A"}</td>
+                {/* Make Project Name Clickable for Navigation */}
+                <td
+                  className="p-2 text-sm text-blue-500 cursor-pointer hover:underline"
+                  onClick={() =>
+                    router.push(`/dashboard/project/${project.id}`)
+                  }
+                >
+                  {project.projectName || "N/A"}
+                </td>
                 <td className="p-2 text-sm">{project.projectStatus || "N/A"}</td>
                 <td className="p-2 text-sm">
                   {project.date && isValid(new Date(project.date)) // Check if the date is valid
                     ? format(new Date(project.date), "yyyy-MM-dd") // Format the date
-                    : "N/A"} 
+                    : "N/A"}
                 </td>
                 <td className="p-2 text-sm">{project.quarter || "N/A"}</td>
                 <td className="p-2 text-sm">{project.category || "N/A"}</td>
@@ -107,7 +118,8 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
                         </li>
                       ))}
                     </ul>
-                  ) : typeof project.sow === "object" && project.sow !== null ? (
+                  ) : typeof project.sow === "object" &&
+                    project.sow !== null ? (
                     <span>{project.sow?.sow || "N/A"}</span>
                   ) : (
                     project.sow || "N/A"
@@ -128,8 +140,6 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
                     "N/A"
                   )}
                 </td>
-
-                  
 
                 <td className="p-2 text-sm">
                   <button

@@ -16,6 +16,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { signOut } from "firebase/auth";
 import { auth } from "@/app/firebase";
+import Image from "next/image";
 
 const Sidebar = () => {
   const [isExpanded, setIsExpanded] = useState(true); // Sidebar starts expanded
@@ -68,9 +69,11 @@ const Sidebar = () => {
       <div className="flex items-center justify-between px-6 py-4 border-b">
         <h1 className={`text-xl font-bold ${!isExpanded && "hidden"}`}>
           {/* Actual Logo */}
-          <img
+          <Image
             src="/cretivox_logo.png"
             alt="Cretivox Logo"
+            width={50}
+            height={50}
             className={`h-8 transition-all duration-300 ${
               isExpanded ? "w-auto" : "hidden"
             }`}

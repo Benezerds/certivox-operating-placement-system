@@ -50,7 +50,26 @@ const AddProjectForm = ({ onClose }) => {
       setBundlingSowList([{ id: 1, sow: '', content: '' }]);
     }
   };
-
+  const handlePlatformChange = (selectedPlatform) => {
+    setPlatform((prevPlatforms) => {
+      if (prevPlatforms.includes(selectedPlatform)) {
+        // Remove platform if already selected
+        const updatedPlatforms = prevPlatforms.filter((p) => p !== selectedPlatform);
+        const { [selectedPlatform]: _, ...remainingLinks } = platformLink; // Remove link
+        setPlatformLink(remainingLinks);
+        return updatedPlatforms;
+      } else {
+        // Add platform if not selected
+        return [...prevPlatforms, selectedPlatform];
+      }
+    });
+  };
+  const handlePlatformLinkChange = (platformName, link) => {
+    setPlatformLink((prevLinks) => ({
+      ...prevLinks,
+      [platformName]: link,
+    }));
+  };
   const addBundlingSowField = () => {
     const newSowId = bundlingSowList.length + 1;
     setBundlingSowList([...bundlingSowList, { id: newSowId, sow: '', content: '' }]);
@@ -238,30 +257,35 @@ const AddProjectForm = ({ onClose }) => {
           {["Instagram", "Tik Tok", "Youtube", "Website", "Apa kek"].map((plat) => (
             <label key={plat} className="flex items-center space-x-2">
               <input
-                type="radio"
-                name="platform"
+                type="checkbox"
                 value={plat}
-                checked={platform === plat}
-                onChange={() => setPlatform(plat)}
-                className="form-radio"
+                checked={platform.includes(plat)} // Check if platform is selected
+                onChange={() => handlePlatformChange(plat)} // Handle platform selection
+                className="form-checkbox"
               />
               <span>{plat}</span>
             </label>
           ))}
         </div>
-        {platform && (
+        {platform.length > 0 && (
           <div className="mt-2">
-            <label className="block font-semibold">{`${platform} Link`}</label>
-            <input
-              type="text"
-              value={platformLink}
-              onChange={(e) => setPlatformLink(e.target.value)}
-              placeholder={`Enter ${platform} link`}
-              className="border border-gray-300 p-2 rounded w-full"
-            />
+            <label className="block font-semibold">Platform Links</label>
+            {platform.map((plat) => (
+              <div key={plat} className="mb-2">
+                <label className="block">{`${plat} Link`}</label>
+                <input
+                  type="text"
+                  placeholder={`Enter ${plat} link`}
+                  value={platformLink[plat] || ""}
+                  onChange={(e) => handlePlatformLinkChange(plat, e.target.value)}
+                  className="border border-gray-300 p-2 rounded w-full"
+                />
+              </div>
+            ))}
           </div>
         )}
       </div>
+
 
       {/* SOW */}
       <div>

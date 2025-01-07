@@ -138,7 +138,11 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
                 <td className="p-2 text-sm">{project.quarter || "N/A"}</td>
                 <td className="p-2 text-sm">{project.category || "N/A"}</td>
                 <td className="p-2 text-sm">{project.brand || "N/A"}</td>
-                <td className="p-2 text-sm">{project.platform || "N/A"}</td>
+                <td className="p-2 text-sm">
+                  {Array.isArray(project.platform) && project.platform.length > 0
+                    ? project.platform.join(", ") // Join multiple platform labels
+                    : project.platform || "N/A"}
+                </td>
                 <td className="p-2 text-sm">
                   {Array.isArray(project.sow) ? (
                     <ul>

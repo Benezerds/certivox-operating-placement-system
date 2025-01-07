@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { format, isValid } from "date-fns";
-import { getDoc } from "firebase/firestore";
-import { useRouter } from "next/navigation"; // Import useRouter
+import { getDoc, updateDoc, doc } from "firebase/firestore"; // Firestore methods
+import { useRouter } from "next/navigation";
+import { db } from "@/app/firebase"; // Ensure Firebase config is imported
 
 const ProjectTable = ({ projects, onDelete, onEdit }) => {
   const [resolvedProjects, setResolvedProjects] = useState([]);
-  const router = useRouter(); // Initialize router for navigation
+  const router = useRouter();
 
   useEffect(() => {
     const resolveProjectData = async () => {
@@ -14,16 +15,15 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
           let categoryName = "N/A";
           if (project.category) {
             try {
-              const categoryDoc = await getDoc(project.category); // Resolving Firestore reference
+              const categoryDoc = await getDoc(project.category);
               if (categoryDoc.exists()) {
-                categoryName =
-                  categoryDoc.data().category_name || "N/A"; // Assuming 'category_name' is the field storing the name
+                categoryName = categoryDoc.data().category_name || "N/A";
               }
             } catch (error) {
               console.error("Error fetching category:", error);
             }
           }
-          return { ...project, category: categoryName }; // Replace category reference with its name
+          return { ...project, category: categoryName };
         })
       );
       setResolvedProjects(updatedProjects);
@@ -32,24 +32,41 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
     resolveProjectData();
   }, [projects]);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [projectToDelete, setProjectToDelete] = useState(null);
-
-  const handleDeleteClick = (project) => {
-    setProjectToDelete(project);
-    setIsModalOpen(true);
+  const handleStatusChange = async (projectId, newStatus) => {
+    try {
+      const projectRef = doc(db, "Projects", projectId); // Get Firestore reference
+      await updateDoc(projectRef, { projectStatus: newStatus }); // Update status in Firestore
+      // Update local state to reflect the changes
+      const updatedProjects = resolvedProjects.map((project) =>
+        project.id === projectId
+          ? { ...project, projectStatus: newStatus }
+          : project
+      );
+      setResolvedProjects(updatedProjects);
+    } catch (error) {
+      console.error("Error updating project status:", error);
+    }
   };
 
-  const confirmDelete = () => {
-    onDelete(projectToDelete.id);
-    setIsModalOpen(false);
-    setProjectToDelete(null);
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Development":
+        return "bg-gray-200 text-black"; // Gray button, black text
+      case "Content Proposal":
+        return "bg-blue-200 text-blue-800"; // Blue button, white text
+      case "Ongoing":
+        return "bg-orange-200 text-orange-800"; // Orange button, white text
+      case "Editing":
+        return "bg-purple-200 text-purple-800"; // Purple button, white text
+      case "Delivered":
+        return "bg-green-200 text-green-800"; // Green button, white text
+      case "Published":
+        return "bg-black text-white"; // Black button, white text
+      default:
+        return "bg-white text-black"; // Fallback color
+    }
   };
-
-  const cancelDelete = () => {
-    setIsModalOpen(false);
-    setProjectToDelete(null);
-  };
+  
 
   return (
     <div className="overflow-x-auto max-h-[260px]">
@@ -89,19 +106,33 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
             resolvedProjects.map((project, idx) => (
               <tr key={idx} className="border-b">
                 <td className="p-2 text-sm">{project.source || "N/A"}</td>
-                {/* Make Project Name Clickable for Navigation */}
                 <td
                   className="p-2 text-sm text-blue-500 cursor-pointer hover:underline"
-                  onClick={() =>
-                    router.push(`/dashboard/project/${project.id}`)
-                  }
+                  onClick={() => router.push(`/dashboard/project/${project.id}`)}
                 >
                   {project.projectName || "N/A"}
                 </td>
-                <td className="p-2 text-sm">{project.projectStatus || "N/A"}</td>
                 <td className="p-2 text-sm">
-                  {project.date && isValid(new Date(project.date)) // Check if the date is valid
-                    ? format(new Date(project.date), "yyyy-MM-dd") // Format the date
+                  <select
+                    value={project.projectStatus || ""}
+                    onChange={(e) =>
+                      handleStatusChange(project.id, e.target.value)
+                    }
+                    className={`border border-gray-300 rounded p-1 w-40 text-center ${getStatusColor(
+                      project.projectStatus
+                    )}`}
+                  >
+                    <option value="Development">Development</option>
+                    <option value="Content Proposal">Content Proposal</option>
+                    <option value="Ongoing">Ongoing</option>
+                    <option value="Editing">Editing</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Published">Published</option>
+                  </select>
+                </td>
+                <td className="p-2 text-sm">
+                  {project.date && isValid(new Date(project.date))
+                    ? format(new Date(project.date), "yyyy-MM-dd")
                     : "N/A"}
                 </td>
                 <td className="p-2 text-sm">{project.quarter || "N/A"}</td>
@@ -125,17 +156,16 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
                   )}
                 </td>
                 <td className="p-2 text-sm">{project.division || "N/A"}</td>
-
                 <td className="p-2 text-sm">
                   <button
                     className="mr-2 text-blue-500 hover:underline"
-                    onClick={() => onEdit(project)} // Pass project to onEdit
+                    onClick={() => onEdit(project)}
                   >
                     Edit
                   </button>
                   <button
                     className="text-red-500 hover:underline hover:text-red-600"
-                    onClick={() => handleDeleteClick(project)}
+                    onClick={() => onDelete(project.id)}
                   >
                     Delete
                   </button>
@@ -145,33 +175,6 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
           )}
         </tbody>
       </table>
-      {/* Delete Confirmation Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-lg font-semibold mb-4">Confirm Deletion</h3>
-            <p className="text-gray-700 mb-6">
-              Are you sure you want to delete the project{" "}
-              <span className="font-bold">{projectToDelete?.projectName}</span>?
-              This action cannot be undone.
-            </p>
-            <div className="flex justify-end space-x-4">
-              <button
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                onClick={cancelDelete}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                onClick={confirmDelete}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

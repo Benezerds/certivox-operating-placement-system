@@ -67,7 +67,6 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
               "Platform",
               "SOW",
               "Division",
-              "Link",
               "Action",
             ].map((header) => (
               <th
@@ -126,20 +125,6 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
                   )}
                 </td>
                 <td className="p-2 text-sm">{project.division || "N/A"}</td>
-                <td className="p-2 text-sm">
-                  {project.link ? (
-                    <a
-                      href={project.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: "blue", textDecoration: "underline" }} // Ensure default look
-                    >
-                      {project.link}
-                    </a>
-                  ) : (
-                    "N/A"
-                  )}
-                </td>
 
                 <td className="p-2 text-sm">
                   <button

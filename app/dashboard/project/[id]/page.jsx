@@ -23,11 +23,13 @@ const ProjectDetailsPage = ({ params }) => {
         setProject(projectData);
 
         // Check if the project has a YouTube link and fetch metrics
-        const videoId = extractYouTubeVideoId(projectData.link);
-        if (videoId) {
-          await updateYouTubeMetrics(projectData.id, videoId);
-          const updatedProject = await getDoc(docRef); // Fetch updated data
-          setProject({ id: updatedProject.id, ...updatedProject.data() });
+        if (projectData.platform === "Youtube" && projectData.platformLink) {
+          const videoId = extractYouTubeVideoId(projectData.platformLink);
+          if (videoId) {
+            await updateYouTubeMetrics(projectData.id, videoId);
+            const updatedProject = await getDoc(docRef); // Fetch updated data
+            setProject({ id: updatedProject.id, ...updatedProject.data() });
+          }
         }
       } else {
         console.error("No such project!");
@@ -73,20 +75,19 @@ const ProjectDetailsPage = ({ params }) => {
         <p className="text-lg">
           <span className="font-semibold">Platform:</span> {project.platform}
         </p>
-        <p className="text-lg">
-          <span className="font-semibold">Division:</span> {project.division}
-        </p>
-        <p className="text-lg">
-          <span className="font-semibold">Link:</span>{" "}
-          <a
-            href={project.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 underline"
-          >
-            {project.link}
-          </a>
-        </p>
+        {project.platformLink && (
+          <p className="text-lg">
+            <span className="font-semibold">{project.platform} Link:</span>{" "}
+            <a
+              href={project.platformLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 underline"
+            >
+              {project.platformLink}
+            </a>
+          </p>
+        )}
         <div className="grid grid-cols-3 gap-4 text-center mt-8">
           <div className="p-4 bg-blue-100 rounded-lg shadow-md">
             <p className="text-xl font-bold text-blue-700">{project.views || 0}</p>

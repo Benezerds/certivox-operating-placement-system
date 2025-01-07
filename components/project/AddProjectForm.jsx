@@ -14,9 +14,9 @@ const AddProjectForm = ({ onClose }) => {
   const [brand, setBrand] = useState('');
   const [platform, setPlatform] = useState('');
   const [customPlatform, setCustomPlatform] = useState('');
+  const [platformLink, setPlatformLink] = useState('');
   const [sowType, setSowType] = useState('');
   const [isSowCustom, setIsSowCustom] = useState(false);
-  const [link, setLink] = useState('');
   const [division, setDivision] = useState('');
   const [customSow, setCustomSow] = useState('');
   const [bundlingSowList, setBundlingSowList] = useState([{ id: 1, sow: '', content: '' }]);
@@ -85,14 +85,14 @@ const AddProjectForm = ({ onClose }) => {
       quarter,
       category: categoryRef,
       brand,
-      platform: platform === "Apa kek" ? customPlatform : platform,
+      platform,
+      platformLink,
       sow:
         sowType === 'bundling'
           ? bundlingSowList
           : sowType === 'custom'
           ? customSow
           : sowType,
-      link,
       division,
     };
 
@@ -109,10 +109,10 @@ const AddProjectForm = ({ onClose }) => {
       setBrand('');
       setPlatform('');
       setCustomPlatform('');
+      setPlatformLink('');
       setSowType('');
       setBundlingSowList([{ id: 1, sow: '', content: '' }]);
       setCustomSow('');
-      setLink('');
       setDivision('');
     } catch (error) {
       console.error('Error adding project:', error);
@@ -249,14 +249,17 @@ const AddProjectForm = ({ onClose }) => {
             </label>
           ))}
         </div>
-        {platform === "Apa kek" && (
-          <input
-            type="text"
-            value={customPlatform}
-            onChange={(e) => setCustomPlatform(e.target.value)}
-            placeholder="Enter custom platform"
-            className="border border-gray-300 p-2 rounded w-full mt-2"
-          />
+        {platform && (
+          <div className="mt-2">
+            <label className="block font-semibold">{`${platform} Link`}</label>
+            <input
+              type="text"
+              value={platformLink}
+              onChange={(e) => setPlatformLink(e.target.value)}
+              placeholder={`Enter ${platform} link`}
+              className="border border-gray-300 p-2 rounded w-full"
+            />
+          </div>
         )}
       </div>
 
@@ -345,18 +348,6 @@ const AddProjectForm = ({ onClose }) => {
           <option value="Marketing">Marketing</option>
           <option value="Community">Community</option>
         </select>
-      </div>
-
-      {/* Link */}
-      <div>
-        <label className="block font-semibold">Link</label>
-        <input
-          type="url"
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
-          placeholder="Enter link"
-          className="border border-gray-300 p-2 rounded w-full"
-        />
       </div>
 
       {/* Submit Button */}

@@ -3,15 +3,42 @@ import { format, parseISO, isValid } from "date-fns";
 import { addDoc, collection, doc, getDocs } from "firebase/firestore";
 import { db } from '@/app/firebase';
 
+// Custom Hook for Category Control
+const useCategoryControl = () => {
+  const [category, setCategory] = useState("");
+  const [customCategory, setCustomCategory] = useState("");
+
+  const isDropdownDisabled = !!customCategory; // Disable dropdown if custom is filled
+  const isCustomDisabled = !!category; // Disable custom if dropdown is selected
+
+  const handleDropdownChange = (e) => {
+    setCategory(e.target.value);
+    if (e.target.value !== "") setCustomCategory(""); // Clear custom input
+  };
+
+  const handleCustomFocus = () => {
+    setCategory(""); // Clear dropdown selection
+  };
+
+  return {
+    category,
+    customCategory,
+    isDropdownDisabled,
+    isCustomDisabled,
+    handleDropdownChange,
+    handleCustomFocus,
+    setCustomCategory,
+  };
+};
 const AddProjectForm = ({ onClose }) => {
   const [source, setSource] = useState('');
   const [projectName, setProjectName] = useState('');
   const [projectStatus, setProjectStatus] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [quarter, setQuarter] = useState('');
-  const [category, setCategory] = useState('');
+  
   const [categories, setCategories] = useState([]);
-  const [customCategory, setCustomCategory] = useState('');
+ 
   const [brand, setBrand] = useState('');
   const [platform, setPlatform] = useState('');
   const [customPlatform, setCustomPlatform] = useState('');
@@ -21,6 +48,15 @@ const AddProjectForm = ({ onClose }) => {
   const [division, setDivision] = useState('');
   const [customSow, setCustomSow] = useState('');
   const [bundlingSowList, setBundlingSowList] = useState([{ id: 1, sow: '', content: '' }]);
+  const {
+    category,
+    customCategory,
+    isDropdownDisabled,
+    isCustomDisabled,
+    handleDropdownChange,
+    handleCustomFocus,
+    setCustomCategory,
+  } = useCategoryControl();
 
   // Fetch categories from Firestore
   useEffect(() => {
@@ -103,7 +139,7 @@ const AddProjectForm = ({ onClose }) => {
       projectStatus,
       date: utcStartDate,
       quarter,
-      category: customCategory ? customCategory : categoryRef,
+      category: customCategory || categoryRef,
       brand,
       platform,
       platformLink,
@@ -139,7 +175,7 @@ const AddProjectForm = ({ onClose }) => {
       console.error('Error adding project:', error);
     }
   };
-
+  
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Source */}
@@ -221,20 +257,23 @@ const AddProjectForm = ({ onClose }) => {
         </select>
       </div>
 
-      {/* Category Dropdown and Custom Category */}
+      {/* Category */}
       <div>
         <label className="block font-semibold">Category</label>
         <div className="flex space-x-4">
           <select
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="border border-gray-300 p-2 rounded w-1/2"
-            required={!customCategory} // Make required only if customCategory is not filled
+            onChange={handleDropdownChange}
+            className={`border border-gray-300 p-2 rounded w-1/2 ${
+              isDropdownDisabled ? "bg-gray-200 cursor-not-allowed" : ""
+            }`}
+            disabled={isDropdownDisabled}
+            required={!customCategory}
           >
             <option value="">Choose one</option>
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
-                {cat.category_name} {/* Assuming category_name is the field storing the name */}
+                {cat.category_name}
               </option>
             ))}
           </select>
@@ -242,8 +281,12 @@ const AddProjectForm = ({ onClose }) => {
             type="text"
             value={customCategory}
             onChange={(e) => setCustomCategory(e.target.value)}
+            onFocus={handleCustomFocus}
             placeholder="Enter custom category"
-            className="border border-gray-300 p-2 rounded w-1/2"
+            className={`border border-gray-300 p-2 rounded w-1/2 ${
+              isCustomDisabled ? "bg-gray-200 cursor-not-allowed" : ""
+            }`}
+            disabled={isCustomDisabled}
           />
         </div>
       </div>

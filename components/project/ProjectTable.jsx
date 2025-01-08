@@ -6,7 +6,11 @@ import { db } from "@/app/firebase"; // Ensure Firebase config is imported
 
 const ProjectTable = ({ projects, onDelete, onEdit }) => {
   const [resolvedProjects, setResolvedProjects] = useState([]);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState("");
+  const [deleteProjectId, setDeleteProjectId] = useState(null);
   const router = useRouter();
+
 
   useEffect(() => {
     const resolveProjectData = async () => {
@@ -66,10 +70,59 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
         return "bg-white text-black"; // Fallback color
     }
   };
-  
+  const confirmDelete = (projectId) => {
+    setDeleteProjectId(projectId);
+    setIsDeleting(true);
+  };
+
+  const handleDelete = () => {
+    if (deleteProjectId) {
+      try {
+        onDelete(deleteProjectId);
+        setDeleteMessage("Project has been successfully deleted.");
+      } catch (error) {
+        setDeleteMessage("An error occurred while deleting the project. Please try again.");
+        console.error("Error deleting project:", error);
+      } finally {
+        setIsDeleting(false);
+        setDeleteProjectId(null);
+        setTimeout(() => setDeleteMessage(""), 3000); // Clear message after 3 seconds
+      }
+    }
+  };
+
 
   return (
     <div className="overflow-x-auto max-h-[260px]">
+      {isDeleting && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-80">
+            <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
+            <p className="mb-4">Are you sure you want to delete this project?</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                className="bg-gray-200 text-black py-1 px-3 rounded hover:bg-gray-300"
+                onClick={() => setIsDeleting(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteMessage && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded shadow-lg">
+          {deleteMessage}
+        </div>
+      )}
+
       <table className="w-full text-left border border-gray-300">
         <thead>
           <tr>
@@ -169,7 +222,7 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
                   </button>
                   <button
                     className="text-red-500 hover:underline hover:text-red-600"
-                    onClick={() => onDelete(project.id)}
+                    onClick={() => confirmDelete(project.id)}
                   >
                     Delete
                   </button>

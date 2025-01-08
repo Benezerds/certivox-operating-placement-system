@@ -20,13 +20,17 @@ const ProjectDetailsPage = ({ params }) => {
     try {
       const docRef = doc(db, "Projects", id);
       const docSnap = await getDoc(docRef);
-
+  
       if (docSnap.exists()) {
         const projectData = { id: docSnap.id, ...docSnap.data() };
         setProject(projectData);
-
-        // Resolve category if it exists and is a reference
-        if (projectData.category) {
+  
+        // Resolve category if it exists
+        if (typeof projectData.category === "string") {
+          // Custom category
+          setCategoryName(projectData.category);
+        } else if (projectData.category) {
+          // Firestore reference
           const categoryDoc = await getDoc(projectData.category);
           if (categoryDoc.exists()) {
             setCategoryName(categoryDoc.data().category_name || "N/A");

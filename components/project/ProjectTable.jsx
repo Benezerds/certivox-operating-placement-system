@@ -12,8 +12,8 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
     const resolveProjectData = async () => {
       const updatedProjects = await Promise.all(
         projects.map(async (project) => {
-          let categoryName = "N/A";
-          if (project.category) {
+          let categoryName = project.category || "N/A"; // Use custom category directly if provided
+          if (typeof project.category === "object" && project.category.id) { // Check for Firestore reference
             try {
               const categoryDoc = await getDoc(project.category);
               if (categoryDoc.exists()) {
@@ -28,7 +28,7 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
       );
       setResolvedProjects(updatedProjects);
     };
-
+    
     resolveProjectData();
   }, [projects]);
 

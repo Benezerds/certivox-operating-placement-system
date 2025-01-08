@@ -11,6 +11,7 @@ const AddProjectForm = ({ onClose }) => {
   const [quarter, setQuarter] = useState('');
   const [category, setCategory] = useState('');
   const [categories, setCategories] = useState([]);
+  const [customCategory, setCustomCategory] = useState('');
   const [brand, setBrand] = useState('');
   const [platform, setPlatform] = useState('');
   const [customPlatform, setCustomPlatform] = useState('');
@@ -102,7 +103,7 @@ const AddProjectForm = ({ onClose }) => {
       projectStatus,
       date: utcStartDate,
       quarter,
-      category: categoryRef,
+      category: customCategory ? customCategory : categoryRef,
       brand,
       platform,
       platformLink,
@@ -125,6 +126,7 @@ const AddProjectForm = ({ onClose }) => {
       setStartDate(null);
       setQuarter('');
       setCategory('');
+      setCustomCategory('');
       setBrand('');
       setPlatform('');
       setCustomPlatform('');
@@ -219,22 +221,31 @@ const AddProjectForm = ({ onClose }) => {
         </select>
       </div>
 
-      {/* Category Dropdown */}
+      {/* Category Dropdown and Custom Category */}
       <div>
         <label className="block font-semibold">Category</label>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="border border-gray-300 p-2 rounded w-full"
-          required
-        >
-          <option value="">Choose one</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.category_name} {/* Assuming category_name is the field storing the name */}
-            </option>
-          ))}
-        </select>
+        <div className="flex space-x-4">
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="border border-gray-300 p-2 rounded w-1/2"
+            required={!customCategory} // Make required only if customCategory is not filled
+          >
+            <option value="">Choose one</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.category_name} {/* Assuming category_name is the field storing the name */}
+              </option>
+            ))}
+          </select>
+          <input
+            type="text"
+            value={customCategory}
+            onChange={(e) => setCustomCategory(e.target.value)}
+            placeholder="Enter custom category"
+            className="border border-gray-300 p-2 rounded w-1/2"
+          />
+        </div>
       </div>
 
       {/* Brand*/}

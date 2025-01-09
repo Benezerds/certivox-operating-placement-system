@@ -18,6 +18,21 @@ const Chart = ({ data }) => {
     ...item,
     date: format(new Date(item.date), "MMM d"), // Format date to "Jan 8"
   }));
+
+  // Custom tooltip to include the division
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const { value, division } = payload[0].payload; // Access division and value
+      return (
+        <div className="bg-gray-800 p-3 shadow-md rounded-lg text-white">
+          <p className="text-sm text-gray-300">Date: {label}</p>
+          <p className="text-sm text-gray-300">Division: {division}</p>
+          <p className="text-sm font-bold">Value: ${value}</p>
+        </div>
+      );
+    }
+    return null;
+  };
   
   return (
     <div className="w-full h-64">
@@ -47,16 +62,7 @@ const Chart = ({ data }) => {
             axisLine={false}
           />
           {/* Tooltip */}
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#ffffff",
-              borderRadius: "10px",
-              border: "1px solid #ddd",
-              padding: "10px",
-            }}
-            labelStyle={{ color: "#333" }}
-            formatter={(value, name) => [`$${value}`, "Price"]}
-          />
+          <Tooltip content={<CustomTooltip />} />
         </AreaChart>
       </ResponsiveContainer>
     </div>

@@ -2,6 +2,7 @@
 
 import Chart from "../../components/historical/Chart";
 import Card from "../../components/historical/Card";
+import MultiSelectTreeDropdown from "../../components/historical/Multitreedropdown";
 import React, { useState, useEffect } from "react";
 
 export default function Home() {
@@ -16,22 +17,22 @@ export default function Home() {
 
   //chart data
   const fullData = [
-    { date: "2024-01-01", value: 100, division: "Community" },
-    { date: "2024-01-08", value: 150, division: "Marketing" },
-    { date: "2024-01-15", value: 200, division: "Community" },
-    { date: "2024-01-22", value: 180, division: "Marketing" },
-    { date: "2024-01-29", value: 80, division: "Community" },
-    { date: "2024-12-01", value: 120, division: "Marketing" },
-    { date: "2024-07-01", value: 130, division: "Community" },
-    { date: "2024-02-01", value: 110, division: "Marketing" },
-    { date: "2024-12-03", value: 150, division: "Community" },
-    { date: "2024-11-01", value: 90, division: "Marketing" },
-    { date: "2023-12-01", value: 90, division: "Community" },
-    { date: "2025-01-01", value: 100, division: "Marketing" },
-    { date: "2025-01-02", value: 120, division: "Community" },
-    { date: "2025-01-03", value: 150, division: "Marketing" },
-    { date: "2024-12-31", value: 90, division: "Community" },
-    { date: "2024-12-15", value: 80, division: "Marketing" },
+    { date: "2024-01-01", value: 100, division: "Community", source: "Inbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo" },
+    { date: "2024-01-08", value: 150, division: "Marketing", source: "Outbound", status: "Published", brandCategory: "Sport", brand: "Manchester City" },
+    { date: "2024-01-15", value: 200, division: "Community", source: "Inbound", status: "Development", brandCategory: "E-sport", brand: "VARdrid" },
+    { date: "2024-01-22", value: 180, division: "Marketing", source: "Inbound", status: "Content Proposal", brandCategory: "Fashion", brand: "Uniqlo" },
+    { date: "2024-01-29", value: 80, division: "Community", source: "Outbound", status: "Editing", brandCategory: "Judi Online", brand: "VARdrid" },
+    { date: "2024-12-01", value: 120, division: "Marketing", source: "Inbound", status: "Delivered", brandCategory: "Fashion", brand: "Uniqlo" },
+    { date: "2024-07-01", value: 130, division: "Community", source: "Outbound", status: "Ongoing", brandCategory: "Sport", brand: "Manchester City" },
+    { date: "2024-02-01", value: 110, division: "Marketing", source: "Inbound", status: "Development", brandCategory: "E-sport", brand: "VARdrid" },
+    { date: "2024-12-03", value: 150, division: "Community", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo" },
+    { date: "2024-11-01", value: 90, division: "Marketing", source: "Outbound", status: "Content Proposal", brandCategory: "Judi Online", brand: "VARdrid" },
+    { date: "2023-12-01", value: 90, division: "Community", source: "Inbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo" },
+    { date: "2025-01-01", value: 100, division: "Marketing", source: "Outbound", status: "Editing", brandCategory: "Sport", brand: "Manchester City" },
+    { date: "2025-01-02", value: 120, division: "Community", source: "Inbound", status: "Delivered", brandCategory: "E-sport", brand: "VARdrid" },
+    { date: "2025-01-03", value: 150, division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo" },
+    { date: "2024-12-31", value: 90, division: "Community", source: "Outbound", status: "Development", brandCategory: "Judi Online", brand: "VARdrid" },
+    { date: "2024-12-15", value: 80, division: "Marketing", source: "Inbound", status: "Content Proposal", brandCategory: "Sport", brand: "Manchester City" },
   ];
   
   const [chartData, setChartData] = useState([]);
@@ -41,6 +42,10 @@ export default function Home() {
   const [selectedYear, setSelectedYear] = useState("Off"); // Default to "Off"
   const [isTimeFilterActive, setIsTimeFilterActive] = useState(true); // Toggle between filters
   const [years, setYears] = useState([]); // State for dynamic years filter
+  const [selectedSource, setSelectedSource] = useState("All"); // Default to "All"
+  const [selectedStatus, setSelectedStatus] = useState("All"); // Default to "0"
+  const [selectedBrandCategory, setSelectedBrandCategory] = useState([]); // Multiple selections allowed
+  const [selectedBrand, setSelectedBrand] = useState([]); // Multiple selections allowed
   const [totalViews, setTotalViews] = useState(0);
 
   const filters = ["1M", "3M", "6M", "YTD", "1Y", "All"];
@@ -73,7 +78,7 @@ export default function Home() {
   // Filtering logic
   const filterData = () => {
     const now = new Date();
-    let filteredData;
+    let filteredData = [...fullData]; // Start with all data
 
     if (selectedQuarter === "Off" && selectedYear === "Off") {
       // Time filter is active
@@ -130,6 +135,29 @@ export default function Home() {
         );
       });
     }
+    // Apply Source filter
+    if (selectedSource !== "All") {
+      filteredData = filteredData.filter(({ source }) => source === selectedSource);
+    }
+
+    // Apply Status filter
+    if (selectedStatus !== "All") {
+      filteredData = filteredData.filter(({ status }) => status === selectedStatus);
+    }    
+
+    // Apply Brand Category filter
+    if (selectedBrandCategory.length > 0) {
+      filteredData = filteredData.filter(({ brandCategory }) =>
+        selectedBrandCategory.some(
+          (category) => category.toLowerCase() === brandCategory.toLowerCase()
+        )
+      );
+    }
+
+    // Apply Brand filter
+    if (selectedBrand.length > 0) {
+      filteredData = filteredData.filter(({ brand }) => selectedBrand.includes(brand));
+    }
 
     setChartData(
       filteredData
@@ -146,7 +174,14 @@ export default function Home() {
 
   useEffect(() => {
     filterData();
-  }, [selectedFilter, selectedDivision, selectedQuarter, selectedYear]);
+  }, [selectedFilter,
+    selectedDivision,
+    selectedQuarter,
+    selectedYear,
+    selectedSource,
+    selectedStatus,
+    selectedBrandCategory,
+    selectedBrand,]);
 
   // Handlers
   const handleFilterChange = (filter) => {
@@ -167,6 +202,8 @@ export default function Home() {
 
   const handleDivisionChange = (e) => setSelectedDivision(e.target.value);
 
+  
+
   // Function to compute active filter text
 const getActiveFilterText = () => {
   if (selectedQuarter !== "Off" && selectedYear !== "Off") {
@@ -182,24 +219,25 @@ const getActiveFilterText = () => {
     <h1 className="text-lg sm:text-2xl text-gray-700">
       Historical performance with manual forecast
     </h1>
-    <h2 className="text-4xl font-bold mt-2 text-black">Name of Project</h2>
   </header>
 
-  {/* Filter Dropdown division */}
-  <div className="mb-6">
-    <label className="mr-4 text-gray-700">Filter by Division:</label>
-    <select
-      value={selectedDivision}
-      onChange={handleDivisionChange}
-      className="bg-gray-100 text-black p-2 rounded-lg border border-gray-300"
-    >
-      {divisions.map((division) => (
-        <option key={division} value={division}>
-          {division}
-        </option>
-      ))}
-    </select>
-  </div>
+   {/* Multi-Select Tree Dropdown */}
+   <MultiSelectTreeDropdown
+  onSourceChange={setSelectedSource}
+  onStatusChange={setSelectedStatus}
+  onBrandCategoryChange={setSelectedBrandCategory}
+  onBrandChange={setSelectedBrand}
+  onDivisionChange={setSelectedDivision}
+  onExecute={() => filterData()} // Executes the filter
+  onReset={() => {
+    setSelectedSource("All");
+    setSelectedStatus("All");
+    setSelectedBrandCategory([]);
+    setSelectedBrand([]);
+    setSelectedDivision("All Divisions");
+    filterData(); // Re-run to reset the data
+  }}
+/> 
 
   {/* Chart Card Container */}
   <div className="w-full max-w-[90%] bg-gray-100 p-6 rounded-lg shadow-lg border border-gray-300 mb-8">

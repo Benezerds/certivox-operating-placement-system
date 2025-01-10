@@ -22,7 +22,7 @@ import {
   isWithinInterval,
 } from "date-fns";
 
-// Helper to get start and end dates based on filter
+// Helper to calculate date ranges based on selected filter
 const getDateRanges = (filter) => {
   const today = new Date();
   const ranges = {
@@ -45,7 +45,7 @@ const getDateRanges = (filter) => {
   return ranges[filter];
 };
 
-// Fetch category name with cache support
+// Helper to fetch and cache category names
 const fetchCategoryName = async (categoryId, categoryCache) => {
   if (!categoryId) return "Unknown";
   if (categoryCache[categoryId]) return categoryCache[categoryId];
@@ -54,7 +54,7 @@ const fetchCategoryName = async (categoryId, categoryCache) => {
     const categoryDoc = await getDoc(doc(db, "Categories", categoryId));
     if (categoryDoc.exists()) {
       const categoryName = categoryDoc.data()?.category_name || "Unknown";
-      categoryCache[categoryId] = categoryName; // Cache result
+      categoryCache[categoryId] = categoryName; // Cache the result
       return categoryName;
     }
     console.warn(`Category not found for ID: ${categoryId}`);
@@ -65,7 +65,7 @@ const fetchCategoryName = async (categoryId, categoryCache) => {
   }
 };
 
-const FilterableBarChart = () => {
+const BrandCategory = () => {
   const [selectedFilter, setSelectedFilter] = useState("year");
   const [totalProjects, setTotalProjects] = useState(0);
   const [percentageChange, setPercentageChange] = useState(0);
@@ -85,7 +85,6 @@ const FilterableBarChart = () => {
       const projects = [];
       const categoryCache = {};
 
-      // Transform snapshot data
       for (const docSnapshot of snapshot.docs) {
         const project = docSnapshot.data();
         if (!project.date) continue;
@@ -100,7 +99,7 @@ const FilterableBarChart = () => {
 
       const { currentStart, previousStart, previousEnd } = dateRanges;
 
-      // Filter projects by periods
+      // Filter projects by current and previous periods
       const currentProjects = projects.filter((project) =>
         isWithinInterval(project.date, { start: currentStart, end: new Date() })
       );
@@ -108,7 +107,7 @@ const FilterableBarChart = () => {
         isWithinInterval(project.date, { start: previousStart, end: previousEnd })
       );
 
-      // Calculate stats
+      // Calculate totals and percentage change
       const currentTotal = currentProjects.length;
       const previousTotal = previousProjects.length;
       const percentageChangeValue =
@@ -117,7 +116,7 @@ const FilterableBarChart = () => {
       setTotalProjects(currentTotal);
       setPercentageChange(percentageChangeValue);
 
-      // Aggregate data for bar chart
+      // Aggregate data for the bar chart
       const categoryCounts = currentProjects.reduce((acc, project) => {
         acc[project.category] = (acc[project.category] || 0) + 1;
         return acc;
@@ -206,4 +205,4 @@ const FilterableBarChart = () => {
   );
 };
 
-export default FilterableBarChart;
+export default BrandCategory;

@@ -17,7 +17,7 @@ import { db } from "@/app/firebase";
 // Register required Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export default function ProjectStatusChart() {
+export default function ProjectProgress() {
   const [projectData, setProjectData] = useState([]);
 
   // Fetch projects from Firebase
@@ -45,7 +45,7 @@ export default function ProjectStatusChart() {
   ];
 
   // Prepare data for the chart
-  const labels = projectData.map((project) => project.projectName || "Unnamed"); // Y-axis: project names
+  const labels = projectData.map((project) => project.projectName || "Unnamed");
   const data = projectData.map((project) =>
     progressStages.indexOf(project.projectStatus) + 1
   );
@@ -56,7 +56,7 @@ export default function ProjectStatusChart() {
       {
         label: "Project Status",
         data: data,
-        backgroundColor: "#F3F4F6", // Subtle light gray color
+        backgroundColor: "#F3F4F6",
         borderRadius: 8,
         barThickness: 16,
       },
@@ -116,7 +116,7 @@ export default function ProjectStatusChart() {
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Project Status Overview
+        Project Progress
       </h2>
       <div
         className="p-4"
@@ -129,4 +129,3 @@ export default function ProjectStatusChart() {
     </div>
   );
 }
-

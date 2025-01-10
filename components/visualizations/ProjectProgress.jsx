@@ -17,7 +17,7 @@ import { db } from "@/app/firebase";
 // Register required Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export default function ProjectProgress() {
+const ProjectProgress = () => {
   const [projectData, setProjectData] = useState([]);
 
   // Fetch projects from Firebase
@@ -128,4 +128,6 @@ export default function ProjectProgress() {
       </div>
     </div>
   );
-}
+};
+
+export default ProjectProgress;

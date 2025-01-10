@@ -34,20 +34,20 @@ export default function ProjectStatusChart() {
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
 
-  // Map project statuses to numerical values for chart
-  const statusMap = {
-    Development: 1,
-    "Content Proposal": 2,
-    Ongoing: 3,
-    Editing: 4,
-    Delivered: 5,
-    Published: 6,
-  };
+  // Define the six progress stages
+  const progressStages = [
+    "Development",
+    "Content Proposal",
+    "Ongoing",
+    "Editing",
+    "Delivered",
+    "Published",
+  ];
 
   // Prepare data for the chart
   const labels = projectData.map((project) => project.projectName || "Unnamed"); // Y-axis: project names
-  const data = projectData.map(
-    (project) => statusMap[project.projectStatus] || 0 // X-axis: project statuses
+  const data = projectData.map((project) =>
+    progressStages.indexOf(project.projectStatus) + 1
   );
 
   const chartData = {
@@ -56,7 +56,7 @@ export default function ProjectStatusChart() {
       {
         label: "Project Status",
         data: data,
-        backgroundColor: "#E5E7EB", // Neutral bar color
+        backgroundColor: "#F3F4F6", // Subtle light gray color
         borderRadius: 8,
         barThickness: 16,
       },
@@ -69,23 +69,17 @@ export default function ProjectStatusChart() {
     maintainAspectRatio: false, // Allow the chart to fit the card
     scales: {
       x: {
-        beginAtZero: true,
+        type: "category",
+        labels: progressStages, // Use the progress stages directly on the x-axis
         grid: {
-          color: "#F3F4F6", // Subtle grid color
+          color: "#E5E7EB", // Subtle light gray grid lines
         },
         ticks: {
           font: {
             family: "'Inter', sans-serif",
             size: 12,
           },
-          color: "#6B7280",
-          callback: function (value) {
-            const reverseMap = Object.entries(statusMap).reduce(
-              (acc, [key, val]) => ({ ...acc, [val]: key }),
-              {}
-            );
-            return reverseMap[value] || value; // Map numbers back to status names
-          },
+          color: "#6B7280", // Neutral gray color for axis labels
         },
       },
       y: {
@@ -94,7 +88,7 @@ export default function ProjectStatusChart() {
             family: "'Inter', sans-serif",
             size: 14,
           },
-          color: "#374151",
+          color: "#374151", // Darker gray for project names
         },
         grid: {
           display: false, // No horizontal grid lines
@@ -108,32 +102,31 @@ export default function ProjectStatusChart() {
       tooltip: {
         callbacks: {
           label: function (context) {
-            const reverseMap = Object.entries(statusMap).reduce(
-              (acc, [key, val]) => ({ ...acc, [val]: key }),
-              {}
-            );
-            return `Status: ${reverseMap[context.raw] || "Unknown"}`;
+            return `Status: ${progressStages[context.raw - 1] || "Unknown"}`;
           },
         },
-        backgroundColor: "#111827",
+        backgroundColor: "#1F2937", // Dark gray tooltip background
         titleFont: { family: "'Inter', sans-serif", size: 14 },
         bodyFont: { family: "'Inter', sans-serif", size: 12 },
-        cornerRadius: 10,
+        cornerRadius: 6,
       },
     },
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md max-w-4xl mx-auto">
-      <h2 className="text-lg font-bold text-gray-800 mb-4">
+    <div className="bg-white border border-gray-200 rounded-lg p-4">
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">
         Project Status Overview
       </h2>
       <div
-        className="border border-gray-200 rounded-md bg-white shadow-sm p-6"
-        style={{ height: "350px" }}
+        className="p-4"
+        style={{
+          height: "350px",
+        }}
       >
         <Bar data={chartData} options={options} />
       </div>
     </div>
   );
 }
+

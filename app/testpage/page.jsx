@@ -1,5 +1,5 @@
-import BrandCategory from "@/component/visualizations/BrandCategory";
-import ProjectProgress from "@/component/visualizations/ProjectProgress";
+import BrandCategory from "@/components/visualizations/BrandCategory";
+import ProjectProgress from "@/components/visualizations/ProjectProgress";
 
 export default function TestPage() {
   return (

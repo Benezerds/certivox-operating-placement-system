@@ -44,37 +44,56 @@ const ProjectProgress = () => {
     "Published",
   ];
 
-  // Prepare data for the chart
+  // Prepare labels (project names) for the chart
   const labels = projectData.map((project) => project.projectName || "Unnamed");
-  const data = projectData.map((project) =>
-    progressStages.indexOf(project.projectStatus) + 1
+
+  // Map data for each project
+  const data = projectData.map((project) => {
+    const statusIndex = progressStages.indexOf(project.projectStatus);
+    return {
+      projectName: project.projectName,
+      statusLength: statusIndex !== -1 ? statusIndex + 1 : 0, // Bar length based on progress stage position
+    };
+  });
+
+  // Calculate the maximum value for the X-axis scale
+  const maxStage = Math.max(
+    ...data.map((item) => item.statusLength),
+    progressStages.length // Default to full length if all data is shown
   );
 
+  // Prepare dataset for Chart.js
   const chartData = {
-    labels: labels,
+    labels: labels, // Project names as Y-Axis labels
     datasets: [
       {
-        label: "Project Status",
-        data: data,
-        backgroundColor: "#F3F4F6",
+        label: "Project Progress",
+        data: data.map((item) => item.statusLength), // Progress stage lengths
+        backgroundColor: "#3B82F6", // Bar color
         borderRadius: 8,
         barThickness: 16,
       },
     ],
   };
 
+  // Configure chart options
   const options = {
     indexAxis: "y", // Horizontal bar chart
     responsive: true,
-    maintainAspectRatio: false, // Allow the chart to fit the card
+    maintainAspectRatio: false, // Allow the chart to fit its container
     scales: {
       x: {
-        type: "category",
-        labels: progressStages, // Use the progress stages directly on the x-axis
+        type: "linear", // Use a linear scale to represent progress stage lengths
+        min: 0, // Start from 0
+        max: maxStage, // Maximum value based on data
         grid: {
           color: "#E5E7EB", // Subtle light gray grid lines
         },
         ticks: {
+          stepSize: 1, // Increment by 1 per progress stage
+          callback: function (value) {
+            return progressStages[value - 1] || ""; // Label according to progress stage
+          },
           font: {
             family: "'Inter', sans-serif",
             size: 12,
@@ -102,7 +121,12 @@ const ProjectProgress = () => {
       tooltip: {
         callbacks: {
           label: function (context) {
-            return `Status: ${progressStages[context.raw - 1] || "Unknown"}`;
+            const progressIndex = context.raw;
+            return `Status: ${
+              progressIndex !== null
+                ? progressStages[progressIndex - 1] // Use progressStages
+                : "Unknown"
+            }`;
           },
         },
         backgroundColor: "#1F2937", // Dark gray tooltip background
@@ -118,10 +142,11 @@ const ProjectProgress = () => {
       <h2 className="text-lg font-semibold text-gray-900 mb-4">
         Project Progress
       </h2>
+
       <div
         className="p-4"
         style={{
-          height: "350px",
+          height: `${projectData.length * 50}px`, // Height adjusted to match the amount of data
         }}
       >
         <Bar data={chartData} options={options} />

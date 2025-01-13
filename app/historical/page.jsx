@@ -17,22 +17,22 @@ export default function Home() {
 
   //chart data
   const fullData = [
-    { date: "2024-01-01", value: 100, division: "Community", source: "Inbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo" },
-    { date: "2024-01-08", value: 150, division: "Marketing", source: "Outbound", status: "Published", brandCategory: "Sport", brand: "Manchester City" },
-    { date: "2024-01-15", value: 200, division: "Community", source: "Inbound", status: "Development", brandCategory: "E-sport", brand: "VARdrid" },
-    { date: "2024-01-22", value: 180, division: "Marketing", source: "Inbound", status: "Content Proposal", brandCategory: "Fashion", brand: "Uniqlo" },
-    { date: "2024-01-29", value: 80, division: "Community", source: "Outbound", status: "Editing", brandCategory: "Judi Online", brand: "VARdrid" },
-    { date: "2024-12-01", value: 120, division: "Marketing", source: "Inbound", status: "Delivered", brandCategory: "Fashion", brand: "Uniqlo" },
-    { date: "2024-07-01", value: 130, division: "Community", source: "Outbound", status: "Ongoing", brandCategory: "Sport", brand: "Manchester City" },
-    { date: "2024-02-01", value: 110, division: "Marketing", source: "Inbound", status: "Development", brandCategory: "E-sport", brand: "VARdrid" },
-    { date: "2024-12-03", value: 150, division: "Community", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo" },
-    { date: "2024-11-01", value: 90, division: "Marketing", source: "Outbound", status: "Content Proposal", brandCategory: "Judi Online", brand: "VARdrid" },
-    { date: "2023-12-01", value: 90, division: "Community", source: "Inbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo" },
-    { date: "2025-01-01", value: 100, division: "Marketing", source: "Outbound", status: "Editing", brandCategory: "Sport", brand: "Manchester City" },
-    { date: "2025-01-02", value: 120, division: "Community", source: "Inbound", status: "Delivered", brandCategory: "E-sport", brand: "VARdrid" },
-    { date: "2025-01-03", value: 150, division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo" },
-    { date: "2024-12-31", value: 90, division: "Community", source: "Outbound", status: "Development", brandCategory: "Judi Online", brand: "VARdrid" },
-    { date: "2024-12-15", value: 80, division: "Marketing", source: "Inbound", status: "Content Proposal", brandCategory: "Sport", brand: "Manchester City" },
+    { date: "2024-01-01", value: 100, division: "Community", source: "Inbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
+    { date: "2024-01-08", value: 150, division: "Marketing", source: "Outbound", status: "Published", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok" },
+    { date: "2024-01-15", value: 200, division: "Community", source: "Inbound", status: "Development", brandCategory: "E-sport", brand: "VARdrid", platform: "YouTube" },
+    { date: "2024-01-22", value: 180, division: "Marketing", source: "Inbound", status: "Content Proposal", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
+    { date: "2024-01-29", value: 80, division: "Community", source: "Outbound", status: "Editing", brandCategory: "Judi Online", brand: "VARdrid", platform: "TikTok" },
+    { date: "2024-12-01", value: 120, division: "Marketing", source: "Inbound", status: "Delivered", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
+    { date: "2024-07-01", value: 130, division: "Community", source: "Outbound", status: "Ongoing", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok" },
+    { date: "2024-02-01", value: 110, division: "Marketing", source: "Inbound", status: "Development", brandCategory: "E-sport", brand: "VARdrid", platform: "YouTube" },
+    { date: "2024-12-03", value: 150, division: "Community", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
+    { date: "2024-11-01", value: 90, division: "Marketing", source: "Outbound", status: "Content Proposal", brandCategory: "Judi Online", brand: "VARdrid", platform: "TikTok" },
+    { date: "2023-12-01", value: 90, division: "Community", source: "Inbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
+    { date: "2025-01-01", value: 100, division: "Marketing", source: "Outbound", status: "Editing", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok" },
+    { date: "2025-01-02", value: 120, division: "Community", source: "Inbound", status: "Delivered", brandCategory: "E-sport", brand: "VARdrid", platform: "YouTube" },
+    { date: "2025-01-03", value: 150, division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok" },
+    { date: "2024-12-31", value: 90, division: "Community", source: "Outbound", status: "Development", brandCategory: "Judi Online", brand: "VARdrid", platform: "YouTube" },
+    { date: "2024-12-15", value: 80, division: "Marketing", source: "Inbound", status: "Content Proposal", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok" },
   ];
   
   const [chartData, setChartData] = useState([]);
@@ -45,6 +45,7 @@ export default function Home() {
   const [selectedSource, setSelectedSource] = useState("All"); // Default to "All"
   const [selectedStatus, setSelectedStatus] = useState("All"); // Default to "0"
   const [selectedBrandCategory, setSelectedBrandCategory] = useState([]); // Multiple selections allowed
+  const [selectedPlatform, setSelectedPlatform] = useState([]); // Multiple selections allowed
   const [selectedBrand, setSelectedBrand] = useState([]); // Multiple selections allowed
   const [totalViews, setTotalViews] = useState(0);
 
@@ -158,6 +159,14 @@ export default function Home() {
     if (selectedBrand.length > 0) {
       filteredData = filteredData.filter(({ brand }) => selectedBrand.includes(brand));
     }
+    
+    // Apply Platform filter
+    if (selectedPlatform.length > 0) {
+      filteredData = filteredData.filter(({ platform }) =>
+        selectedPlatform.includes(platform)
+      );
+    }
+
 
     setChartData(
       filteredData
@@ -169,7 +178,8 @@ export default function Home() {
     );
 
     const total = filteredData.reduce((sum, item) => sum + (item.value || 0), 0);
-    setTotalViews(total);
+    // Update total projects (filteredData length)
+  setTotalViews(filteredData.length);
   };
 
   useEffect(() => {
@@ -181,7 +191,8 @@ export default function Home() {
     selectedSource,
     selectedStatus,
     selectedBrandCategory,
-    selectedBrand,]);
+    selectedBrand,
+    selectedPlatform,]);
 
   // Handlers
   const handleFilterChange = (filter) => {
@@ -228,6 +239,7 @@ const getActiveFilterText = () => {
   onBrandCategoryChange={setSelectedBrandCategory}
   onBrandChange={setSelectedBrand}
   onDivisionChange={setSelectedDivision}
+  onPlatformChange={setSelectedPlatform}
   onExecute={() => filterData()} // Executes the filter
   onReset={() => {
     setSelectedSource("All");
@@ -242,10 +254,8 @@ const getActiveFilterText = () => {
   {/* Chart Card Container */}
   <div className="w-full max-w-[90%] bg-gray-100 p-6 rounded-lg shadow-lg border border-gray-300 mb-8">
         <div className="flex flex-col mb-4">
-          <span className="text-sm text-gray-500">Total income</span>
-          <h1 className="text-5xl font-bold mb-2 text-black">
-            {totalViews.toLocaleString()}
-          </h1>
+          <span className="text-sm text-gray-500">Total Projects</span>
+          <h1 className="text-5xl font-bold mb-2 text-black">{totalViews}</h1>
           <span className="text-gray-500">{getActiveFilterText()}</span>
         </div>
         <Chart data={chartData} />

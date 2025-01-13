@@ -6,16 +6,19 @@ const MultiSelectTreeDropdown = ({
   onBrandCategoryChange,
   onBrandChange,
   onDivisionChange,
+  onPlatformChange,
 }) => {
   const [selectedSource, setSelectedSource] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedBrandCategory, setSelectedBrandCategory] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState([]);
   const [selectedDivision, setSelectedDivision] = useState("All Divisions");
+  const [selectedPlatform, setSelectedPlatform] = useState([]);
 
   // Dropdown visibility states
   const [isBrandCategoryOpen, setIsBrandCategoryOpen] = useState(false);
   const [isBrandOpen, setIsBrandOpen] = useState(false);
+  const [isPlatformOpen, setIsPlatformOpen] = useState(false);
 
   // Options for each group
   const sources = ["Outbound", "Inbound", "All"];
@@ -23,6 +26,7 @@ const MultiSelectTreeDropdown = ({
   const brandCategories = ["Fashion", "Judi Online", "Sport", "E-Sport"];
   const brands = ["Uniqlo", "Manchester City", "VARdrid"];
   const divisions = ["Marketing", "Community", "All Divisions"];
+  const platforms = ["YouTube", "TikTok"];
 
   // Handlers for each group
   const handleSourceChange = (e) => {
@@ -64,6 +68,19 @@ const MultiSelectTreeDropdown = ({
     setSelectedDivision(value);
     onDivisionChange(value);
   };
+
+  const handlePlatformChange = (e) => {
+    const value = e.target.value;
+    setSelectedPlatform((prev) =>
+      prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+    );
+    onPlatformChange(
+      selectedPlatform.includes(value)
+        ? selectedPlatform.filter((item) => item !== value)
+        : [...selectedPlatform, value]
+    );
+  };
+  
 
   return (
     <div className="flex space-x-4">
@@ -151,6 +168,33 @@ const MultiSelectTreeDropdown = ({
                   className="form-checkbox"
                 />
                 <span>{brand}</span>
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Platform Dropdown */}
+      <div className="relative">
+        <label className="block text-sm font-medium text-gray-700">Platform</label>
+        <div
+          onClick={() => setIsPlatformOpen(!isPlatformOpen)}
+          className="bg-gray-100 text-black p-2 rounded-lg border border-gray-300 cursor-pointer"
+        >
+          Select Platforms
+        </div>
+        {isPlatformOpen && (
+          <div className="absolute mt-2 bg-white shadow-lg rounded-lg border border-gray-300 p-4 z-10">
+            {platforms.map((platform) => (
+              <label key={platform} className="flex items-center space-x-2 mb-2">
+                <input
+                  type="checkbox"
+                  value={platform}
+                  checked={selectedPlatform.includes(platform)}
+                  onChange={handlePlatformChange}
+                  className="form-checkbox"
+                />
+                <span>{platform}</span>
               </label>
             ))}
           </div>

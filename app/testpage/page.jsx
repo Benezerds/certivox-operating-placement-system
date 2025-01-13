@@ -5,7 +5,9 @@ import PlatformCategory from "@/components/visualizations/PlatformCategory";
 export default function TestPage() {
   return (
     <div className="space-y-8">
-      <PlatformCategory collectionName="Projects" />
+      <PlatformCategory />
+      <ProjectProgress />
+      <BrandCategory />
     </div>
   );
 }

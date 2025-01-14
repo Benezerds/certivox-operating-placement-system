@@ -1,5 +1,5 @@
-// app/api/projects/route.js
-import { addCategory,getAllCategories, getCategoriesByDocRef, updateCategory, deleteCategory  } from '../../../lib/categoriesService';
+// app/api/categories/route.js
+import { addCategory,getAllCategories, getCategoriesByDocRef, updateCategory } from '../../../lib/categoriesService';
 
 export async function GET(request) {
   try {
@@ -40,18 +40,3 @@ export async function PUT(request) {
   }
 }
 
-export async function DELETE(request) {
-  try {
-    const url = new URL(request.url);
-    const categoryId = url.searchParams.get('id'); // Extract the category ID from the query params
-
-    if (!categoryId) {
-      return new Response(JSON.stringify({ error: 'Category ID is required' }), { status: 400 });
-    }
-
-    const deleteResult = await deleteCategory(categoryId);
-    return new Response(JSON.stringify(deleteResult), { status: 200 });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: 'Failed to delete data, Server Error' }), { status: 500 });
-  }
-}

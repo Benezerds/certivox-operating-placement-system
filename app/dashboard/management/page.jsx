@@ -24,7 +24,7 @@ function Management() {
 
       // Map data to include the docRef
       const formattedCategories = data.map((item, index) => ({
-        docRef: `category${index + 1}`,
+        docRef: item.id,
         ...item,
       }));
       setCategories(formattedCategories);

@@ -197,28 +197,47 @@ export default function Home() {
     }
 
 
-  // Group data by date and count items
-  const groupedData = filteredData.reduce((acc, curr) => {
-    const rawDate = new Date(curr.date); // Raw date for sorting
-    const formattedDate = `${formatDate(curr.date)} ${rawDate.getFullYear()}`; // Include year in key
-    acc[formattedDate] = acc[formattedDate] || { date: rawDate, count: 0 };
-    acc[formattedDate].count += 1; // Increment count
-    return acc;
-  }, {});
+// Group data by date and include brand, category, and platform information
+const groupedData = filteredData.reduce((acc, curr) => {
+  const rawDate = new Date(curr.date); // Raw date for sorting
+  const formattedDate = `${formatDate(curr.date)} ${rawDate.getFullYear()}`; // Include year in key
 
-  // Convert groupedData to sorted array and format for chart
-  const chartData = Object.values(groupedData)
-    .sort((a, b) => a.date - b.date) // Sort by raw date
-    .map(({ date, count }) => ({
-      date: formatDate(date), // Format dates after sorting
-      value: count, // Count of items
-    }));
+  // Initialize the date entry if not already present
+  if (!acc[formattedDate]) {
+    acc[formattedDate] = {
+      date: rawDate,
+      count: 0,
+      brands: new Set(),
+      categories: new Set(),
+      platforms: new Set(),
+    };
+  }
 
-  // Update state with chartData
-  setChartData(chartData);
+  // Increment the count and add brand, category, and platform to the sets
+  acc[formattedDate].count += 1;
+  acc[formattedDate].brands.add(curr.brand);
+  acc[formattedDate].categories.add(curr.brandCategory);
+  acc[formattedDate].platforms.add(curr.platform);
 
-  // Calculate and set total views
-  setTotalViews(filteredData.length);
+  return acc;
+}, {});
+
+// Convert groupedData to sorted array and prepare for chart
+const chartData = Object.values(groupedData)
+  .sort((a, b) => a.date - b.date) // Sort by raw date
+  .map(({ date, count, brands, categories, platforms }) => ({
+    date: formatDate(date), // Format dates for display
+    value: count, // Count of items (projects)
+    brand: Array.from(brands).join(", "), // Convert Set to comma-separated string
+    brandCategory: Array.from(categories).join(", "), // Convert Set to string
+    platform: Array.from(platforms).join(", "), // Convert Set to string
+  }));
+
+// Update state with the prepared chartData
+setChartData(chartData);
+
+// Calculate and set total views
+setTotalViews(filteredData.length);
 };
 
   useEffect(() => {

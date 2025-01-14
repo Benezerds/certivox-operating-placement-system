@@ -22,12 +22,14 @@ const Chart = ({ data }) => {
   // Custom tooltip to include the division
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
-      const { value, division } = payload[0].payload; // Access division and value
+      const { brand, brandCategory, platform, value } = payload[0].payload; // Access brand, brandCategory, platform, and value
       return (
         <div className="bg-gray-800 p-3 shadow-md rounded-lg text-white">
           <p className="text-sm text-gray-300">Date: {label}</p>
-          <p className="text-sm text-gray-300">Division: {division}</p>
-          <p className="text-sm font-bold">Value: ${value}</p>
+          <p className="text-sm text-gray-300">Brand: {brand}</p>
+          <p className="text-sm text-gray-300">Category: {brandCategory}</p>
+          <p className="text-sm text-gray-300">Platform: {platform}</p>
+          <p className="text-sm font-bold">Projects: {value}</p>
         </div>
       );
     }

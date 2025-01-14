@@ -81,7 +81,6 @@ function Management() {
                   ...newCategory,
                 },
               ]);
-              setShowAddForm(false); // Hide form after addition
             }}
           />
         </div>

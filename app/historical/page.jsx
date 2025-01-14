@@ -9,60 +9,57 @@ export default function Home() {
   // State for chart and card data
 
   //card data
-  const [cardData, setCardData] = useState([
-    { title: "$125 - $251", subtitle: "12-Month Trade Range" },
-    { title: "$300 - $500", subtitle: "6-Month Trade Range" },
-    { title: "$100 - $200", subtitle: "3-Month Trade Range" },
-  ]);
+  const [cardData, setCardData] = useState([]);
 
   //chart data
   const fullData = [
-    { date: "2024-01-15", division: "Community", source: "Inbound", status: "Development", brandCategory: "E-sport", brand: "VARdrid", platform: "YouTube" },
-    { date: "2024-01-08", division: "Community", source: "Outbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
-    { date: "2025-01-03", division: "Marketing", source: "Inbound", status: "Delivered", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
-    { date: "2024-01-22", division: "Marketing", source: "Outbound", status: "Editing", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok" },
-    { date: "2023-12-15", division: "Marketing", source: "Outbound", status: "Content Proposal", brandCategory: "Sport", brand: "Manchester City", platform: "YouTube" },
-    { date: "2024-07-01", division: "Community", source: "Outbound", status: "Ongoing", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok" },
-    { date: "2024-12-01", division: "Marketing", source: "Inbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok" },
-    { date: "2024-12-03", division: "Community", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
-    { date: "2025-01-01", division: "Marketing", source: "Outbound", status: "Published", brandCategory: "Sport", brand: "Manchester City", platform: "YouTube" },
-    { date: "2023-12-01", division: "Community", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok" },
-    { date: "2025-01-03", division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok" },
-    { date: "2024-12-15", division: "Community", source: "Inbound", status: "Published", brandCategory: "Judi Online", brand: "VARdrid", platform: "YouTube" },
-    { date: "2024-12-15", division: "Marketing", source: "Inbound", status: "Content Proposal", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok" },
-    { date: "2024-12-01", division: "Marketing", source: "Inbound", status: "Delivered", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
-    { date: "2024-01-01", division: "Marketing", source: "Inbound", status: "Development", brandCategory: "E-sport", brand: "VARdrid", platform: "TikTok" },
-    { date: "2024-01-08", division: "Marketing", source: "Outbound", status: "Published", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok" },
-    { date: "2024-11-01", division: "Community", source: "Inbound", status: "Development", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
-    { date: "2024-12-15", division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Sport", brand: "Manchester City", platform: "YouTube" },
-    { date: "2025-01-01", division: "Marketing", source: "Outbound", status: "Editing", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok" },
-    { date: "2023-12-01", division: "Community", source: "Inbound", status: "Development", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
-    { date: "2024-12-31", division: "Community", source: "Outbound", status: "Development", brandCategory: "Judi Online", brand: "VARdrid", platform: "YouTube" },
-    { date: "2024-01-22", division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok" },
-    { date: "2024-01-15", division: "Community", source: "Inbound", status: "Ongoing", brandCategory: "E-sport", brand: "VARdrid", platform: "TikTok" },
-    { date: "2024-12-31", division: "Community", source: "Inbound", status: "Editing", brandCategory: "Judi Online", brand: "VARdrid", platform: "TikTok" },
-    { date: "2024-01-01", division: "Community", source: "Inbound", status: "Development", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok" },
-    { date: "2024-12-15", division: "Marketing", source: "Inbound", status: "Content Proposal", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok" },
-    { date: "2024-12-15", division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Sport", brand: "Manchester City", platform: "YouTube" },
-    { date: "2024-12-01", division: "Marketing", source: "Inbound", status: "Delivered", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
-    { date: "2024-07-01", division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Sport", brand: "Manchester City", platform: "YouTube" },
-    { date: "2024-12-03", division: "Community", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
-    { date: "2024-11-01", division: "Marketing", source: "Outbound", status: "Content Proposal", brandCategory: "Judi Online", brand: "VARdrid", platform: "TikTok" },
-    { date: "2024-01-29", division: "Community", source: "Outbound", status: "Editing", brandCategory: "Judi Online", brand: "VARdrid", platform: "YouTube" },
-    { date: "2024-01-01", division: "Community", source: "Inbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
-    { date: "2024-01-15", division: "Community", source: "Inbound", status: "Development", brandCategory: "E-sport", brand: "VARdrid", platform: "YouTube" },
-    { date: "2023-12-01", division: "Community", source: "Inbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
-    { date: "2025-01-01", division: "Marketing", source: "Outbound", status: "Ongoing", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok" },
-    { date: "2024-01-08", division: "Community", source: "Outbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok" },
-    { date: "2025-01-02", division: "Community", source: "Inbound", status: "Delivered", brandCategory: "E-sport", brand: "VARdrid", platform: "YouTube" },
-    { date: "2024-01-22", division: "Marketing", source: "Inbound", status: "Content Proposal", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
-    { date: "2024-02-01", division: "Marketing", source: "Inbound", status: "Development", brandCategory: "E-sport", brand: "VARdrid", platform: "YouTube" },
-    { date: "2024-02-01", division: "Marketing", source: "Outbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok" },
-    { date: "2024-01-29", division: "Community", source: "Outbound", status: "Editing", brandCategory: "Judi Online", brand: "VARdrid", platform: "TikTok" },
-    { date: "2024-01-15", division: "Community", source: "Inbound", status: "Ongoing", brandCategory: "E-sport", brand: "VARdrid", platform: "YouTube" },
-    { date: "2023-12-01", division: "Community", source: "Inbound", status: "Development", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
-    { date: "2024-01-22", division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok" },
+    { date: "2024-01-15", division: "Community", source: "Inbound", status: "Development", brandCategory: "E-sport", brand: "VARdrid", platform: "YouTube", views: 1250, comments: 45, likes: 300 },
+    { date: "2024-01-08", division: "Community", source: "Outbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube", views: 890, comments: 20, likes: 150 },
+    { date: "2025-01-03", division: "Marketing", source: "Inbound", status: "Delivered", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube", views: 2300, comments: 90, likes: 450 },
+    { date: "2024-01-22", division: "Marketing", source: "Outbound", status: "Editing", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok", views: 1500, comments: 60, likes: 400 },
+    { date: "2023-12-15", division: "Marketing", source: "Outbound", status: "Content Proposal", brandCategory: "Sport", brand: "Manchester City", platform: "YouTube", views: 1200, comments: 35, likes: 320 },
+    { date: "2024-07-01", division: "Community", source: "Outbound", status: "Ongoing", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok", views: 800, comments: 15, likes: 200 },
+    { date: "2024-12-01", division: "Marketing", source: "Inbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok", views: 2600, comments: 75, likes: 650 },
+    { date: "2024-12-03", division: "Community", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube", views: 3400, comments: 120, likes: 900 },
+    { date: "2025-01-01", division: "Marketing", source: "Outbound", status: "Published", brandCategory: "Sport", brand: "Manchester City", platform: "YouTube", views: 4500, comments: 150, likes: 1100 },
+    { date: "2023-12-01", division: "Community", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok", views: 1700, comments: 40, likes: 330 },
+    { date: "2025-01-03", division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok", views: 3100, comments: 110, likes: 870 },
+    { date: "2024-12-15", division: "Community", source: "Inbound", status: "Published", brandCategory: "Judi Online", brand: "VARdrid", platform: "YouTube", views: 1400, comments: 50, likes: 380 },
+    { date: "2024-12-15", division: "Marketing", source: "Inbound", status: "Content Proposal", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok", views: 2000, comments: 85, likes: 540 },
+    { date: "2024-12-01", division: "Marketing", source: "Inbound", status: "Delivered", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube", views: 1800, comments: 55, likes: 400 },
+    { date: "2024-01-01", division: "Marketing", source: "Inbound", status: "Development", brandCategory: "E-sport", brand: "VARdrid", platform: "TikTok", views: 700, comments: 30, likes: 150 },
+    { date: "2024-01-08", division: "Marketing", source: "Outbound", status: "Published", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok", views: 2200, comments: 90, likes: 670 },
+    { date: "2024-11-01", division: "Community", source: "Inbound", status: "Development", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube", views: 1050, comments: 25, likes: 280 },
+    { date: "2024-12-15", division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Sport", brand: "Manchester City", platform: "YouTube", views: 3600, comments: 140, likes: 1000 },
+    { date: "2025-01-01", division: "Marketing", source: "Outbound", status: "Editing", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok", views: 1300, comments: 50, likes: 370 },
+    { date: "2023-12-01", division: "Community", source: "Inbound", status: "Development", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube", views: 950, comments: 20, likes: 220 },
+    { date: "2024-12-31", division: "Community", source: "Outbound", status: "Development", brandCategory: "Judi Online", brand: "VARdrid", platform: "YouTube", views: 1100, comments: 45, likes: 300 },
+    { date: "2024-01-22", division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok", views: 2900, comments: 95, likes: 800 },
+    { date: "2024-01-15", division: "Community", source: "Inbound", status: "Ongoing", brandCategory: "E-sport", brand: "VARdrid", platform: "TikTok", views: 1600, comments: 65, likes: 450 },
+    { date: "2024-12-31", division: "Community", source: "Inbound", status: "Editing", brandCategory: "Judi Online", brand: "VARdrid", platform: "TikTok", views: 1250, comments: 60, likes: 340 },
+    { date: "2024-01-01", division: "Community", source: "Inbound", status: "Development", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok", views: 800, comments: 15, likes: 200 },
+    { date: "2024-12-15", division: "Marketing", source: "Inbound", status: "Content Proposal", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok", views: 2300, comments: 100, likes: 590 },
+    { date: "2024-12-15", division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Sport", brand: "Manchester City", platform: "YouTube", views: 4000, comments: 130, likes: 1200 },
+    { date: "2024-12-01", division: "Marketing", source: "Inbound", status: "Delivered", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube", views: 2500, comments: 85, likes: 770 },
+    { date: "2024-07-01", division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Sport", brand: "Manchester City", platform: "YouTube", views: 3700, comments: 125, likes: 1100 },
+    { date: "2024-12-03", division: "Community", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube", views: 3100, comments: 110, likes: 920 },
+    { date: "2024-11-01", division: "Marketing", source: "Outbound", status: "Content Proposal", brandCategory: "Judi Online", brand: "VARdrid", platform: "TikTok", views: 1600, comments: 55, likes: 390 },
+    { date: "2024-01-29", division: "Community", source: "Outbound", status: "Editing", brandCategory: "Judi Online", brand: "VARdrid", platform: "YouTube", views: 1450, comments: 50, likes: 350 },
+    { date: "2024-01-01", division: "Community", source: "Inbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube", views: 1000, comments: 30, likes: 250 },
+    { date: "2024-01-15", division: "Community", source: "Inbound", status: "Development", brandCategory: "E-sport", brand: "VARdrid", platform: "YouTube", views: 1250, comments: 45, likes: 300 },
+    { date: "2023-12-01", division: "Community", source: "Inbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube", views: 880, comments: 18, likes: 190 },
+    { date: "2025-01-01", division: "Marketing", source: "Outbound", status: "Ongoing", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok", views: 1400, comments: 70, likes: 410 },
+    { date: "2024-01-08", division: "Community", source: "Outbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok", views: 1500, comments: 45, likes: 340 },
+    { date: "2025-01-02", division: "Community", source: "Inbound", status: "Delivered", brandCategory: "E-sport", brand: "VARdrid", platform: "YouTube", views: 2000, comments: 100, likes: 700 },
+    { date: "2024-01-22", division: "Marketing", source: "Inbound", status: "Content Proposal", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube", views: 950, comments: 35, likes: 220 },
+    { date: "2024-02-01", division: "Marketing", source: "Inbound", status: "Development", brandCategory: "E-sport", brand: "VARdrid", platform: "YouTube", views: 1450, comments: 40, likes: 300 },
+    { date: "2024-02-01", division: "Marketing", source: "Outbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok", views: 1200, comments: 25, likes: 270 },
+    { date: "2024-01-29", division: "Community", source: "Outbound", status: "Editing", brandCategory: "Judi Online", brand: "VARdrid", platform: "TikTok", views: 1750, comments: 55, likes: 480 },
+    { date: "2024-01-15", division: "Community", source: "Inbound", status: "Ongoing", brandCategory: "E-sport", brand: "VARdrid", platform: "YouTube", views: 1150, comments: 40, likes: 280 },
+    { date: "2023-12-01", division: "Community", source: "Inbound", status: "Development", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube", views: 950, comments: 22, likes: 230 },
+    { date: "2024-01-22", division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok", views: 3200, comments: 125, likes: 950 },
   ];
+  
   
   const [chartData, setChartData] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState("1Y");
@@ -196,11 +193,22 @@ export default function Home() {
       );
     }
 
+    // Calculate totals
+    const totalViews = filteredData.reduce((sum, item) => sum + item.views, 0);
+    const totalComments = filteredData.reduce((sum, item) => sum + item.comments, 0);
+    const totalLikes = filteredData.reduce((sum, item) => sum + item.likes, 0);
 
-// Group data by date and include brand, category, and platform information
-const groupedData = filteredData.reduce((acc, curr) => {
-  const rawDate = new Date(curr.date); // Raw date for sorting
-  const formattedDate = `${formatDate(curr.date)} ${rawDate.getFullYear()}`; // Include year in key
+    // Update card data with totals
+    setCardData([
+      { title: `${totalViews}`, subtitle: "Total Views" },
+      { title: `${totalComments}`, subtitle: "Total Comments" },
+      { title: `${totalLikes}`, subtitle: "Total Likes" },
+    ]);
+    
+    // Group data by date and include brand, category, and platform information
+    const groupedData = filteredData.reduce((acc, curr) => {
+    const rawDate = new Date(curr.date); // Raw date for sorting
+    const formattedDate = `${formatDate(curr.date)} ${rawDate.getFullYear()}`; // Include year in key
 
   // Initialize the date entry if not already present
   if (!acc[formattedDate]) {
@@ -375,10 +383,10 @@ const getActiveFilterText = () => {
 
   {/* Cards Grid */}
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
-    {cardData.map((data, index) => (
-      <Card key={index} title={data.title} subtitle={data.subtitle} />
-    ))}
-  </div>
+        {cardData.map((data, index) => (
+          <Card key={index} title={data.title} subtitle={data.subtitle} />
+        ))}
+      </div>
 </main>
   );
 }

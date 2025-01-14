@@ -1,4 +1,6 @@
-const CategoryTable = ({ categories }) => {
+import React from "react";
+
+const CategoryTable = ({ categories, onEdit, onDelete }) => {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-200">
@@ -27,13 +29,13 @@ const CategoryTable = ({ categories }) => {
               </td>
               <td className="px-6 py-3 text-sm text-gray-600">
                 <button
-                  onClick={() => console.log(`Edit ${category.docRef}`)}
-                  className="text-blue-600 hover:underline mr-4"
+                  onClick={() => onEdit(category)}
+                  className="text-blue-500 hover:underline mr-4"
                 >
                   Edit
                 </button>
                 <button
-                  onClick={() => console.log(`Delete ${category.docRef}`)}
+                  onClick={() => onDelete(category.docRef)}
                   className="text-red-600 hover:underline"
                 >
                   Delete

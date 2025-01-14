@@ -277,9 +277,8 @@ const Tracker = () => {
             </select>
           </div>
 
-          {/* Right Section */}
-          <div className="flex items-center gap-4 ml-auto">
-            {/* Select Brands */}
+          {/* Search Bar and Buttons */}
+          <div className="flex flex-row relative gap-6">
             <div
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="border rounded p-2 cursor-pointer"
@@ -289,7 +288,7 @@ const Tracker = () => {
                 : "Select brands"}
             </div>
             {dropdownOpen && (
-              <div className="absolute border rounded bg-white shadow-md mt-1 w-full z-10">
+              <div className="absolute border rounded bg-white shadow-md mt-10 w-full z-10">
                 {filteredProjects.map((project) => (
                   <label key={project.brand} className="flex items-center p-2">
                     <input
@@ -309,13 +308,11 @@ const Tracker = () => {
               </div>
             )}
 
-            {/* Export CSV */}
             <ExportCSV projects={projects} setNotification={setNotification} />
 
-            {/* New Project Button */}
             <button
               onClick={() => setShowAddProject((prev) => !prev)}
-              className="px-4 py-2 text-white bg-black rounded-lg"
+              className="px-4 py-2 w-40 text-white bg-black rounded-lg"
             >
               + New Project
             </button>

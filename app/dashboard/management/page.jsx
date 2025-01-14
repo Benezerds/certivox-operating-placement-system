@@ -35,6 +35,41 @@ function Management() {
     }
   };
 
+  //  Handle EDIT
+  const handleEdit = async (categoryId, newCategoryName) => {
+    try {
+      if (!categoryId) {
+        console.error('Category ID is missing.');
+        return;
+      }
+  
+      // Make the PUT request to update the category on the server
+      const response = await fetch(`/api/categories/${categoryId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category_name: newCategoryName }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to update category');
+      }
+  
+      // Parse the response if the update is successful
+      const updatedCategory = await response.json();
+  
+      // Update the categories state to reflect the changes
+      setCategories(prevCategories =>
+        prevCategories.map(category =>
+          category.docRef === categoryId ? updatedCategory : category
+        )
+      );
+      console.log('Category updated successfully', updatedCategory);
+    } catch (error) {
+      console.error('Error updating category:', error);
+    }
+  };
+  
+  
   // Handle deletion
   const handleDelete = async (docRef) => {
     try {
@@ -109,7 +144,7 @@ function Management() {
       ) : (
         <CategoryTable
           categories={categories}
-          onEdit={setEditingCategory}
+          onEdit={handleEdit}
           onDelete={handleDelete}
         />
       )}

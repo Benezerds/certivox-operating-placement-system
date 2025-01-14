@@ -31,6 +31,8 @@ const Tracker = () => {
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const itemsPerPage = 4; // Number of items per page
   const [notification, setNotification] = useState({ message: "", visible: false });
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Fetch projects from Firestore and listen for changes
   useEffect(() => {
@@ -91,27 +93,22 @@ const Tracker = () => {
     }
     return new Date(); // Default to the current date
   };
-  const handleSearch = () => {
-    const lowerCaseQuery = searchQuery.toLowerCase().trim();
-  
-    if (lowerCaseQuery === "") {
-      setProjects(filteredProjects); // Reset to filteredProjects
-      setTimeout(() => setNotification({ message: "", visible: false }), 3000); // Hide after 3 seconds
-      return;
-    }
-  
-    const filtered = filteredProjects.filter((project) =>
-      project.brand?.toLowerCase().startsWith(lowerCaseQuery)
+  const handleCheckboxChange = (brand) => {
+    setSelectedBrands((prev) =>
+      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
     );
-  
+  };
+
+  const handleSearch = () => {
+    const filtered = filteredProjects.filter((project) =>
+      selectedBrands.length === 0 || selectedBrands.includes(project.brand)
+    );
+
     if (filtered.length > 0) {
       setProjects(filtered);
     } else {
-      setNotification({
-        message: "No projects match the entered brand ",
-        visible: true,
-      });
-      setTimeout(() => setNotification({ message: "", visible: false }), 3000); // Hide after 3 seconds
+      setNotification({ message: "No projects match the selected brands", visible: true });
+      setTimeout(() => setNotification({ message: "", visible: false }), 3000);
     }
   };
   
@@ -268,25 +265,21 @@ const Tracker = () => {
           </div>
   
           {/* Search Bar and Buttons */}
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              placeholder="Search by brand"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSearch();
-                }
-              }}
-              className="w-64 p-2 mr-2 border border-gray-300 rounded-lg"
-            />
-            <button
-              onClick={handleSearch}
-              className="px-4 py-2 text-white bg-blue-500 rounded-lg"
-            >
-              Search
-            </button>
+          <div className="relative w-64">
+          <div onClick={() => setDropdownOpen(!dropdownOpen)} className="border rounded p-2 cursor-pointer">
+            {selectedBrands.length > 0 ? selectedBrands.join(", ") : "Select brands"}
+          </div>
+          {dropdownOpen && (
+            <div className="absolute border rounded bg-white shadow-md mt-1 w-full z-10">
+              {filteredProjects.map((project) => (
+                <label key={project.brand} className="flex items-center p-2">
+                  <input type="checkbox" checked={selectedBrands.includes(project.brand)} onChange={() => handleCheckboxChange(project.brand)} />
+                  <span className="ml-2">{project.brand}</span>
+                </label>
+              ))}
+              <button onClick={handleSearch} className="w-full p-2 bg-blue-500 text-white rounded-b hover:bg-blue-600">Apply Filter</button>
+            </div>
+            )}
             <div className="flex items-center gap-2">
               <ExportCSV projects={projects} setNotification={setNotification} />
             </div>

@@ -22,7 +22,7 @@ const Sidebar = () => {
   const menuItems = [
     { name: "Home", icon: <HomeIcon className="w-6 h-6" />, path: "/dashboard" },
     { name: "Projects", icon: <ClipboardDocumentIcon className="w-6 h-6" />, path: "/dashboard/project" },
-    { name: "Data", icon: <ChartBarIcon className="w-6 h-6" />, path: "/dashboard/data" },
+    { name: "Comparison", icon: <ChartBarIcon className="w-6 h-6" />, path: "/dashboard/comparison" },
     { name: "Management", icon: <WalletIcon className="w-6 h-6" />, path: "/dashboard/management" },
   ];
 

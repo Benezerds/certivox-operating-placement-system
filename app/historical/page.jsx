@@ -33,6 +33,13 @@ export default function Home() {
     { date: "2025-01-03", value: 150, division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok" },
     { date: "2024-12-31", value: 90, division: "Community", source: "Outbound", status: "Development", brandCategory: "Judi Online", brand: "VARdrid", platform: "YouTube" },
     { date: "2024-12-15", value: 80, division: "Marketing", source: "Inbound", status: "Content Proposal", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok" },
+    { date: "2024-01-01", value: 100, division: "Community", source: "Inbound", status: "Ongoing", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
+    { date: "2024-01-08", value: 150, division: "Marketing", source: "Outbound", status: "Published", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok" },
+    { date: "2024-01-15", value: 200, division: "Community", source: "Inbound", status: "Development", brandCategory: "E-sport", brand: "VARdrid", platform: "YouTube" },
+    { date: "2024-01-22", value: 180, division: "Marketing", source: "Inbound", status: "Content Proposal", brandCategory: "Fashion", brand: "Uniqlo", platform: "YouTube" },
+    { date: "2025-01-03", value: 150, division: "Marketing", source: "Inbound", status: "Published", brandCategory: "Fashion", brand: "Uniqlo", platform: "TikTok" },
+    { date: "2024-12-31", value: 90, division: "Community", source: "Outbound", status: "Development", brandCategory: "Judi Online", brand: "VARdrid", platform: "YouTube" },
+    { date: "2024-12-15", value: 80, division: "Marketing", source: "Inbound", status: "Content Proposal", brandCategory: "Sport", brand: "Manchester City", platform: "TikTok" },
   ];
   
   const [chartData, setChartData] = useState([]);
@@ -168,19 +175,29 @@ export default function Home() {
     }
 
 
-    setChartData(
-      filteredData
-        .sort((a, b) => new Date(a.date) - new Date(b.date)) // Sort by raw dates first
-        .map((item) => ({
-          ...item,
-          date: formatDate(item.date), // Format dates after sorting
-        }))
-    );
+  // Group data by date and count items
+  const groupedData = filteredData.reduce((acc, curr) => {
+    const rawDate = new Date(curr.date); // Raw date for sorting
+    const formattedDate = `${formatDate(curr.date)} ${rawDate.getFullYear()}`; // Include year in key
+    acc[formattedDate] = acc[formattedDate] || { date: rawDate, count: 0 };
+    acc[formattedDate].count += 1; // Increment count
+    return acc;
+  }, {});
 
-    const total = filteredData.reduce((sum, item) => sum + (item.value || 0), 0);
-    // Update total projects (filteredData length)
+  // Convert groupedData to sorted array and format for chart
+  const chartData = Object.values(groupedData)
+    .sort((a, b) => a.date - b.date) // Sort by raw date
+    .map(({ date, count }) => ({
+      date: formatDate(date), // Format dates after sorting
+      value: count, // Count of items
+    }));
+
+  // Update state with chartData
+  setChartData(chartData);
+
+  // Calculate and set total views
   setTotalViews(filteredData.length);
-  };
+};
 
   useEffect(() => {
     filterData();

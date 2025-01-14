@@ -11,14 +11,13 @@ import {
   deleteDoc,
   addDoc,
   serverTimestamp,
-  getDoc
+  getDoc,
 } from "firebase/firestore";
 import { db } from "@/app/firebase"; // Ensure Firebase is set up correctly
 import AddProject from "components/project/AddProject"; // Import the AddProject component
 import ProjectTable from "@/components/project/ProjectTable";
 import EditProject from "@/components/project/EditProject";
 import ExportCSV from "@/components/project/ExportCsv";
-
 
 const Tracker = () => {
   const [projects, setProjects] = useState([]);
@@ -30,7 +29,10 @@ const Tracker = () => {
   const [selectedYear, setSelectedYear] = useState("all");
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const itemsPerPage = 4; // Number of items per page
-  const [notification, setNotification] = useState({ message: "", visible: false });
+  const [notification, setNotification] = useState({
+    message: "",
+    visible: false,
+  });
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -50,10 +52,10 @@ const Tracker = () => {
           // Filter by year
           const yearMatch =
             selectedYear === "all" ||
-            (project.date && getYear(parseISO(project.date)) === Number(selectedYear));
+            (project.date &&
+              getYear(parseISO(project.date)) === Number(selectedYear));
 
-
-            return divisionMatch && yearMatch;
+          return divisionMatch && yearMatch;
         })
         .sort((a, b) => {
           // Sort by division (alphabetically)
@@ -73,8 +75,12 @@ const Tracker = () => {
           }
 
           // Finally, sort by date created (descending)
-          const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
-          const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+          const dateA = a.createdAt?.toDate
+            ? a.createdAt.toDate()
+            : new Date(0);
+          const dateB = b.createdAt?.toDate
+            ? b.createdAt.toDate()
+            : new Date(0);
           return dateB - dateA;
         });
 
@@ -100,19 +106,21 @@ const Tracker = () => {
   };
 
   const handleSearch = () => {
-    const filtered = filteredProjects.filter((project) =>
-      selectedBrands.length === 0 || selectedBrands.includes(project.brand)
+    const filtered = filteredProjects.filter(
+      (project) =>
+        selectedBrands.length === 0 || selectedBrands.includes(project.brand)
     );
 
     if (filtered.length > 0) {
       setProjects(filtered);
     } else {
-      setNotification({ message: "No projects match the selected brands", visible: true });
+      setNotification({
+        message: "No projects match the selected brands",
+        visible: true,
+      });
       setTimeout(() => setNotification({ message: "", visible: false }), 3000);
     }
   };
-  
-  
 
   const handleDelete = async (id) => {
     try {
@@ -162,17 +170,17 @@ const Tracker = () => {
       setCurrentPage(currentPage - 1);
     }
   };
-  
-  
-  
-  
+
   const handleExportCSV = () => {
     if (!projects || projects.length === 0) {
-      setNotification({ message: "No data available to export.", visible: true });
+      setNotification({
+        message: "No data available to export.",
+        visible: true,
+      });
       setTimeout(() => setNotification({ message: "", visible: false }), 3000);
       return;
     }
-  
+
     const headers = [
       "Source",
       "Project",
@@ -186,7 +194,7 @@ const Tracker = () => {
       "Division",
       "Link",
     ];
-  
+
     const rows = projects.map((project) => [
       project.source || "N/A",
       project.projectName || "N/A",
@@ -203,18 +211,23 @@ const Tracker = () => {
       project.brand || "N/A",
       project.platform || "N/A",
       Array.isArray(project.sow)
-        ? project.sow.map((sowItem) => `${sowItem?.sow || "N/A"}: ${sowItem?.content || "N/A"}`).join("; ")
+        ? project.sow
+            .map(
+              (sowItem) =>
+                `${sowItem?.sow || "N/A"}: ${sowItem?.content || "N/A"}`
+            )
+            .join("; ")
         : typeof project.sow === "object" && project.sow !== null
         ? `${project.sow?.sow || "N/A"}: ${project.sow?.content || "N/A"}`
         : project.sow || "N/A",
       project.division || "N/A",
       project.link || "N/A",
     ]);
-  
+
     const csvContent =
       "data:text/csv;charset=utf-8," +
       [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
-  
+
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -223,13 +236,13 @@ const Tracker = () => {
     link.click();
     document.body.removeChild(link);
   };
-  
+
   return (
     <div className="flex flex-col h-screen p-8">
       {/* Project Table Section */}
       <div className="flex flex-col">
         <h1 className="mb-6 text-2xl font-semibold">Project</h1>
-  
+
         {/* Filter Options */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
@@ -246,7 +259,7 @@ const Tracker = () => {
               <option value="Marketing">Marketing</option>
               <option value="Community">Community</option>
             </select>
-  
+
             {/* Year Dropdown */}
             <select
               value={selectedYear}
@@ -263,40 +276,59 @@ const Tracker = () => {
               <option value="2021">2021</option>
             </select>
           </div>
-  
-          {/* Search Bar and Buttons */}
-          <div className="relative w-64">
-          <div onClick={() => setDropdownOpen(!dropdownOpen)} className="border rounded p-2 cursor-pointer">
-            {selectedBrands.length > 0 ? selectedBrands.join(", ") : "Select brands"}
-          </div>
-          {dropdownOpen && (
-            <div className="absolute border rounded bg-white shadow-md mt-1 w-full z-10">
-              {filteredProjects.map((project) => (
-                <label key={project.brand} className="flex items-center p-2">
-                  <input type="checkbox" checked={selectedBrands.includes(project.brand)} onChange={() => handleCheckboxChange(project.brand)} />
-                  <span className="ml-2">{project.brand}</span>
-                </label>
-              ))}
-              <button onClick={handleSearch} className="w-full p-2 bg-blue-500 text-white rounded-b hover:bg-blue-600">Apply Filter</button>
+
+          {/* Right Section */}
+          <div className="flex items-center gap-4 ml-auto">
+            {/* Select Brands */}
+            <div
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="border rounded p-2 cursor-pointer"
+            >
+              {selectedBrands.length > 0
+                ? selectedBrands.join(", ")
+                : "Select brands"}
             </div>
+            {dropdownOpen && (
+              <div className="absolute border rounded bg-white shadow-md mt-1 w-full z-10">
+                {filteredProjects.map((project) => (
+                  <label key={project.brand} className="flex items-center p-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedBrands.includes(project.brand)}
+                      onChange={() => handleCheckboxChange(project.brand)}
+                    />
+                    <span className="ml-2">{project.brand}</span>
+                  </label>
+                ))}
+                <button
+                  onClick={handleSearch}
+                  className="w-full p-2 bg-blue-500 text-white rounded-b hover:bg-blue-600"
+                >
+                  Apply Filter
+                </button>
+              </div>
             )}
-            <div className="flex items-center gap-2">
-              <ExportCSV projects={projects} setNotification={setNotification} />
-            </div>
-  
+
+            {/* Export CSV */}
+            <ExportCSV projects={projects} setNotification={setNotification} />
+
+            {/* New Project Button */}
             <button
               onClick={() => setShowAddProject((prev) => !prev)}
               className="px-4 py-2 text-white bg-black rounded-lg"
             >
               + New Project
             </button>
-  
+
             {showAddProject && (
-              <AddProject onAdd={handleAddProject} onClose={() => setShowAddProject(false)} />
+              <AddProject
+                onAdd={handleAddProject}
+                onClose={() => setShowAddProject(false)}
+              />
             )}
           </div>
         </div>
-  
+
         {/* Edit Project Modal */}
         {editProject && (
           <EditProject
@@ -304,7 +336,7 @@ const Tracker = () => {
             onClose={() => setEditProject(null)} // Close the modal
           />
         )}
-  
+
         {/* Project Table */}
         <ProjectTable
           projects={paginatedProjects}
@@ -312,7 +344,7 @@ const Tracker = () => {
           onDelete={handleDelete}
           onEdit={handleEdit}
         />
-  
+
         {/* Pagination */}
         <div className="flex items-center justify-center gap-4 mt-4">
           <button
@@ -339,12 +371,11 @@ const Tracker = () => {
             Next &gt;
           </button>
         </div>
-  
+
         <p>Total Projects: {projects.length}</p>
       </div>
     </div>
   );
-  
 };
 
 export default Tracker;

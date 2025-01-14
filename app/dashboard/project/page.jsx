@@ -28,17 +28,28 @@ const Tracker = () => {
   const [selectedSource, setSelectedSource] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedYear, setSelectedYear] = useState("all");
+  const [searchBrand, setSearchBrand] = useState("");
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const itemsPerPage = 4; // Number of items per page
   const [notification, setNotification] = useState({
     message: "",
     visible: false,
   });
-  const [selectedBrands, setSelectedBrands] = useState([]);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  //const [selectedBrands, setSelectedBrands] = useState([]);
+  //const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Fetch projects from Firestore and listen for changes
   useEffect(() => {
+    const isSequence = (word, query) => {
+      if (!query) return true;
+      if (query.length > word.length) return false;
+      for (let i = 0; i < query.length; i++) {
+        if (word[i]?.toLowerCase() !== query[i]?.toLowerCase()) {
+          return false;
+        }
+      }
+      return true;
+    };
     const unsubscribe = onSnapshot(collection(db, "Projects"), (snapshot) => {
       const fetchedProjects = snapshot.docs
         .map((doc) => ({
@@ -52,8 +63,9 @@ const Tracker = () => {
           const yearMatch = selectedYear === "all" || (project.date && getYear(parseISO(project.date)) === Number(selectedYear));
           const sourceMatch = selectedSource === "all" || project.source === selectedSource;
           const statusMatch = selectedStatus === "all" || project.projectStatus === selectedStatus;  
-          
-          return divisionMatch && yearMatch && sourceMatch && statusMatch;
+          const brandMatch = isSequence(project.brand || "", searchBrand);
+
+          return divisionMatch && yearMatch && sourceMatch && statusMatch && brandMatch;
         })
         
         .sort((a, b) => {
@@ -89,7 +101,7 @@ const Tracker = () => {
 
     // Cleanup the listener when the component unmounts
     return () => unsubscribe();
-  }, [selectedDivision, selectedYear, selectedSource, selectedStatus]);
+  }, [selectedDivision, selectedYear, selectedSource, selectedStatus, searchBrand]);
 
   // Function to safely handle different formats of the 'createdAt' field
   const getProjectDate = (project) => {
@@ -98,29 +110,34 @@ const Tracker = () => {
     }
     return new Date(); // Default to the current date
   };
-  const handleCheckboxChange = (brand) => {
-    setSelectedBrands((prev) =>
-      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
-    );
-  };
-
-  const handleSearch = () => {
-    const filtered = filteredProjects.filter(
-      (project) =>
-        selectedBrands.length === 0 || selectedBrands.includes(project.brand)
-    );
-
-    if (filtered.length > 0) {
-      setProjects(filtered);
-    } else {
-      setNotification({
-        message: "No projects match the selected brands",
-        visible: true,
-      });
-      setTimeout(() => setNotification({ message: "", visible: false }), 3000);
-    }
-  };
-
+ // const handleCheckboxChange = (brand) => {
+   // setSelectedBrands((prev) => {
+     // return prev.includes(brand)
+       // ? prev.filter((b) => b !== brand)  // Remove if already selected
+       // : [...prev, brand];  // Add if not selected
+   // });
+ // };
+  
+  // const handleSearch = () => {
+    // if (selectedBrands.length === 0) {
+    //  setFilteredProjects(projects);  // Show all if no brand selected
+     // return;
+   // }
+  
+   // const filtered = projects.filter((project) =>
+     // selectedBrands.some((brand) => project.brand === brand)  // Match exact brand
+    //);
+  
+   // if (filtered.length > 0) {
+     // setFilteredProjects(filtered);
+   // } else {
+      //setNotification({
+       // message: "No projects match the selected brands",
+       // visible: true,
+    //  });
+     // setTimeout(() => setNotification({ message: "", visible: false }), 3000);
+   // }
+ // };
   const handleDelete = async (id) => {
     try {
       await deleteDoc(doc(db, "Projects", id));
@@ -306,40 +323,22 @@ const Tracker = () => {
             <option value="Delivered">Delivered</option>
             <option value="Published">Published</option>
           </select>
-
+         
+            <div className="">
+              <input
+                type="text"
+                placeholder="Search by Brand"
+                value={searchBrand}
+                onChange={(e) => setSearchBrand(e.target.value)}
+                className="p-2 border border-gray-300 rounded-lg"
+              />
+           
+            
 
           </div>
 
           {/* Search Bar and Buttons */}
-          <div className="flex flex-row relative gap-6">
-            <div
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="border rounded p-2 cursor-pointer"
-            >
-              {selectedBrands.length > 0
-                ? selectedBrands.join(", ")
-                : "Select brands"}
-            </div>
-            {dropdownOpen && (
-              <div className="absolute border rounded bg-white shadow-md mt-10 w-full z-10">
-                {filteredProjects.map((project) => (
-                  <label key={project.brand} className="flex items-center p-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedBrands.includes(project.brand)}
-                      onChange={() => handleCheckboxChange(project.brand)}
-                    />
-                    <span className="ml-2">{project.brand}</span>
-                  </label>
-                ))}
-                <button
-                  onClick={handleSearch}
-                  className="w-full p-2 bg-blue-500 text-white rounded-b hover:bg-blue-600"
-                >
-                  Apply Filter
-                </button>
-              </div>
-            )}
+    
 
             <ExportCSV projects={projects} setNotification={setNotification} />
 

@@ -24,8 +24,9 @@ const Tracker = () => {
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [showAddProject, setShowAddProject] = useState(false);
   const [editProject, setEditProject] = useState(null); // For storing the selected project to edit
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedDivision, setSelectedDivision] = useState("all");
+  const [selectedSource, setSelectedSource] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedYear, setSelectedYear] = useState("all");
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const itemsPerPage = 4; // Number of items per page
@@ -46,17 +47,15 @@ const Tracker = () => {
         }))
         .filter((project) => {
           // Filter by division
-          const divisionMatch =
-            selectedDivision === "all" || project.division === selectedDivision;
-
+          const divisionMatch = selectedDivision === "all" || project.division === selectedDivision;
           // Filter by year
-          const yearMatch =
-            selectedYear === "all" ||
-            (project.date &&
-              getYear(parseISO(project.date)) === Number(selectedYear));
-
-          return divisionMatch && yearMatch;
+          const yearMatch = selectedYear === "all" || (project.date && getYear(parseISO(project.date)) === Number(selectedYear));
+          const sourceMatch = selectedSource === "all" || project.source === selectedSource;
+          const statusMatch = selectedStatus === "all" || project.projectStatus === selectedStatus;  
+          
+          return divisionMatch && yearMatch && sourceMatch && statusMatch;
         })
+        
         .sort((a, b) => {
           // Sort by division (alphabetically)
           if (a.division && b.division && a.division !== b.division) {
@@ -90,7 +89,7 @@ const Tracker = () => {
 
     // Cleanup the listener when the component unmounts
     return () => unsubscribe();
-  }, [selectedDivision, selectedYear]);
+  }, [selectedDivision, selectedYear, selectedSource, selectedStatus]);
 
   // Function to safely handle different formats of the 'createdAt' field
   const getProjectDate = (project) => {
@@ -236,6 +235,10 @@ const Tracker = () => {
     link.click();
     document.body.removeChild(link);
   };
+  const handleSourceChange = (e) => {
+    setSelectedSource(e.target.value);
+    setCurrentPage(1);
+  };
 
   return (
     <div className="flex flex-col h-screen p-8">
@@ -255,7 +258,7 @@ const Tracker = () => {
               }}
               className="p-2 border border-gray-300 rounded-lg"
             >
-              <option value="all">ALL DIVISION</option>
+              <option value="all">ALL Divisions</option>
               <option value="Marketing">Marketing</option>
               <option value="Community">Community</option>
             </select>
@@ -275,6 +278,36 @@ const Tracker = () => {
               <option value="2022">2022</option>
               <option value="2021">2021</option>
             </select>
+
+            <select
+            value={selectedSource}
+            onChange={handleSourceChange}
+            className="p-2 border border-gray-300 rounded-lg"
+          >
+            <option value="all">All Sources</option>
+            <option value="Inbound">Inbound</option>
+            <option value="Outbound">Outbound</option>
+          </select>
+              {/* Status Dropdown */}
+          {/* Status Dropdown */}
+          <select
+            value={selectedStatus}
+            onChange={(e) => {
+              setSelectedStatus(e.target.value);
+              setCurrentPage(1); // Reset to the first page when changed
+            }}
+            className="p-2 border border-gray-300 rounded-lg"
+          >
+            <option value="all">All Status</option>
+            <option value="Development">Development</option>
+            <option value="Content Proposal">Content Proposal</option>
+            <option value="Ongoing">Ongoing</option>
+            <option value="Editing">Editing</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Published">Published</option>
+          </select>
+
+
           </div>
 
           {/* Search Bar and Buttons */}

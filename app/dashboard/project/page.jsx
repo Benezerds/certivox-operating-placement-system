@@ -18,7 +18,6 @@ import AddProject from "components/project/AddProject"; // Import the AddProject
 import ProjectTable from "@/components/project/ProjectTable";
 import EditProject from "@/components/project/EditProject";
 import ExportCSV from "@/components/project/ExportCsv";
-import ProjectProgress from "@/components/visualizations/ProjectProgress";
 
 
 const Tracker = () => {
@@ -350,8 +349,6 @@ const Tracker = () => {
   
         <p>Total Projects: {projects.length}</p>
       </div>
-
-      <ProjectProgress collectionName="Projects"/>
     </div>
   );
   

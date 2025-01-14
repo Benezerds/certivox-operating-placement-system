@@ -23,7 +23,7 @@ const Sidebar = () => {
     { name: "Home", icon: <HomeIcon className="w-6 h-6" />, path: "/dashboard" },
     { name: "Projects", icon: <ClipboardDocumentIcon className="w-6 h-6" />, path: "/dashboard/project" },
     { name: "Data", icon: <ChartBarIcon className="w-6 h-6" />, path: "/dashboard/data" },
-    { name: "Management", icon: <WalletIcon className="w-6 h-6" />, path: "/dashboard/management" },
+    { name: "Budget", icon: <WalletIcon className="w-6 h-6" />, path: "/dashboard/budget" },
   ];
 
   const handleToggle = () => {

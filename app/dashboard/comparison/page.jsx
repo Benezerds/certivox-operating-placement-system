@@ -1,5 +1,7 @@
 'use client'
 
+import BarChartComparison from '@/components/comparison/BarChartComparison';
+import AreaChartPlot from '@/components/comparison/BarChartComparison';
 import ComparisonChart from '@/components/comparison/ComparisonChart'
 import React, { useState } from 'react'
 
@@ -15,7 +17,7 @@ const Comparison = () => {
         
         {/* Project 1 */}
         <h3>Select a Project</h3>
-        
+
 
         {/* Project 2 */}
         <h3>Select a second project to compare</h3>
@@ -26,6 +28,7 @@ const Comparison = () => {
 
         {/* Area Cart or Line Chart to show the comparison */}
         <ComparisonChart project1={project1} project2={project2} />
+        <BarChartComparison />
     </div>
   )
 }

@@ -294,7 +294,7 @@ const getActiveFilterText = () => {
   {/* Header Section */}
   <header className="w-full max-w-5xl mb-8 text-center">
     <h1 className="text-lg sm:text-2xl text-gray-700">
-      Historical performance with manual forecast
+      Historical performance
     </h1>
   </header>
 

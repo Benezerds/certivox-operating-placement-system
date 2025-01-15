@@ -138,8 +138,8 @@ const ProjectProgress = () => {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
+    <div className="p-4 mb-8 bg-white border border-gray-200 rounded-lg">
+      <h2 className="mb-4 text-lg font-semibold text-gray-900">
         Project Progress
       </h2>
 

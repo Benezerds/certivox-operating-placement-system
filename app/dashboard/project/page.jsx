@@ -305,6 +305,8 @@ const Tracker = () => {
       <div className="flex flex-col">
         <h1 className="mb-6 text-2xl font-semibold">Project</h1>
 
+        <ProjectProgress collectionName="Projects" />
+
         {/* Filter Options */}
         <div className="flex flex-wrap items-center justify-between w-full mb-4 overflow-hidden max-w-screen">
           <div className="flex flex-wrap items-center w-full gap-4 sm:w-auto">
@@ -391,12 +393,12 @@ const Tracker = () => {
                       .join(", ")}
               </button> */}
 
-              {/* {categoryDropdownOpen && (
-               <div className="absolute mt-2 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 w-full z-20">  {/* Inline z-index override */}
-                  {/* {categories.map((category) => ( 
+            {/* {categoryDropdownOpen && (
+               <div className="absolute z-20 w-full mt-2 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg max-h-40">  {/* Inline z-index override */}
+            {/* {categories.map((category) => ( 
                     <label
                       key={category.id}
-                      className="flex items-center px-4 py-2 z-20 hover:bg-gray-100"
+                      className="z-20 flex items-center px-4 py-2 hover:bg-gray-100"
                     >
                       <input
                         type="checkbox"
@@ -415,7 +417,7 @@ const Tracker = () => {
                   ))}
                 </div>
               )}
-            </div> */} 
+            </div> */}
 
             {/* Export and Add Buttons */}
             <ExportCSV projects={projects} setNotification={setNotification} />
@@ -480,8 +482,6 @@ const Tracker = () => {
 
         <p>Total Projects: {projects.length}</p>
       </div>
-
-      <ProjectProgress collectionName="Projects"/>
     </div>
   );
 };

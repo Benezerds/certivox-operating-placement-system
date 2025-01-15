@@ -7,7 +7,7 @@ import { db } from "@/app/firebase";
 
 const COLORS = ["#FF8042", "#0088FE", "#00C49F", "#FFBB28", "#AF19FF"]; // Color palette for slices
 
-const PlatformDistribution = () => {
+const PlatformCategory = () => {
   const [chartData, setChartData] = useState([]);
 
   const processPlatformData = useCallback((snapshot) => {
@@ -68,8 +68,8 @@ const PlatformDistribution = () => {
   }, [processPlatformData]);
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md max-w-lg">
-      <h2 className="text-xl font-semibold mb-4 text-center">Platform Distribution</h2>
+    <div className="max-w-lg p-6 bg-white rounded-lg shadow-md">
+      <h2 className="mb-4 text-xl font-semibold text-center">Platform Distribution</h2>
 
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
@@ -128,5 +128,5 @@ const PlatformDistribution = () => {
   );
 };
 
-export default PlatformDistribution;
+export default PlatformCategory;
 

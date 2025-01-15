@@ -5,6 +5,8 @@ import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth } from "@/app/firebase";
 import PerformanceMetrics from "@/components/dashboard/PerformanceMetrics";
+import BrandCategory from "@/components/visualizations/BrandCategory";
+import PlatformCategory from "@/components/visualizations/PlatformCategory";
 
 function Dashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -56,12 +58,12 @@ function Dashboard() {
   }
 
   return (
-    <div className="mt-8 ml-8">
+    <div className="mt-8 ml-8 mr-8">
       {/* Main Content */}
       <h2 className="mb-4 text-2xl font-bold text-gray-800">
         Performance Metrics
       </h2>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {performanceData.map((metric, index) => (
           <PerformanceMetrics
             key={index}
@@ -72,7 +74,12 @@ function Dashboard() {
             days={metric.days}
           />
         ))}
+      </div> */}
+      <div className="flex flex-row gap-4">
+      <BrandCategory />
+      <PlatformCategory />
       </div>
+      
     </div>
   );
 }

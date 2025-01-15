@@ -29,9 +29,9 @@ const Tracker = () => {
   const [selectedSource, setSelectedSource] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedYear, setSelectedYear] = useState("all");
-  const [categories, setCategories] = useState([]);  // Stores all categories from Firestore
-  const [selectedCategories, setSelectedCategories] = useState([]);  // Stores selected categories
-  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);  // Dropdown toggle
+  const [categories, setCategories] = useState([]); // Stores all categories from Firestore
+  const [selectedCategories, setSelectedCategories] = useState([]); // Stores selected categories
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false); // Dropdown toggle
   const [searchBrand, setSearchBrand] = useState("");
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const itemsPerPage = 4; // Number of items per page
@@ -39,7 +39,7 @@ const Tracker = () => {
     message: "",
     visible: false,
   });
-  
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -53,10 +53,10 @@ const Tracker = () => {
         console.error("Error fetching categories:", error);
       }
     };
-  
+
     fetchCategories();
   }, []);
-  
+
   useEffect(() => {
     const isSequence = (word, query) => {
       if (!query) return true;
@@ -76,16 +76,32 @@ const Tracker = () => {
         }))
         .filter((project) => {
           // Filter by division
-          const divisionMatch = selectedDivision === "all" || project.division === selectedDivision;
+          const divisionMatch =
+            selectedDivision === "all" || project.division === selectedDivision;
           // Filter by year
-          const yearMatch = selectedYear === "all" || (project.date && getYear(parseISO(project.date)) === Number(selectedYear));
-          const sourceMatch = selectedSource === "all" || project.source === selectedSource;
-          const statusMatch = selectedStatus === "all" || project.projectStatus === selectedStatus;  
+          const yearMatch =
+            selectedYear === "all" ||
+            (project.date &&
+              getYear(parseISO(project.date)) === Number(selectedYear));
+          const sourceMatch =
+            selectedSource === "all" || project.source === selectedSource;
+          const statusMatch =
+            selectedStatus === "all" ||
+            project.projectStatus === selectedStatus;
           const brandMatch = isSequence(project.brand || "", searchBrand);
-          const categoryMatch = selectedCategories.length === 0 ||selectedCategories.includes(project.category?.id);
-          return divisionMatch && yearMatch && sourceMatch && statusMatch && brandMatch && categoryMatch;
+          const categoryMatch =
+            selectedCategories.length === 0 ||
+            selectedCategories.includes(project.category?.id);
+          return (
+            divisionMatch &&
+            yearMatch &&
+            sourceMatch &&
+            statusMatch &&
+            brandMatch &&
+            categoryMatch
+          );
         })
-        
+
         .sort((a, b) => {
           // Sort by division (alphabetically)
           if (a.division && b.division && a.division !== b.division) {
@@ -119,7 +135,14 @@ const Tracker = () => {
 
     // Cleanup the listener when the component unmounts
     return () => unsubscribe();
-  }, [selectedDivision, selectedYear, selectedSource, selectedStatus, searchBrand, selectedCategories]);
+  }, [
+    selectedDivision,
+    selectedYear,
+    selectedSource,
+    selectedStatus,
+    searchBrand,
+    selectedCategories,
+  ]);
 
   // Function to safely handle different formats of the 'createdAt' field
   const getProjectDate = (project) => {
@@ -128,34 +151,34 @@ const Tracker = () => {
     }
     return new Date(); // Default to the current date
   };
- // const handleCheckboxChange = (brand) => {
-   // setSelectedBrands((prev) => {
-     // return prev.includes(brand)
-       // ? prev.filter((b) => b !== brand)  // Remove if already selected
-       // : [...prev, brand];  // Add if not selected
-   // });
- // };
-  
+  // const handleCheckboxChange = (brand) => {
+  // setSelectedBrands((prev) => {
+  // return prev.includes(brand)
+  // ? prev.filter((b) => b !== brand)  // Remove if already selected
+  // : [...prev, brand];  // Add if not selected
+  // });
+  // };
+
   // const handleSearch = () => {
-    // if (selectedBrands.length === 0) {
-    //  setFilteredProjects(projects);  // Show all if no brand selected
-     // return;
-   // }
-  
-   // const filtered = projects.filter((project) =>
-     // selectedBrands.some((brand) => project.brand === brand)  // Match exact brand
-    //);
-  
-   // if (filtered.length > 0) {
-     // setFilteredProjects(filtered);
-   // } else {
-      //setNotification({
-       // message: "No projects match the selected brands",
-       // visible: true,
-    //  });
-     // setTimeout(() => setNotification({ message: "", visible: false }), 3000);
-   // }
- // };
+  // if (selectedBrands.length === 0) {
+  //  setFilteredProjects(projects);  // Show all if no brand selected
+  // return;
+  // }
+
+  // const filtered = projects.filter((project) =>
+  // selectedBrands.some((brand) => project.brand === brand)  // Match exact brand
+  //);
+
+  // if (filtered.length > 0) {
+  // setFilteredProjects(filtered);
+  // } else {
+  //setNotification({
+  // message: "No projects match the selected brands",
+  // visible: true,
+  //  });
+  // setTimeout(() => setNotification({ message: "", visible: false }), 3000);
+  // }
+  // };
   const handleDelete = async (id) => {
     try {
       await deleteDoc(doc(db, "Projects", id));
@@ -282,8 +305,8 @@ const Tracker = () => {
         <h1 className="mb-6 text-2xl font-semibold">Project</h1>
 
         {/* Filter Options */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-between w-full mb-4 overflow-hidden max-w-screen">
+          <div className="flex flex-wrap items-center w-full gap-4 sm:w-auto">
             {/* Division Dropdown */}
             <select
               value={selectedDivision}
@@ -291,7 +314,7 @@ const Tracker = () => {
                 setSelectedDivision(e.target.value);
                 setCurrentPage(1); // Reset to first page
               }}
-              className="p-2 border border-gray-300 rounded-lg"
+              className="w-full p-2 border border-gray-300 rounded-lg sm:w-auto"
             >
               <option value="all">ALL Divisions</option>
               <option value="Marketing">Marketing</option>
@@ -305,7 +328,7 @@ const Tracker = () => {
                 setSelectedYear(e.target.value);
                 setCurrentPage(1); // Reset to first page
               }}
-              className="p-2 border border-gray-300 rounded-lg"
+              className="w-full p-2 border border-gray-300 rounded-lg sm:w-auto"
             >
               <option value="all">All Years</option>
               <option value="2025">2025</option>
@@ -316,90 +339,90 @@ const Tracker = () => {
             </select>
 
             <select
-            value={selectedSource}
-            onChange={handleSourceChange}
-            className="p-2 border border-gray-300 rounded-lg"
-          >
-            <option value="all">All Sources</option>
-            <option value="Inbound">Inbound</option>
-            <option value="Outbound">Outbound</option>
-          </select>
-              {/* Status Dropdown */}
-          {/* Status Dropdown */}
-          <select
-            value={selectedStatus}
-            onChange={(e) => {
-              setSelectedStatus(e.target.value);
-              setCurrentPage(1); // Reset to the first page when changed
-            }}
-            className="p-2 border border-gray-300 rounded-lg"
-          >
-            <option value="all">All Status</option>
-            <option value="Development">Development</option>
-            <option value="Content Proposal">Content Proposal</option>
-            <option value="Ongoing">Ongoing</option>
-            <option value="Editing">Editing</option>
-            <option value="Delivered">Delivered</option>
-            <option value="Published">Published</option>
-          </select>
-         
-            <div className="">
+              value={selectedSource}
+              onChange={handleSourceChange}
+              className="w-full p-2 border border-gray-300 rounded-lg sm:w-auto"
+            >
+              <option value="all">All Sources</option>
+              <option value="Inbound">Inbound</option>
+              <option value="Outbound">Outbound</option>
+            </select>
+
+            {/* Status Dropdown */}
+            <select
+              value={selectedStatus}
+              onChange={(e) => {
+                setSelectedStatus(e.target.value);
+                setCurrentPage(1); // Reset to first page
+              }}
+              className="w-full p-2 border border-gray-300 rounded-lg sm:w-auto"
+            >
+              <option value="all">All Status</option>
+              <option value="Development">Development</option>
+              <option value="Content Proposal">Content Proposal</option>
+              <option value="Ongoing">Ongoing</option>
+              <option value="Editing">Editing</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Published">Published</option>
+            </select>
+
+            {/* Search by Brand */}
+            <div>
               <input
                 type="text"
                 placeholder="Search by Brand"
                 value={searchBrand}
                 onChange={(e) => setSearchBrand(e.target.value)}
-                className="p-2 border border-gray-300 rounded-lg"
+                className="w-full p-2 border border-gray-300 rounded-lg sm:w-auto"
               />
-           
-          </div>
+            </div>
+
             {/* Category Multi-Select Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-              className="p-2 border border-gray-300 rounded-lg"
-            >
-              {selectedCategories.length === 0
-                ? "All Categories"
-                : selectedCategories
-                    .map((id) => categories.find((cat) => cat.id === id)?.name)
-                    .join(", ")}
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                className="w-full p-2 border border-gray-300 rounded-lg sm:w-auto"
+              >
+                {selectedCategories.length === 0
+                  ? "All Categories"
+                  : selectedCategories
+                      .map(
+                        (id) => categories.find((cat) => cat.id === id)?.name
+                      )
+                      .join(", ")}
+              </button>
 
-            {categoryDropdownOpen && (
-              <div className="absolute z-10 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto">
-                {categories.map((category) => (
-                  <label
-                    key={category.id}
-                    className="flex items-center px-4 py-2 hover:bg-gray-100"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedCategories.includes(category.id)}
-                      onChange={() =>
-                        setSelectedCategories((prev) =>
-                          prev.includes(category.id)
-                            ? prev.filter((id) => id !== category.id)
-                            : [...prev, category.id]
-                        )
-                      }
-                      className="mr-2"
-                    />
-                    {category.name}
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
+              {categoryDropdownOpen && (
+                <div className="absolute z-10 mt-2 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg max-h-40">
+                  {categories.map((category) => (
+                    <label
+                      key={category.id}
+                      className="flex items-center px-4 py-2 hover:bg-gray-100"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedCategories.includes(category.id)}
+                        onChange={() =>
+                          setSelectedCategories((prev) =>
+                            prev.includes(category.id)
+                              ? prev.filter((id) => id !== category.id)
+                              : [...prev, category.id]
+                          )
+                        }
+                        className="mr-2"
+                      />
+                      {category.name}
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
 
-          {/* Search Bar and Buttons */}
-    
-
+            {/* Export and Add Buttons */}
             <ExportCSV projects={projects} setNotification={setNotification} />
-
             <button
               onClick={() => setShowAddProject((prev) => !prev)}
-              className="px-4 py-2 w-40 text-white bg-black rounded-lg"
+              className="w-full px-4 py-2 text-white bg-black rounded-lg sm:w-auto"
             >
               + New Project
             </button>

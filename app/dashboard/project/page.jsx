@@ -316,7 +316,7 @@ const Tracker = () => {
               }}
               className="w-full p-2 border border-gray-300 rounded-lg sm:w-auto"
             >
-              <option value="all">ALL Divisions</option>
+              <option value="all">All Divisions</option>
               <option value="Marketing">Marketing</option>
               <option value="Community">Community</option>
             </select>

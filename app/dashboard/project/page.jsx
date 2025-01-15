@@ -378,7 +378,7 @@ const Tracker = () => {
             </div>
 
             {/* Category Multi-Select Dropdown */}
-            <div className="relative">
+            {/* <div className="relative z-10"> 
               <button
                 onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
                 className="w-full p-2 border border-gray-300 rounded-lg sm:w-auto"
@@ -386,18 +386,16 @@ const Tracker = () => {
                 {selectedCategories.length === 0
                   ? "All Categories"
                   : selectedCategories
-                      .map(
-                        (id) => categories.find((cat) => cat.id === id)?.name
-                      )
+                      .map((id) => categories.find((cat) => cat.id === id)?.name)
                       .join(", ")}
-              </button>
+              </button> */}
 
-              {categoryDropdownOpen && (
-                <div className="absolute z-10 mt-2 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg max-h-40">
-                  {categories.map((category) => (
+              {/* {categoryDropdownOpen && (
+               <div className="absolute mt-2 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 w-full z-20">  {/* Inline z-index override */}
+                  {/* {categories.map((category) => ( 
                     <label
                       key={category.id}
-                      className="flex items-center px-4 py-2 hover:bg-gray-100"
+                      className="flex items-center px-4 py-2 z-20 hover:bg-gray-100"
                     >
                       <input
                         type="checkbox"
@@ -416,7 +414,7 @@ const Tracker = () => {
                   ))}
                 </div>
               )}
-            </div>
+            </div> */} 
 
             {/* Export and Add Buttons */}
             <ExportCSV projects={projects} setNotification={setNotification} />

@@ -5,6 +5,7 @@ import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth } from "@/app/firebase";
 import PerformanceMetrics from "@/components/dashboard/PerformanceMetrics";
+import LatestActivityCard from "@/components/shared/LatestActivityCard";
 
 function Dashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -73,6 +74,9 @@ function Dashboard() {
           />
         ))}
       </div>
+
+      {/* Activity Log */}
+      <LatestActivityCard />
     </div>
   );
 }

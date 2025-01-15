@@ -3,20 +3,21 @@ import { format, parseISO, isValid } from "date-fns";
 import { addDoc, collection, doc, getDocs } from "firebase/firestore";
 import { db } from '@/app/firebase';
 
+
 const AddProjectForm = ({ onClose }) => {
   const [source, setSource] = useState('');
   const [projectName, setProjectName] = useState('');
   const [projectStatus, setProjectStatus] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [quarter, setQuarter] = useState('');
-  const [category, setCategory] = useState('');
   const [categories, setCategories] = useState([]);
+  const [category, setCategory] = useState('');
   const [brand, setBrand] = useState('');
   const [platform, setPlatform] = useState('');
   const [customPlatform, setCustomPlatform] = useState('');
+  const [platformLink, setPlatformLink] = useState('');
   const [sowType, setSowType] = useState('');
   const [isSowCustom, setIsSowCustom] = useState(false);
-  const [link, setLink] = useState('');
   const [division, setDivision] = useState('');
   const [customSow, setCustomSow] = useState('');
   const [bundlingSowList, setBundlingSowList] = useState([{ id: 1, sow: '', content: '' }]);
@@ -50,7 +51,26 @@ const AddProjectForm = ({ onClose }) => {
       setBundlingSowList([{ id: 1, sow: '', content: '' }]);
     }
   };
-
+  const handlePlatformChange = (selectedPlatform) => {
+    setPlatform((prevPlatforms) => {
+      if (prevPlatforms.includes(selectedPlatform)) {
+        // Remove platform if already selected
+        const updatedPlatforms = prevPlatforms.filter((p) => p !== selectedPlatform);
+        const { [selectedPlatform]: _, ...remainingLinks } = platformLink; // Remove link
+        setPlatformLink(remainingLinks);
+        return updatedPlatforms;
+      } else {
+        // Add platform if not selected
+        return [...prevPlatforms, selectedPlatform];
+      }
+    });
+  };
+  const handlePlatformLinkChange = (platformName, link) => {
+    setPlatformLink((prevLinks) => ({
+      ...prevLinks,
+      [platformName]: link,
+    }));
+  };
   const addBundlingSowField = () => {
     const newSowId = bundlingSowList.length + 1;
     setBundlingSowList([...bundlingSowList, { id: newSowId, sow: '', content: '' }]);
@@ -85,14 +105,14 @@ const AddProjectForm = ({ onClose }) => {
       quarter,
       category: categoryRef,
       brand,
-      platform: platform === "Apa kek" ? customPlatform : platform,
+      platform,
+      platformLink,
       sow:
         sowType === 'bundling'
           ? bundlingSowList
           : sowType === 'custom'
           ? customSow
           : sowType,
-      link,
       division,
     };
 
@@ -106,19 +126,20 @@ const AddProjectForm = ({ onClose }) => {
       setStartDate(null);
       setQuarter('');
       setCategory('');
+      setCustomCategory('');
       setBrand('');
       setPlatform('');
       setCustomPlatform('');
+      setPlatformLink('');
       setSowType('');
       setBundlingSowList([{ id: 1, sow: '', content: '' }]);
       setCustomSow('');
-      setLink('');
       setDivision('');
     } catch (error) {
       console.error('Error adding project:', error);
     }
   };
-
+  
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Source */}
@@ -200,23 +221,24 @@ const AddProjectForm = ({ onClose }) => {
         </select>
       </div>
 
-      {/* Category Dropdown */}
-      <div>
-        <label className="block font-semibold">Category</label>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="border border-gray-300 p-2 rounded w-full"
-          required
-        >
-          <option value="">Choose one</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.category_name} {/* Assuming category_name is the field storing the name */}
-            </option>
-          ))}
-        </select>
-      </div>
+      {/* Category */}
+      
+        <div>
+          <label className="block font-semibold">Category</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="border border-gray-300 p-2 rounded w-full"
+            required
+          >
+            <option value="">Choose one</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>{cat.category_name}</option>
+            ))}
+          </select>
+        </div>
+
+        
 
       {/* Brand*/}
       <div>
@@ -238,27 +260,35 @@ const AddProjectForm = ({ onClose }) => {
           {["Instagram", "Tik Tok", "Youtube", "Website", "Apa kek"].map((plat) => (
             <label key={plat} className="flex items-center space-x-2">
               <input
-                type="radio"
-                name="platform"
+                type="checkbox"
                 value={plat}
-                checked={platform === plat}
-                onChange={() => setPlatform(plat)}
-                className="form-radio"
+                checked={platform.includes(plat)} // Check if platform is selected
+                onChange={() => handlePlatformChange(plat)} // Handle platform selection
+                className="form-checkbox"
               />
               <span>{plat}</span>
             </label>
           ))}
         </div>
-        {platform === "Apa kek" && (
-          <input
-            type="text"
-            value={customPlatform}
-            onChange={(e) => setCustomPlatform(e.target.value)}
-            placeholder="Enter custom platform"
-            className="border border-gray-300 p-2 rounded w-full mt-2"
-          />
+        {platform.length > 0 && (
+          <div className="mt-2">
+            <label className="block font-semibold">Platform Links</label>
+            {platform.map((plat) => (
+              <div key={plat} className="mb-2">
+                <label className="block">{`${plat} Link`}</label>
+                <input
+                  type="text"
+                  placeholder={`Enter ${plat} link`}
+                  value={platformLink[plat] || ""}
+                  onChange={(e) => handlePlatformLinkChange(plat, e.target.value)}
+                  className="border border-gray-300 p-2 rounded w-full"
+                />
+              </div>
+            ))}
+          </div>
         )}
       </div>
+
 
       {/* SOW */}
       <div>
@@ -345,18 +375,6 @@ const AddProjectForm = ({ onClose }) => {
           <option value="Marketing">Marketing</option>
           <option value="Community">Community</option>
         </select>
-      </div>
-
-      {/* Link */}
-      <div>
-        <label className="block font-semibold">Link</label>
-        <input
-          type="url"
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
-          placeholder="Enter link"
-          className="border border-gray-300 p-2 rounded w-full"
-        />
       </div>
 
       {/* Submit Button */}

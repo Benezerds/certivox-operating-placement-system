@@ -12,6 +12,7 @@ import {
   addDoc,
   serverTimestamp,
   getDoc,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/app/firebase"; // Ensure Firebase is set up correctly
 import AddProject from "components/project/AddProject"; // Import the AddProject component
@@ -28,6 +29,9 @@ const Tracker = () => {
   const [selectedSource, setSelectedSource] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedYear, setSelectedYear] = useState("all");
+  const [categories, setCategories] = useState([]);  // Stores all categories from Firestore
+  const [selectedCategories, setSelectedCategories] = useState([]);  // Stores selected categories
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);  // Dropdown toggle
   const [searchBrand, setSearchBrand] = useState("");
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const itemsPerPage = 4; // Number of items per page
@@ -35,10 +39,24 @@ const Tracker = () => {
     message: "",
     visible: false,
   });
-  //const [selectedBrands, setSelectedBrands] = useState([]);
-  //const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  // Fetch projects from Firestore and listen for changes
+  
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categorySnapshot = await getDocs(collection(db, "Categories"));
+        const categoryList = categorySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().category_name,
+        }));
+        setCategories(categoryList);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+  
+    fetchCategories();
+  }, []);
+  
   useEffect(() => {
     const isSequence = (word, query) => {
       if (!query) return true;
@@ -64,8 +82,8 @@ const Tracker = () => {
           const sourceMatch = selectedSource === "all" || project.source === selectedSource;
           const statusMatch = selectedStatus === "all" || project.projectStatus === selectedStatus;  
           const brandMatch = isSequence(project.brand || "", searchBrand);
-
-          return divisionMatch && yearMatch && sourceMatch && statusMatch && brandMatch;
+          const categoryMatch = selectedCategories.length === 0 ||selectedCategories.includes(project.category?.id);
+          return divisionMatch && yearMatch && sourceMatch && statusMatch && brandMatch && categoryMatch;
         })
         
         .sort((a, b) => {
@@ -101,7 +119,7 @@ const Tracker = () => {
 
     // Cleanup the listener when the component unmounts
     return () => unsubscribe();
-  }, [selectedDivision, selectedYear, selectedSource, selectedStatus, searchBrand]);
+  }, [selectedDivision, selectedYear, selectedSource, selectedStatus, searchBrand, selectedCategories]);
 
   // Function to safely handle different formats of the 'createdAt' field
   const getProjectDate = (project) => {
@@ -334,8 +352,44 @@ const Tracker = () => {
                 className="p-2 border border-gray-300 rounded-lg"
               />
            
-            
+          </div>
+            {/* Category Multi-Select Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+              className="p-2 border border-gray-300 rounded-lg"
+            >
+              {selectedCategories.length === 0
+                ? "All Categories"
+                : selectedCategories
+                    .map((id) => categories.find((cat) => cat.id === id)?.name)
+                    .join(", ")}
+            </button>
 
+            {categoryDropdownOpen && (
+              <div className="absolute z-10 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                {categories.map((category) => (
+                  <label
+                    key={category.id}
+                    className="flex items-center px-4 py-2 hover:bg-gray-100"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedCategories.includes(category.id)}
+                      onChange={() =>
+                        setSelectedCategories((prev) =>
+                          prev.includes(category.id)
+                            ? prev.filter((id) => id !== category.id)
+                            : [...prev, category.id]
+                        )
+                      }
+                      className="mr-2"
+                    />
+                    {category.name}
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Search Bar and Buttons */}

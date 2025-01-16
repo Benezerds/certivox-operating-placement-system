@@ -179,7 +179,7 @@ const EditProject = ({ project, onClose }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Source */}
           <div>
-            <label className="block font-semibold">Source</label>
+          <label className="block font-semibold">Source<span style={{ color: 'red' }}>*</span></label>
             <select
               value={source}
               onChange={(e) => setSource(e.target.value)}
@@ -194,7 +194,7 @@ const EditProject = ({ project, onClose }) => {
 
           {/* Project Name */}
           <div>
-            <label className="block font-semibold">Project Name</label>
+          <label className="block font-semibold">Project Name<span style={{ color: 'red' }}>*</span></label>
             <input
               type="text"
               value={projectName}
@@ -208,7 +208,7 @@ const EditProject = ({ project, onClose }) => {
           {/* Project Status and Date */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block font-semibold">Project Status</label>
+            <label className="block font-semibold">Project Status<span style={{ color: 'red' }}>*</span></label>
               <select
                 value={projectStatus}
                 onChange={(e) => setProjectStatus(e.target.value)}
@@ -226,7 +226,7 @@ const EditProject = ({ project, onClose }) => {
             </div>
 
             <div>
-              <label className="block font-semibold">Date</label>
+            <label className="block font-semibold">Date<span style={{ color: 'red' }}>*</span></label>
               <input
                 type="date"
                 value={startDate}
@@ -241,7 +241,7 @@ const EditProject = ({ project, onClose }) => {
 
           {/* Quarter */}
           <div>
-            <label className="block font-semibold">Quarter</label>
+          <label className="block font-semibold">Quarter<span style={{ color: 'red' }}>*</span></label>
             <select
               value={quarter}
               onChange={(e) => setQuarter(e.target.value)}
@@ -258,7 +258,7 @@ const EditProject = ({ project, onClose }) => {
 
           {/* Category */}
           <div>
-            <label className="block font-semibold">Category</label>
+          <label className="block font-semibold">Category<span style={{ color: 'red' }}>*</span></label>
             <select
               value={category} // Ensure the value is bound to the category state
               onChange={(e) => setCategory(e.target.value)}
@@ -280,7 +280,7 @@ const EditProject = ({ project, onClose }) => {
 
           {/* Brand */}
           <div>
-            <label className="block font-semibold">Brand</label>
+          <label className="block font-semibold">Brand<span style={{ color: 'red' }}>*</span></label>
             <input
               type="text"
               value={brand}
@@ -294,7 +294,7 @@ const EditProject = ({ project, onClose }) => {
           {/* Platform */}
           {/* Platform Section */}
           <div>
-            <label className="block font-semibold">Platform</label>
+          <label className="block font-semibold">Platform<span style={{ color: 'red' }}>*</span></label>
             <div className="flex flex-col space-y-2">
               {["Instagram", "Tik Tok", "Youtube", "Website", "Apa kek"].map((plat) => (
                 <label key={plat} className="flex items-center space-x-2">
@@ -311,7 +311,7 @@ const EditProject = ({ project, onClose }) => {
             </div>
             {platform.length > 0 && (
               <div className="mt-4">
-                <label className="block font-semibold">Platform Links</label>
+                <label className="block font-semibold">Platform Links (Optional)</label>
                 {platform.map((plat) => (
                   <div key={plat} className="mb-2">
                     <label className="block">{`${plat} Link`}</label>
@@ -330,7 +330,7 @@ const EditProject = ({ project, onClose }) => {
 
           {/* SOW */}
           <div>
-            <label className="block font-semibold">SOW</label>
+          <label className="block font-semibold">SOW<span style={{ color: 'red' }}>*</span></label>
             <select
               value={sowType}
               onChange={handleSowChange}
@@ -399,7 +399,7 @@ const EditProject = ({ project, onClose }) => {
 
           {/* Division */}
           <div>
-            <label className="block font-semibold">Division</label>
+          <label className="block font-semibold">Division<span style={{ color: 'red' }}>*</span></label>
             <select
               value={division}
               onChange={(e) => setDivision(e.target.value)}

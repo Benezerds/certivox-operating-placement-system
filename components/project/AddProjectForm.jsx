@@ -9,12 +9,13 @@ const AddProjectForm = ({ onClose }) => {
   const [projectName, setProjectName] = useState('');
   const [projectStatus, setProjectStatus] = useState('');
   const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [quarter, setQuarter] = useState('');
+  const [priority, setPriority] = useState('');
   const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState('');
   const [brand, setBrand] = useState('');
   const [platform, setPlatform] = useState('');
-  const [customPlatform, setCustomPlatform] = useState('');
   const [platformLink, setPlatformLink] = useState('');
   const [sowType, setSowType] = useState('');
   const [isSowCustom, setIsSowCustom] = useState(false);
@@ -95,6 +96,7 @@ const AddProjectForm = ({ onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const utcStartDate = startDate ? parseISO(startDate).toISOString() : null;
+    const utcEndDate = endDate ? parseISO(endDate).toISOString() : null;
     const categoryRef = category ? doc(db, "Categories", category) : null;
 
     const projectData = {
@@ -102,7 +104,9 @@ const AddProjectForm = ({ onClose }) => {
       projectName,
       projectStatus,
       date: utcStartDate,
+      endDate: utcEndDate,
       quarter,
+      priority,
       category: categoryRef,
       brand,
       platform,
@@ -124,7 +128,9 @@ const AddProjectForm = ({ onClose }) => {
       setProjectName('');
       setProjectStatus('');
       setStartDate(null);
+      setEndDate(null);
       setQuarter('');
+      setPriority
       setCategory('');
       setCustomCategory('');
       setBrand('');
@@ -191,7 +197,23 @@ const AddProjectForm = ({ onClose }) => {
         </div>
 
         <div>
-        <label className="block font-semibold">Date<span style={{ color: 'red' }}>*</span></label>
+          <label className="block font-semibold">Priority Level<span style={{ color: 'red' }}>*</span></label>
+          <select
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+            className="border border-gray-300 p-2 rounded w-full"
+            required
+          >
+            <option value="">Choose one</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+       </div>
+
+       <div className="grid grid-cols-1 gap-4">
+        <div>
+        <label className="block font-semibold">Start Date<span style={{ color: 'red' }}>*</span></label>
           <input
             type="date"
             value={startDate}
@@ -204,6 +226,17 @@ const AddProjectForm = ({ onClose }) => {
         </div>
       </div>
 
+      <div>
+        <label className="block font-semibold">End Date<span style={{ color: 'red' }}>*</span></label>
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          className="border border-gray-300 p-2 rounded w-full"
+          required
+        />
+      </div>
+      </div>
       {/* Quarters */}
       <div>
       <label className="block font-semibold">Quarter<span style={{ color: 'red' }}>*</span></label>

@@ -74,7 +74,9 @@ const ExportCSV = ({ projects, setNotification }) => {
       "Source",
       "Project",
       "Status",
-      "Date",
+      "Priority Level",
+      "StartDate",
+      "EndDate",
       "Quarter",
       "Category",
       "Brand",
@@ -100,11 +102,9 @@ const ExportCSV = ({ projects, setNotification }) => {
         project.source || "N/A",
         project.projectName || "N/A",
         project.projectStatus || "N/A",
-        project.date
-          ? isValid(new Date(project.date))
-            ? format(new Date(project.date), "yyyy-MM-dd")
-            : "Invalid Date"
-          : "N/A",
+        project.priority || "N/A",
+        project.date ? isValid(new Date(project.date))? format(new Date(project.date), "yyyy-MM-dd"): "Invalid Date": "N/A",
+        project.endDate ? isValid(new Date(project.endDate))? format(new Date(project.endDate), "yyyy-MM-dd"): "Invalid Date": "N/A",
         project.quarter || "N/A",
         project.category || "N/A",
         project.brand || "N/A",

@@ -17,15 +17,18 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
     const resolveProjectData = async () => {
       const updatedProjects = await Promise.all(
         projects.map(async (project) => {
-          let categoryName = project.category || "N/A"; // Use custom category directly if provided
+          let categoryName = "N/A"; // Default to "N/A"
           if (typeof project.category === "object" && project.category.id) {
             try {
               const categoryDoc = await getDoc(project.category);
               if (categoryDoc.exists()) {
                 categoryName = categoryDoc.data().category_name || "N/A";
+              } else {
+                categoryName = "Category not found"; // Handle missing category
               }
             } catch (error) {
               console.error("Error fetching category:", error);
+              categoryName = "Category not found"; // Handle errors gracefully
             }
           }
           return { ...project, category: categoryName };

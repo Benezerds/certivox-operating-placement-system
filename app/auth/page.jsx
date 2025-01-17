@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { auth } from "../firebase";
 import { setPersistence, signInWithEmailAndPassword, browserSessionPersistence, browserLocalPersistence } from "firebase/auth";
-import Image from 'next/image';
+import Image from "next/image";
 
 function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // Added state for showing password
   const [rememberMe, setRememberMe] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
@@ -51,7 +52,7 @@ function Auth() {
             Swal.showLoading();
           },
         });
-  
+
         // Delay to show loading state before redirecting
         setTimeout(() => {
           router.push("/dashboard"); // Keep using push to allow back navigation.
@@ -106,13 +107,22 @@ function Auth() {
             <label htmlFor="password" className="block mb-2 text-xl font-medium text-gray-700">
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-4 text-sm text-gray-500 hover:text-gray-700 focus:outline-none"
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
           </div>
           <div className="flex items-center justify-between mt-4">
             <div className="flex items-center">
@@ -141,6 +151,6 @@ function Auth() {
       </div>
     </section>
   );
-};
+}
 
 export default Auth;

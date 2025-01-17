@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const MultiSelectTreeDropdown = ({
   onSourceChange,
@@ -8,6 +8,15 @@ const MultiSelectTreeDropdown = ({
   onDivisionChange,
   onPlatformChange,
 }) => {
+  // States for filter options
+  const [sources, setSources] = useState(["All"]);
+  const [statuses, setStatuses] = useState(["All"]);
+  const [brandCategories, setBrandCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [platforms, setPlatforms] = useState([]);
+  const [divisions, setDivisions] = useState(["All Divisions"]);
+
+  // States for selected filters
   const [selectedSource, setSelectedSource] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedBrandCategory, setSelectedBrandCategory] = useState([]);
@@ -20,23 +29,54 @@ const MultiSelectTreeDropdown = ({
   const [isBrandOpen, setIsBrandOpen] = useState(false);
   const [isPlatformOpen, setIsPlatformOpen] = useState(false);
 
-  // Options for each group
-  const sources = ["Outbound", "Inbound", "All"];
-  const statuses = ["All", "0", "Development", "Content Proposal", "Ongoing", "Editing", "Delivered", "Published"];
-  const brandCategories = ["Fashion", "Judi Online", "Sport", "E-Sport"];
-  const brands = ["Uniqlo", "Manchester City", "VARdrid"];
-  const divisions = ["Marketing", "Community", "All Divisions"];
-  const platforms = ["YouTube", "TikTok"];
+  // Fetch filter options from the backend
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/projects");
+        const data = await response.json();
 
-  // Handlers for each group
+        // Extract unique values for each filter option
+        const uniqueStatuses = Array.from(new Set(data.map((item) => item.projectStatus)));
+        const uniqueCategories = Array.from(
+          new Set(
+            data.map((item) => {
+              const category = item.category;
+              return typeof category === "string" ? category.split("/").pop() : "";
+            })
+          )
+        ).filter((category) => category); // Ensure valid strings
+        const uniqueBrands = Array.from(new Set(data.map((item) => item.brand)));
+        const uniquePlatforms = Array.from(new Set(data.flatMap((item) => item.platform)));
+        const uniqueDivisions = Array.from(new Set(data.map((item) => item.division)));
+        // Extract unique values for `source` field
+      const uniqueSources = Array.from(new Set(data.map((item) => item.source)));
+
+        setStatuses(["All", ...uniqueStatuses]);
+        setSources(["All", ...uniqueSources]);
+        setBrandCategories(uniqueCategories);
+        setBrands(uniqueBrands);
+        setPlatforms(uniquePlatforms);
+        setDivisions(["All Divisions", ...uniqueDivisions]);
+      } catch (error) {
+        console.error("Error fetching filter options:", error);
+      }
+    };
+
+    fetchOptions();
+  }, []);
+
+  // Handlers for each filter group
   const handleSourceChange = (e) => {
     const value = e.target.value;
     setSelectedSource(value);
-    onSourceChange(value);
+    onSourceChange(value); // Notify parent
   };
 
-  const handleStatusChange = (value) => {
+  const handleStatusChange = (e) => {
+    const value = e.target.value;
     setSelectedStatus(value);
+    onStatusChange(value); // Notify parent
   };
 
   const handleBrandCategoryChange = (e) => {
@@ -62,11 +102,11 @@ const MultiSelectTreeDropdown = ({
         : [...selectedBrand, value]
     );
   };
-  
+
   const handleDivisionChange = (e) => {
     const value = e.target.value;
     setSelectedDivision(value);
-    onDivisionChange(value);
+    onDivisionChange(value); // Notify parent
   };
 
   const handlePlatformChange = (e) => {
@@ -80,7 +120,6 @@ const MultiSelectTreeDropdown = ({
         : [...selectedPlatform, value]
     );
   };
-  
 
   return (
     <div className="flex space-x-4">
@@ -107,8 +146,8 @@ const MultiSelectTreeDropdown = ({
     value={selectedStatus}
     onChange={(e) => {
       const value = e.target.value;
-      setSelectedStatus(value);
-      onStatusChange(value); // Inform parent about the change
+      setSelectedStatus(value); // Update selected status
+      onStatusChange(value); // Notify parent
     }}
     className="bg-gray-100 text-black p-2 rounded-lg border border-gray-300"
   >
@@ -119,39 +158,40 @@ const MultiSelectTreeDropdown = ({
     ))}
   </select>
 </div>
-
-      {/* Brand Category Dropdown */}
+      {/* category Dropdown */}
       <div className="relative">
-        <label className="block text-sm font-medium text-gray-700">Brand Category</label>
-        <div
-          onClick={() => setIsBrandCategoryOpen(!isBrandCategoryOpen)} // Toggle visibility
-          className="bg-gray-100 text-black p-2 rounded-lg border border-gray-300 cursor-pointer"
-        >
-          Select Brand Categories
-        </div>
-        {isBrandCategoryOpen && (
-          <div className="absolute mt-2 bg-white shadow-lg rounded-lg border border-gray-300 p-4 z-10">
-            {brandCategories.map((category) => (
-              <label key={category} className="flex items-center space-x-2 mb-2">
-                <input
-                  type="checkbox"
-                  value={category}
-                  checked={selectedBrandCategory.includes(category)}
-                  onChange={handleBrandCategoryChange}
-                  className="form-checkbox"
-                />
-                <span>{category}</span>
-              </label>
-            ))}
-          </div>
-        )}
-      </div>
+  <label className="block text-sm font-medium text-gray-700">Category</label>
+  <div
+    onClick={() => setIsBrandCategoryOpen(!isBrandCategoryOpen)}
+    className="bg-gray-100 text-black p-2 rounded-lg border border-gray-300 cursor-pointer"
+  >
+    Select Categories
+  </div>
+  {isBrandCategoryOpen && (
+    <div className="absolute mt-2 bg-white shadow-lg rounded-lg border border-gray-300 p-4 z-10">
+      {brandCategories.map((category) => (
+        category && (
+          <label key={category} className="flex items-center space-x-2 mb-2">
+            <input
+              type="checkbox"
+              value={category}
+              checked={selectedBrandCategory.includes(category)}
+              onChange={handleBrandCategoryChange}
+              className="form-checkbox"
+            />
+            <span>{category}</span>
+          </label>
+        )
+      ))}
+    </div>
+  )}
+</div>
 
       {/* Brand Dropdown */}
       <div className="relative">
         <label className="block text-sm font-medium text-gray-700">Brand</label>
         <div
-          onClick={() => setIsBrandOpen(!isBrandOpen)} // Toggle visibility
+          onClick={() => setIsBrandOpen(!isBrandOpen)}
           className="bg-gray-100 text-black p-2 rounded-lg border border-gray-300 cursor-pointer"
         >
           Select Brands

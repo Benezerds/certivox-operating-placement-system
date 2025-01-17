@@ -258,10 +258,20 @@ export default function Home() {
         <div className="flex flex-col mb-4">
           <span className="text-sm text-gray-500">Total Projects</span>
           <h1 className="text-5xl font-bold mb-2 text-black">{totalViews}</h1>
-          <span className="text-gray-500">{getActiveFilterText()}</span>
-        </div>
-        <Chart data={chartData} />
-      </div>
+          <span className="text-gray-500">
+      {chartData.length > 0 ? getActiveFilterText() : "Please select a time filter to display data"}
+    </span>
+  </div>
+
+  {/* Tampilkan Chart atau Placeholder */}
+  {chartData.length > 0 ? (
+    <Chart data={chartData} />
+  ) : (
+    <div className="flex justify-center items-center h-64">
+      <p className="text-gray-500 text-lg">No data available. Please select a time filter.</p>
+    </div>
+  )}
+</div>
 
       {/* Time Filter and Dropdowns */}
       <div className="flex items-center justify-start space-x-4 mb-6 w-full max-w-[90%]">

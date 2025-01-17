@@ -39,12 +39,15 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         setIsAuthenticated(false); // User is not authenticated
         router.push("/auth"); // Redirect to login page
       } else {
         setIsAuthenticated(true); // User is authenticated
+        const user = auth.currentUser;
+        const idTokenResult = await user.getIdTokenResult();
+        console.log("Custom claims:", idTokenResult.claims);
       }
     });
 

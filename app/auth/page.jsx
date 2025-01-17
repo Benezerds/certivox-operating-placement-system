@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { auth } from "../firebase";
-import { setPersistence, signInWithEmailAndPassword, browserSessionPersistence, browserLocalPersistence } from "firebase/auth";
+import {
+  setPersistence,
+  signInWithEmailAndPassword,
+  browserSessionPersistence,
+  browserLocalPersistence,
+} from "firebase/auth";
 import Image from "next/image";
 
 function Auth() {
@@ -92,7 +97,10 @@ function Auth() {
         </h2>
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
           <div>
-            <label htmlFor="email" className="block mb-2 text-xl font-medium text-gray-700">
+            <label
+              htmlFor="email"
+              className="block mb-2 text-xl font-medium text-gray-700"
+            >
               Email
             </label>
             <input
@@ -104,7 +112,10 @@ function Auth() {
             />
           </div>
           <div>
-            <label htmlFor="password" className="block mb-2 text-xl font-medium text-gray-700">
+            <label
+              htmlFor="password"
+              className="block mb-2 text-xl font-medium text-gray-700"
+            >
               Password
             </label>
             <div className="relative">
@@ -133,11 +144,17 @@ function Auth() {
                 onChange={() => setRememberMe(!rememberMe)}
                 className="w-4 h-4 text-indigo-600 border-gray-300 rounded"
               />
-              <label htmlFor="remember_me" className="block ml-2 text-sm text-gray-700">
+              <label
+                htmlFor="remember_me"
+                className="block ml-2 text-sm text-gray-700"
+              >
                 Remember me
               </label>
             </div>
-            <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+            <a
+              href="#"
+              className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+            >
               Forgot your password?
             </a>
           </div>

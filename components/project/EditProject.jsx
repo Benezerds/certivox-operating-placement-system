@@ -13,10 +13,10 @@ const EditProject = ({ project, onClose }) => {
   const [categories, setCategories] = useState([]);
   const [brand, setBrand] = useState("");
   const [platform, setPlatform] = useState("");
+  const [platformLink, setPlatformLink] = useState({}); 
   const [customPlatform, setCustomPlatform] = useState("");
   const [sowType, setSowType] = useState("");
   const [isSowCustom, setIsSowCustom] = useState(false);
-  const [link, setLink] = useState("");
   const [division, setDivision] = useState("");
   const [customSow, setCustomSow] = useState("");
   const [bundlingSowList, setBundlingSowList] = useState([{ id: 1, sow: "", content: "" }]);
@@ -53,8 +53,8 @@ const EditProject = ({ project, onClose }) => {
       setCategory (project.category || "");
   
       setBrand(project.brand || "");
-      setPlatform(project.platform || "");
-      setCustomPlatform(project.platform === "Apa kek" ? project.customPlatform || "" : "");
+      setPlatform(project.platform || []); // Set platforms as an array
+      setPlatformLink(project.platformLink || {}); // Set platform links
   
       if (typeof project.sow === "string") {
         setSowType("custom");
@@ -69,8 +69,6 @@ const EditProject = ({ project, onClose }) => {
         setIsSowCustom(false);
         setBundlingSowList([{ id: 1, sow: "", content: "" }]);
       }
-  
-      setLink(project.link || "");
       setDivision(project.division || "");
     }
   }, [project]);
@@ -86,7 +84,20 @@ const EditProject = ({ project, onClose }) => {
       setBundlingSowList([{ id: 1, sow: "", content: "" }]);
     }
   };
+  const handlePlatformChange = (selectedPlatform) => {
+    setPlatform((prevPlatforms) =>
+      prevPlatforms.includes(selectedPlatform)
+        ? prevPlatforms.filter((p) => p !== selectedPlatform) // Remove platform if already selected
+        : [...prevPlatforms, selectedPlatform] // Add platform if not selected
+    );
+  };
 
+  const handlePlatformLinkChange = (platformName, link) => {
+    setPlatformLink((prevLinks) => ({
+      ...prevLinks,
+      [platformName]: link,
+    }));
+  };
   const handleBundlingSowInputChange = (id, field, value) => {
     const updatedSowList = bundlingSowList.map((sow) =>
       sow.id === id ? { ...sow, [field]: value } : sow
@@ -121,9 +132,9 @@ const EditProject = ({ project, onClose }) => {
       quarter,
       category: categoryRef,
       brand,
-      platform: platform === "Apa kek" ? customPlatform : platform,
+      platform, // Save platforms as an array
+      platformLink, // Save platform links as an object
       sow: sowType === "bundling" ? bundlingSowList : sowType === "custom" ? customSow : sowType,
-      link,
       division,
     };
 
@@ -168,7 +179,7 @@ const EditProject = ({ project, onClose }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Source */}
           <div>
-            <label className="block font-semibold">Source</label>
+          <label className="block font-semibold">Source<span style={{ color: 'red' }}>*</span></label>
             <select
               value={source}
               onChange={(e) => setSource(e.target.value)}
@@ -183,7 +194,7 @@ const EditProject = ({ project, onClose }) => {
 
           {/* Project Name */}
           <div>
-            <label className="block font-semibold">Project Name</label>
+          <label className="block font-semibold">Project Name<span style={{ color: 'red' }}>*</span></label>
             <input
               type="text"
               value={projectName}
@@ -197,7 +208,7 @@ const EditProject = ({ project, onClose }) => {
           {/* Project Status and Date */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block font-semibold">Project Status</label>
+            <label className="block font-semibold">Project Status<span style={{ color: 'red' }}>*</span></label>
               <select
                 value={projectStatus}
                 onChange={(e) => setProjectStatus(e.target.value)}
@@ -215,7 +226,7 @@ const EditProject = ({ project, onClose }) => {
             </div>
 
             <div>
-              <label className="block font-semibold">Date</label>
+            <label className="block font-semibold">Date<span style={{ color: 'red' }}>*</span></label>
               <input
                 type="date"
                 value={startDate}
@@ -230,7 +241,7 @@ const EditProject = ({ project, onClose }) => {
 
           {/* Quarter */}
           <div>
-            <label className="block font-semibold">Quarter</label>
+          <label className="block font-semibold">Quarter<span style={{ color: 'red' }}>*</span></label>
             <select
               value={quarter}
               onChange={(e) => setQuarter(e.target.value)}
@@ -247,7 +258,7 @@ const EditProject = ({ project, onClose }) => {
 
           {/* Category */}
           <div>
-            <label className="block font-semibold">Category</label>
+          <label className="block font-semibold">Category<span style={{ color: 'red' }}>*</span></label>
             <select
               value={category} // Ensure the value is bound to the category state
               onChange={(e) => setCategory(e.target.value)}
@@ -269,7 +280,7 @@ const EditProject = ({ project, onClose }) => {
 
           {/* Brand */}
           <div>
-            <label className="block font-semibold">Brand</label>
+          <label className="block font-semibold">Brand<span style={{ color: 'red' }}>*</span></label>
             <input
               type="text"
               value={brand}
@@ -281,37 +292,45 @@ const EditProject = ({ project, onClose }) => {
           </div>
 
           {/* Platform */}
+          {/* Platform Section */}
           <div>
-            <label className="block font-semibold">Platform</label>
+          <label className="block font-semibold">Platform<span style={{ color: 'red' }}>*</span></label>
             <div className="flex flex-col space-y-2">
               {["Instagram", "Tik Tok", "Youtube", "Website", "Apa kek"].map((plat) => (
                 <label key={plat} className="flex items-center space-x-2">
                   <input
-                    type="radio"
-                    name="platform"
+                    type="checkbox"
                     value={plat}
-                    checked={platform === plat}
-                    onChange={() => setPlatform(plat)}
-                    className="form-radio"
+                    checked={platform.includes(plat)} // Check if platform is selected
+                    onChange={() => handlePlatformChange(plat)} // Handle platform selection
+                    className="form-checkbox"
                   />
                   <span>{plat}</span>
                 </label>
               ))}
             </div>
-            {platform === "Apa kek" && (
-              <input
-                type="text"
-                value={customPlatform}
-                onChange={(e) => setCustomPlatform(e.target.value)}
-                placeholder="Enter custom platform"
-                className="border border-gray-300 p-2 rounded w-full mt-2"
-              />
+            {platform.length > 0 && (
+              <div className="mt-4">
+                <label className="block font-semibold">Platform Links (Optional)</label>
+                {platform.map((plat) => (
+                  <div key={plat} className="mb-2">
+                    <label className="block">{`${plat} Link`}</label>
+                    <input
+                      type="text"
+                      placeholder={`Enter ${plat} link`}
+                      value={platformLink[plat] || ""}
+                      onChange={(e) => handlePlatformLinkChange(plat, e.target.value)}
+                      className="border border-gray-300 p-2 rounded w-full"
+                    />
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 
           {/* SOW */}
           <div>
-            <label className="block font-semibold">SOW</label>
+          <label className="block font-semibold">SOW<span style={{ color: 'red' }}>*</span></label>
             <select
               value={sowType}
               onChange={handleSowChange}
@@ -380,7 +399,7 @@ const EditProject = ({ project, onClose }) => {
 
           {/* Division */}
           <div>
-            <label className="block font-semibold">Division</label>
+          <label className="block font-semibold">Division<span style={{ color: 'red' }}>*</span></label>
             <select
               value={division}
               onChange={(e) => setDivision(e.target.value)}
@@ -393,17 +412,7 @@ const EditProject = ({ project, onClose }) => {
             </select>
           </div>
 
-          {/* Link */}
-          <div>
-            <label className="block font-semibold">Link</label>
-            <input
-              type="url"
-              value={link}
-              onChange={(e) => setLink(e.target.value)}
-              placeholder="Enter link"
-              className="border border-gray-300 p-2 rounded w-full"
-            />
-          </div>
+          
 
           <div className="flex justify-end">
             <button

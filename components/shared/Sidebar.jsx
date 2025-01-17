@@ -11,6 +11,8 @@ import {
   ChevronDoubleLeftIcon,
   ArrowLeftEndOnRectangleIcon,
   UserCircleIcon,
+  UserIcon,
+  AdjustmentsHorizontalIcon,
 } from "@heroicons/react/24/solid";
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/app/firebase";
@@ -25,7 +27,9 @@ const Sidebar = () => {
     { name: "Projects", icon: <ClipboardDocumentIcon className="w-6 h-6" />, path: "/dashboard/project" },
     { name: "Comparison", icon: <ChartBarIcon className="w-6 h-6" />, path: "/dashboard/comparison" },
     { name: "Management", icon: <WalletIcon className="w-6 h-6" />, path: "/dashboard/management" },
-    { name: "Admin", icon: <UserCircleIcon className="w-6 h-6" />, path: "/admin" },
+    { name: "Admin", icon: <UserCircleIcon className="w-6 h-6" />, path: "/dashboard/admin" },
+    { name: "Users", icon: <UserIcon className="w-6 h-6" />, path: "/dashboard/admin/users" },
+    { name: "Roles", icon: <AdjustmentsHorizontalIcon className="w-6 h-6" />, path: "/dashboard/admin/setup" },
   ];
 
   const handleToggle = () => {

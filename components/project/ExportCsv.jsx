@@ -21,7 +21,24 @@ const ExportCSV = ({ projects, setNotification }) => {
               console.error("Error fetching category:", error);
             }
           }
-          return { ...project, category: categoryName }; // Replace category reference with name
+
+          // Normalize platforms and links
+          const platforms = Array.isArray(project.platform)
+            ? project.platform
+            : project.platform
+            ? [project.platform]
+            : [];
+
+          const platformLinks = platforms.map(
+            (platform) => project.platformLink?.[platform] || "N/A"
+          );
+
+          return {
+            ...project,
+            category: categoryName,
+            platforms, // Normalize platforms as an array
+            platformLinks, // Array of corresponding links
+          };
         })
       );
       setResolvedProjects(updatedProjects);
@@ -37,6 +54,22 @@ const ExportCSV = ({ projects, setNotification }) => {
       return;
     }
 
+    // Find the maximum number of platforms used in any project
+    const maxPlatforms = Math.max(
+      ...resolvedProjects.map((project) => project.platforms.length)
+    );
+
+    // Dynamically generate platform headers and link headers
+    const platformHeaders = Array.from(
+      { length: maxPlatforms },
+      (_, index) => `Platform ${index + 1}`
+    );
+    const linkHeaders = Array.from(
+      { length: maxPlatforms },
+      (_, index) => `Link ${index + 1}`
+    );
+
+    // Headers for the CSV
     const headers = [
       "Source",
       "Project",
@@ -45,33 +78,48 @@ const ExportCSV = ({ projects, setNotification }) => {
       "Quarter",
       "Category",
       "Brand",
-      "Platform",
+      ...platformHeaders, // Add platform headers dynamically
+      ...linkHeaders, // Add link headers dynamically
       "SOW",
       "Division",
-      "Link",
     ];
 
-    const rows = resolvedProjects.map((project) => [
-      project.source || "N/A",
-      project.projectName || "N/A",
-      project.projectStatus || "N/A",
-      project.date
-        ? isValid(new Date(project.date))
-          ? format(new Date(project.date), "yyyy-MM-dd")
-          : "Invalid Date"
-        : "N/A",
-      project.quarter || "N/A",
-      project.category || "N/A", // Resolved category
-      project.brand || "N/A",
-      project.platform || "N/A",
-      Array.isArray(project.sow)
-        ? project.sow.map((sowItem) => `${sowItem?.sow || "N/A"}: ${sowItem?.content || "N/A"}`).join("; ")
-        : typeof project.sow === "object" && project.sow !== null
-        ? `${project.sow?.sow || "N/A"}: ${project.sow?.content || "N/A"}`
-        : project.sow || "N/A",
-      project.division || "N/A",
-      project.link || "N/A",
-    ]);
+    // Generate rows for the CSV
+    const rows = resolvedProjects.map((project) => {
+      // Fill platforms and links dynamically
+      const platformColumns = Array.from(
+        { length: maxPlatforms },
+        (_, index) => project.platforms[index] || "N/A"
+      );
+      const linkColumns = Array.from(
+        { length: maxPlatforms },
+        (_, index) => project.platformLinks[index] || "N/A"
+      );
+
+      return [
+        project.source || "N/A",
+        project.projectName || "N/A",
+        project.projectStatus || "N/A",
+        project.date
+          ? isValid(new Date(project.date))
+            ? format(new Date(project.date), "yyyy-MM-dd")
+            : "Invalid Date"
+          : "N/A",
+        project.quarter || "N/A",
+        project.category || "N/A",
+        project.brand || "N/A",
+        ...platformColumns, // Add dynamic platform columns
+        ...linkColumns, // Add dynamic link columns
+        Array.isArray(project.sow)
+          ? project.sow
+              .map((sowItem) => `${sowItem?.sow || "N/A"}: ${sowItem?.content || "N/A"}`)
+              .join("; ")
+          : typeof project.sow === "object" && project.sow !== null
+          ? `${project.sow?.sow || "N/A"}: ${project.sow?.content || "N/A"}`
+          : project.sow || "N/A",
+        project.division || "N/A",
+      ];
+    });
 
     const csvContent =
       "data:text/csv;charset=utf-8," +

@@ -158,10 +158,11 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
         <thead>
           <tr>
             {[
-              "Priority Level",
+              
               "Source",
               "Project",
               "Status",
+              "Priority Level",
               "StartDate",
               "EndDate",
               "Quarter",
@@ -204,7 +205,6 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
           ) : (
             resolvedProjects.map((project, idx) => (
               <tr key={idx} className="border-b">
-                <td className="p-2 text-sm">{project.priority || "N/A"}</td>
                 <td className="p-2 text-sm">{project.source || "N/A"}</td>
                 <td
                   className="p-2 text-sm text-blue-500 cursor-pointer hover:underline"
@@ -230,6 +230,7 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
                     <option value="Published">Published</option>
                   </select>
                 </td>
+                <td className="p-2 text-sm">{project.priority || "N/A"}</td>
                 <td className="p-2 text-sm">{project.date && isValid(new Date(project.date))? format(new Date(project.date),"yyyy-MM-dd"): "N/A"}
                 </td>
                 <td className="p-2 text-sm">{project.endDate ? format(new Date(project.endDate), "yyyy-MM-dd") : "N/A"}</td>

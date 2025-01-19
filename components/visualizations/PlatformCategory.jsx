@@ -72,8 +72,8 @@ const PlatformCategory = () => {
   }, [fetchChartData]);
 
   return (
-    <div className="bg-white shadow rounded-lg p-6">
-      <h2 className="mb-4 text-lg font-semibold text-gray-800">Platform Distribution</h2>
+    <div className="p-6 bg-white rounded-lg shadow-md max-w-lg">
+      <h2 className="text-xl font-semibold mb-2 text-gray-800">Platform Distribution</h2>
 
       <div className="mb-4">
         <label htmlFor="quarter" className="mr-2 text-sm text-gray-600">

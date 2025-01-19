@@ -99,7 +99,6 @@ const BrandCategory = () => {
 
       const { currentStart, previousStart, previousEnd } = dateRanges;
 
-      // Filter projects by current and previous periods
       const currentProjects = projects.filter((project) =>
         isWithinInterval(project.date, { start: currentStart, end: new Date() })
       );
@@ -107,7 +106,6 @@ const BrandCategory = () => {
         isWithinInterval(project.date, { start: previousStart, end: previousEnd })
       );
 
-      // Calculate totals and percentage change
       const currentTotal = currentProjects.length;
       const previousTotal = previousProjects.length;
       const percentageChangeValue =
@@ -116,14 +114,13 @@ const BrandCategory = () => {
       setTotalProjects(currentTotal);
       setPercentageChange(percentageChangeValue);
 
-      // Aggregate data for the bar chart
       const categoryCounts = currentProjects.reduce((acc, project) => {
         acc[project.category] = (acc[project.category] || 0) + 1;
         return acc;
       }, {});
 
       const topCategories = Object.entries(categoryCounts)
-        .map(([name, value]) => ({ name, value }))
+        .map(([name, value]) => ({ name, value: value || 0 })) // Ensure fallback to 0
         .sort((a, b) => b.value - a.value)
         .slice(0, 5);
 
@@ -162,7 +159,6 @@ const BrandCategory = () => {
           : "Weekly"}
       </div>
 
-      {/* Filter Buttons */}
       <div className="flex space-x-2 mb-4">
         {["year", "monthly", "weekly"].map((filter) => (
           <button
@@ -179,14 +175,13 @@ const BrandCategory = () => {
         ))}
       </div>
 
-      {/* Bar Chart */}
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={chartData} layout="vertical" barCategoryGap="10%">
           <XAxis type="number" hide />
           <YAxis
             dataKey="name"
             type="category"
-            width={100}
+            width={100} // Adjust width for longer names
             tick={{ fill: "#888" }}
             tickLine={false}
           />
@@ -197,7 +192,12 @@ const BrandCategory = () => {
                 fill={index % 2 === 0 ? "#D1D5DB" : "#E5E7EB"}
               />
             ))}
-            <LabelList dataKey="value" position="right" offset={10} fill="#333" />
+            <LabelList
+              dataKey="value"
+              position="insideRight" // Display counts inside the bars
+              offset={10}
+              fill="#333"
+            />
           </Bar>
         </BarChart>
       </ResponsiveContainer>

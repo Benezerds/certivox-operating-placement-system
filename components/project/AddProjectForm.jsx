@@ -227,13 +227,12 @@ const AddProjectForm = ({ onClose }) => {
       </div>
 
       <div>
-        <label className="block font-semibold">End Date<span style={{ color: 'red' }}>*</span></label>
+        <label className="block font-semibold">End Date</label>
         <input
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
           className="border border-gray-300 p-2 rounded w-full"
-          required
         />
       </div>
       </div>

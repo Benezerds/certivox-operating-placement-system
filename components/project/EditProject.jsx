@@ -258,14 +258,16 @@ const EditProject = ({ project, onClose }) => {
           </div>
 
           <div>
-            <label className="block font-semibold">End Date<span style={{ color: 'red' }}>*</span></label>
+            <label className="block font-semibold">
+              End Date<span style={{ color: 'red' }}>*</span>
+            </label>
             <input
               type="date"
               value={endDate}
-              className="border border-gray-300 p-2 rounded w-full bg-gray-200 text-gray-600 cursor-not-allowed"
+              onChange={(e) => setEndDate(e.target.value)} // Handle the input change
+              className="border border-gray-300 p-2 rounded w-full"
               min="2000-01-01" // Minimum date
-              max={format(new Date(), "yyyy-MM-dd")}
-              readOnly
+              max={format(new Date(), "yyyy-MM-dd")} // Maximum date
             />
           </div>
         </div>

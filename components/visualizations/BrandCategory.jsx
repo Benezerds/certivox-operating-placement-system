@@ -135,11 +135,11 @@ const BrandCategory = () => {
   }, [processProjectData]);
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md max-w-lg">
-      <h2 className="text-xl font-semibold mb-2">Projects by Brand Category</h2>
+    <div className="h-full max-w-lg p-6 bg-white rounded-lg shadow-md">
+      <h2 className="mb-2 text-xl font-semibold">Projects by Brand Category</h2>
 
       <div className="flex items-center mb-2">
-        <span className="text-4xl font-bold mr-2">{totalProjects}</span>
+        <span className="mr-2 text-4xl font-bold">{totalProjects}</span>
         <span
           className={`text-lg font-medium ${
             percentageChange >= 0 ? "text-green-500" : "text-red-500"
@@ -151,7 +151,7 @@ const BrandCategory = () => {
         </span>
       </div>
 
-      <div className="text-gray-500 mb-4">
+      <div className="mb-4 text-gray-500">
         {selectedFilter === "year"
           ? "Year to Date"
           : selectedFilter === "monthly"
@@ -159,7 +159,7 @@ const BrandCategory = () => {
           : "Weekly"}
       </div>
 
-      <div className="flex space-x-2 mb-4">
+      <div className="flex mb-4 space-x-2">
         {["year", "monthly", "weekly"].map((filter) => (
           <button
             key={filter}

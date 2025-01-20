@@ -72,8 +72,8 @@ const PlatformCategory = () => {
   }, [fetchChartData]);
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md max-w-lg">
-      <h2 className="text-xl font-semibold mb-2 text-gray-800">Platform Distribution</h2>
+    <div className="max-w-lg p-6 bg-white rounded-lg shadow-md">
+      <h2 className="mb-2 text-xl font-semibold text-gray-800">Platform Distribution</h2>
 
       <div className="mb-4">
         <label htmlFor="quarter" className="mr-2 text-sm text-gray-600">
@@ -83,7 +83,7 @@ const PlatformCategory = () => {
           id="quarter"
           value={selectedQuarter}
           onChange={(e) => setSelectedQuarter(e.target.value)}
-          className="border border-gray-300 rounded p-1 text-sm"
+          className="p-1 text-sm border border-gray-300 rounded"
         >
           <option value="All">All</option>
           <option value="Q1">Q1</option>

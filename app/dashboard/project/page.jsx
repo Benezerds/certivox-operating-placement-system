@@ -21,7 +21,7 @@ import EditProject from "@/components/project/EditProject";
 import ExportCSV from "@/components/project/ExportCsv";
 import ProjectProgress from "@/components/visualizations/ProjectProgress";
 
-const Tracker = () => {
+const Project = () => {
   const [projects, setProjects] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [showAddProject, setShowAddProject] = useState(false);
@@ -504,4 +504,4 @@ const Tracker = () => {
   );
 };
 
-export default Tracker;
+export default Project;

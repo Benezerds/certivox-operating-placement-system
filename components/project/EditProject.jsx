@@ -267,7 +267,6 @@ const EditProject = ({ project, onClose }) => {
               onChange={(e) => setEndDate(e.target.value)} // Handle the input change
               className="border border-gray-300 p-2 rounded w-full"
               min="2000-01-01" // Minimum date
-              max={format(new Date(), "yyyy-MM-dd")} // Maximum date
             />
           </div>
         </div>

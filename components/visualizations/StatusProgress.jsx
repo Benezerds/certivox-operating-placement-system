@@ -129,10 +129,6 @@ const StatusProgress = () => {
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Project Progress by Status
-      </h2>
-
       <div
         className="p-4"
         style={{

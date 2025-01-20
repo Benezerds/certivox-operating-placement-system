@@ -8,6 +8,7 @@ import ProjectTable from "@/components/project/ProjectTable";
 import ProjectTableNoFunctionality from "@/components/dashboard/ProjectTableNoFunctionality";
 import BrandCategory from "@/components/visualizations/BrandCategory";
 import PlatformCategory from "@/components/visualizations/PlatformCategory";
+import StatusProgress from "@/components/visualizations/StatusProgress";
 
 const Dashboard = () => {
   const [projects, setProjects] = useState([]);
@@ -83,7 +84,7 @@ const Dashboard = () => {
         </div>
       </div>
   
-      {/* Project Table - moved to the bottom */}
+      {/* Project Table */}
       <div className="flex-1 mb-8">
         <ProjectTableNoFunctionality
           projects={paginatedProjects}
@@ -121,9 +122,14 @@ const Dashboard = () => {
       </div>
   
       <p>Total Projects: {filteredProjects.length}</p>
+
+      {/* Add StatusProgress below the table */}
+      <div className="mt-8">
+        <h2 className="mb-4 text-xl font-semibold">Project Status Progress</h2>
+        <StatusProgress />
+      </div>
     </div>
   );
-  
 };
 
 export default Dashboard;

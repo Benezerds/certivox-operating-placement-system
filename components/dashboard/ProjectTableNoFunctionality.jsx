@@ -207,7 +207,7 @@ const ProjectTableNoFunctionality = ({ projects, onDelete, onEdit }) => {
                 <td className="p-2 text-sm">{project.source || "N/A"}</td>
                 <td
                   className="p-2 text-sm text-blue-500 cursor-pointer hover:underline"
-                  onClick={() => router.push(`/dashboard/project/${project.id}`)}
+                  onClick={() => router.push(`/dashboard/project`)}
                 >
                   {project.projectName || "N/A"}
                 </td>

@@ -263,12 +263,12 @@ export default function Home() {
     </span>
   </div>
 
-  {/* Tampilkan Chart atau Placeholder */}
+  {/* visualize zhart or placeholder */}
   {chartData.length > 0 ? (
     <Chart data={chartData} />
   ) : (
     <div className="flex justify-center items-center h-64">
-      <p className="text-gray-500 text-lg">No data available. Please select a time filter.</p>
+      <p className="text-gray-500 text-lg">No data available. Please select a time filter or the correct filter.</p>
     </div>
   )}
 </div>
@@ -293,36 +293,41 @@ export default function Home() {
           ))}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Quarter</label>
-          <select
-            value={selectedQuarter}
-            onChange={(e) => handleQuarterChange(e.target.value)}
-            className="bg-gray-100 text-black p-2 rounded-lg border border-gray-300"
-          >
-            {quarters.map((quarter) => (
-              <option key={quarter} value={quarter}>
-                {quarter}
-              </option>
-            ))}
-          </select>
-        </div>
+         {/* Group Year and Quarter Dropdowns */}
+  <div className="flex space-x-4">
+    {/* Year Dropdown */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700">Year</label>
+      <select
+        value={selectedYear}
+        onChange={(e) => handleYearChange(e.target.value)}
+        className="bg-gray-100 text-black p-2 rounded-lg border border-gray-300"
+      >
+        {years.map((year) => (
+          <option key={year} value={year}>
+            {year}
+          </option>
+        ))}
+      </select>
+    </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Year</label>
-          <select
-            value={selectedYear}
-            onChange={(e) => handleYearChange(e.target.value)}
-            className="bg-gray-100 text-black p-2 rounded-lg border border-gray-300"
-          >
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+    {/* Quarter Dropdown */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700">Quarter</label>
+      <select
+        value={selectedQuarter}
+        onChange={(e) => handleQuarterChange(e.target.value)}
+        className="bg-gray-100 text-black p-2 rounded-lg border border-gray-300"
+      >
+        {quarters.map((quarter) => (
+          <option key={quarter} value={quarter}>
+            {quarter}
+          </option>
+        ))}
+      </select>
+    </div>
+    </div>
+    </div>
 
       {/* Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">

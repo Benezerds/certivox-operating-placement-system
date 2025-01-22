@@ -131,7 +131,7 @@ export default function Home() {
       );
     }
     if (selectedBrand.length > 0) {
-      filteredData = filteredData.filter(({ brand }) => selectedBrand.includes(brand));
+      filteredData = filteredData.filter(({ brand }) => brand && selectedBrand.includes(brand));
     }
     if (selectedPlatform.length > 0) {
       filteredData = filteredData.filter(({ platform }) =>
@@ -153,6 +153,8 @@ export default function Home() {
 
     // Group data for the chart
     const groupedData = filteredData.reduce((acc, curr) => {
+      if (!curr) return acc; // Skip if `curr` is undefined or null
+
       const rawDate = new Date(curr.date);
       const formattedDate = `${formatDate(curr.date)} ${rawDate.getFullYear()}`;
     
@@ -167,18 +169,32 @@ export default function Home() {
       }
     
       acc[formattedDate].value += 1;
-      acc[formattedDate].brand.add(curr.brand);
-      acc[formattedDate].brandCategory.add(curr.category); // Match `category` field
-      curr.platform.forEach((p) => acc[formattedDate].platform.add(p));
-    
-      return acc;
-    }, {});
+  // Safely add `brand` if it exists
+  if (curr.brand) {
+    acc[formattedDate].brand.add(curr.brand);
+  }
+
+  // Safely add `category` if it exists
+  if (curr.category) {
+    acc[formattedDate].brandCategory.add(curr.category);
+  }
+
+  // Safely add `platform` if it exists and is an array
+  if (Array.isArray(curr.platform)) {
+    curr.platform.forEach((p) => acc[formattedDate].platform.add(p));
+  }
+
+  return acc;
+}, {});
 
     const chartData = Object.values(groupedData)
       .sort((a, b) => a.date - b.date)
-      .map(({ date, value }) => ({
+      .map(({ date, value, brand, brandCategory, platform }) => ({
         date: formatDate(date),
         value,
+        brand: Array.from(brand).join(", "), 
+        brandCategory: Array.from(brandCategory).join(", "), 
+        platform: Array.from(platform).join(", "),
       }));
 
     setChartData(chartData);

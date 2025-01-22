@@ -26,9 +26,9 @@ const Chart = ({ data }) => {
       return (
         <div className="bg-gray-800 p-3 shadow-md rounded-lg text-white">
           <p className="text-sm text-gray-300">Date: {label}</p>
-          <p className="text-sm text-gray-300">Brand: {brand}</p>
-          <p className="text-sm text-gray-300">Category: {brandCategory}</p>
-          <p className="text-sm text-gray-300">Platform: {platform}</p>
+          <p className="text-sm text-gray-300">Brand: {brand || "N/A"}</p>
+          <p className="text-sm text-gray-300">Category: {brandCategory || "N/A"}</p>
+          <p className="text-sm text-gray-300">Platform: {platform || "N/A"}</p>
           <p className="text-sm font-bold">Projects: {value}</p>
         </div>
       );

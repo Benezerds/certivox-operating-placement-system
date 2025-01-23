@@ -9,15 +9,22 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@firebase/firestore": "^4.7.0",
-    "chart.js": "^3.4.4",
+"@firebase/firestore": "^4.7.0",
+    "axios": "^1.7.9",
+    "chart.js": "^3.9.1",
+    "chartjs-plugin-datalabels": "^2.2.0",
+    "@heroicons/react": "^2.2.0",
     "crypto-js": "^3.2.0",
     "crypto.js": "^3.2.2",
+    "d3": "^7.9.0",
     "date-fns": "^4.1.0",
+    "express": "^4.21.2",
     "firebase": "^10.14.1",
     "googleapis": "^120.0.0",
     "next": "14.2.3",
-    "react": "^18",
+    "react": "^18.3.1",
+    "react-chartjs-2": "^4.3.1",
+    "react-datepicker": "^7.5.0",
     "react-dom": "^18",
     "recharts": "^2.15.0",
     "sweetalert2": "^10.12.4"
@@ -26,6 +33,6 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.6",
     "postcss": "^8",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.4.14"
   }
 }

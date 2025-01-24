@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import BarChartComparison from '@/components/comparison/BarChartComparison';
-import React, { useState, useEffect } from 'react';
+import BarChartComparison from "@/components/comparison/BarChartComparison";
+import React, { useState, useEffect } from "react";
 
 const Comparison = () => {
   const [categories, setCategories] = useState([]);
@@ -13,11 +13,11 @@ const Comparison = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('/api/categories');
+        const response = await fetch("/api/categories");
         const data = await response.json();
         setCategories(data); // Assume API returns an array of categories
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error("Error fetching categories:", error);
       } finally {
         setLoading(false);
       }
@@ -28,7 +28,9 @@ const Comparison = () => {
 
   return (
     <div className="container px-4 py-8 mx-auto">
-      <h1 className="mb-6 text-3xl font-bold text-center text-gray-800">Category Comparison</h1>
+      <h1 className="mb-6 text-3xl font-bold text-center text-gray-800">
+        Category Comparison
+      </h1>
 
       {loading ? (
         <p className="text-center text-gray-500">Loading categories...</p>
@@ -37,15 +39,19 @@ const Comparison = () => {
           {/* Category Selection */}
           <div className="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-2">
             <div>
-              <h3 className="mb-2 text-lg font-semibold text-gray-700">Select Category 1</h3>
+              <h3 className="mb-2 text-lg font-semibold text-gray-700">
+                Select Category 1
+              </h3>
               <select
                 className="w-full p-2 text-gray-700 border rounded-lg"
-                value={category1?.id || ''}
-                onChange={(e) =>
-                  setCategory1(
-                    categories.find((category) => category.id === e.target.value)
-                  )
-                }
+                value={category1?.id || ""}
+                onChange={(e) => {
+                  const selectedCategory = categories.find(
+                    (category) => category.id === e.target.value
+                  );
+                  setCategory1(selectedCategory);
+                  console.log(selectedCategory?.id); // Logs the selected category's id to the console
+                }}
               >
                 <option value="" disabled>
                   Choose a category
@@ -59,13 +65,17 @@ const Comparison = () => {
             </div>
 
             <div>
-              <h3 className="mb-2 text-lg font-semibold text-gray-700">Select Category 2</h3>
+              <h3 className="mb-2 text-lg font-semibold text-gray-700">
+                Select Category 2
+              </h3>
               <select
                 className="w-full p-2 text-gray-700 border rounded-lg"
-                value={category2?.id || ''}
+                value={category2?.id || ""}
                 onChange={(e) =>
                   setCategory2(
-                    categories.find((category) => category.id === e.target.value)
+                    categories.find(
+                      (category) => category.id === e.target.value
+                    )
                   )
                 }
               >

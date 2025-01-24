@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { format, isValid, parseISO } from "date-fns";
-import { getDoc, updateDoc, doc } from "firebase/firestore"; // Firestore methods
+import { collection, getDoc, updateDoc, doc } from "firebase/firestore"; // Firestore methods
 import { useRouter } from "next/navigation";
-import { db } from "@/app/firebase"; // Ensure Firebase config is imported
+import { db } from "@/app/firebase";
 
 const ProjectTable = ({ projects, onDelete, onEdit }) => {
   const [resolvedProjects, setResolvedProjects] = useState([]); // Store processed projects
@@ -13,35 +13,44 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
   const router = useRouter();
 
   // Process and resolve project data (e.g., resolving category references) and sort by date
+  
   useEffect(() => {
-    const resolveProjectData = async () => {
-      const updatedProjects = await Promise.all(
-        projects.map(async (project) => {
-          let categoryName = "N/A"; // Default to "N/A"
-          if (typeof project.category === "object" && project.category.id) {
-            try {
-              const categoryDoc = await getDoc(project.category);
-              if (categoryDoc.exists()) {
-                categoryName = categoryDoc.data().category_name || "N/A";
-              } else {
-                categoryName = "Category not found"; // Handle missing category
-              }
-            } catch (error) {
-              console.error("Error fetching category:", error);
-              categoryName = "Category not found"; // Handle errors gracefully
+    const unsubscribe = onSnapshot(collection(db, "Projects"), async (querySnapshot) => {
+      const updatedProjects = [];
+
+      // Loop through each document in the snapshot
+      for (let docSnap of querySnapshot.docs) {
+        const project = docSnap.data();
+        let categoryName = "N/A"; // Default value
+
+        // Check if category is a Firestore DocumentReference
+        if (project.category && project.category.id) {
+          try {
+            const categoryRef = doc(db, "Categories", project.category.id); // Create reference
+            const categoryDoc = await getDoc(categoryRef); // Resolve reference to actual document
+            if (categoryDoc.exists()) {
+              categoryName = categoryDoc.data().category_name || "N/A";
+            } else {
+              categoryName = "Category not found";
             }
+          } catch (error) {
+            console.error("Error fetching category:", error);
+            categoryName = "Category not found";
           }
-          return { ...project, category: categoryName };
-        })
-      );
+        }
 
-      // Sort projects by date (default to descending)
-      const sortedProjects = sortProjectsByDate(updatedProjects, "desc");
-      setResolvedProjects(sortedProjects);
-    };
+        // Add the resolved category name to the project
+        updatedProjects.push({ ...project, category_name: categoryName });
+      }
 
-    resolveProjectData();
-  }, [projects]);
+      // Update the state with the new project data
+      setProjects(updatedProjects);
+      setLoading(false);
+    });
+
+    // Cleanup function to unsubscribe from snapshot listener when component unmounts
+    return () => unsubscribe();
+  }, []);
 
   // Sort projects by date (ascending or descending)
   const sortProjectsByDate = (projects, order) => {
@@ -124,19 +133,19 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
     <div className="overflow-x-auto max-h-[600px]">
       {/* Deletion confirmation modal */}
       {isDeleting && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-80">
-            <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="p-6 bg-white rounded shadow-lg w-80">
+            <h2 className="mb-4 text-lg font-semibold">Confirm Deletion</h2>
             <p className="mb-4">Are you sure you want to delete this project?</p>
             <div className="flex justify-end space-x-4">
               <button
-                className="bg-gray-200 text-black py-1 px-3 rounded hover:bg-gray-300"
+                className="px-3 py-1 text-black bg-gray-200 rounded hover:bg-gray-300"
                 onClick={() => setIsDeleting(false)}
               >
                 Cancel
               </button>
               <button
-                className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600"
+                className="px-3 py-1 text-white bg-red-500 rounded hover:bg-red-600"
                 onClick={handleDelete}
               >
                 Delete
@@ -148,7 +157,7 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
 
       {/* Deletion success/error message */}
       {deleteMessage && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded shadow-lg">
+        <div className="fixed px-4 py-2 text-white transform -translate-x-1/2 bg-green-500 rounded shadow-lg top-4 left-1/2">
           {deleteMessage}
         </div>
       )}
@@ -175,7 +184,7 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
             ].map((header) => (
               <th
                 key={header}
-                className="p-2 text-sm font-medium border-b border-gray-300 relative"
+                className="relative p-2 text-sm font-medium border-b border-gray-300"
               >
                 {header === "Date" ? (
                   <div className="flex items-center">

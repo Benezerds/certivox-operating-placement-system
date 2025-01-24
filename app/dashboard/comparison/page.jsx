@@ -1,81 +1,80 @@
 'use client';
 
 import BarChartComparison from '@/components/comparison/BarChartComparison';
-import ComparisonChart from '@/components/comparison/ComparisonChart';
 import React, { useState, useEffect } from 'react';
 
 const Comparison = () => {
-  const [projects, setProjects] = useState([]);
-  const [project1, setProject1] = useState(null);
-  const [project2, setProject2] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [category1, setCategory1] = useState(null);
+  const [category2, setCategory2] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch Projects Data from API
+  // Fetch Categories data
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchCategories = async () => {
       try {
-        const response = await fetch('/api/projects');
+        const response = await fetch('/api/categories');
         const data = await response.json();
-        setProjects(data); // Assume API returns an array of projects
+        setCategories(data); // Assume API returns an array of categories
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error('Error fetching categories:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProjects();
+    fetchCategories();
   }, []);
 
   return (
     <div className="container px-4 py-8 mx-auto">
-      <h1 className="mb-6 text-3xl font-bold text-center text-gray-800">Project Comparison</h1>
+      <h1 className="mb-6 text-3xl font-bold text-center text-gray-800">Category Comparison</h1>
 
       {loading ? (
-        <p className="text-center text-gray-500">Loading projects...</p>
+        <p className="text-center text-gray-500">Loading categories...</p>
       ) : (
         <>
-          {/* Project Selection */}
+          {/* Category Selection */}
           <div className="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-2">
             <div>
-              <h3 className="mb-2 text-lg font-semibold text-gray-700">Select Project 1</h3>
+              <h3 className="mb-2 text-lg font-semibold text-gray-700">Select Category 1</h3>
               <select
                 className="w-full p-2 text-gray-700 border rounded-lg"
-                value={project1?.id || ''}
+                value={category1?.id || ''}
                 onChange={(e) =>
-                  setProject1(
-                    projects.find((project) => project.id === e.target.value)
+                  setCategory1(
+                    categories.find((category) => category.id === e.target.value)
                   )
                 }
               >
                 <option value="" disabled>
-                  Choose a project
+                  Choose a category
                 </option>
-                {projects.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.projectName}
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.category_name}
                   </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <h3 className="mb-2 text-lg font-semibold text-gray-700">Select Project 2</h3>
+              <h3 className="mb-2 text-lg font-semibold text-gray-700">Select Category 2</h3>
               <select
                 className="w-full p-2 text-gray-700 border rounded-lg"
-                value={project2?.id || ''}
+                value={category2?.id || ''}
                 onChange={(e) =>
-                  setProject2(
-                    projects.find((project) => project.id === e.target.value)
+                  setCategory2(
+                    categories.find((category) => category.id === e.target.value)
                   )
                 }
               >
                 <option value="" disabled>
-                  Choose a project
+                  Choose a category
                 </option>
-                {projects.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.projectName}
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.category_name}
                   </option>
                 ))}
               </select>
@@ -83,14 +82,13 @@ const Comparison = () => {
           </div>
 
           {/* Comparison Charts */}
-          {project1 && project2 ? (
+          {category1 && category2 ? (
             <div className="space-y-8">
-              <ComparisonChart project1={project1} project2={project2} />
-              <BarChartComparison project1={project1} project2={project2} />
+              <BarChartComparison category1={category1} category2={category2} />
             </div>
           ) : (
             <p className="text-center text-gray-500">
-              Please select both projects to see the comparison.
+              Please select both categories to see the comparison.
             </p>
           )}
         </>

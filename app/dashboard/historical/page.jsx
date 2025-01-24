@@ -1,8 +1,8 @@
 "use client";
 
-import Chart from "../../components/historical/Chart";
-import Card from "../../components/historical/Card";
-import MultiSelectTreeDropdown from "../../components/historical/Multitreedropdown";
+import Chart from "@/components/historical/Chart";
+import Card from "@/components/historical/Card";
+import MultiSelectTreeDropdown from "@/components/historical/Multitreedropdown";
 import React, { useState, useEffect } from "react";
 
 export default function Home() {
@@ -244,10 +244,10 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col justify-center items-center min-h-screen bg-white text-black">
+    <main className="flex flex-col items-center justify-center min-h-screen text-black bg-white">
       {/* Header */}
       <header className="w-full max-w-5xl mb-8 text-center">
-        <h1 className="text-lg sm:text-2xl text-gray-700">Historical Performance</h1>
+        <h1 className="text-lg text-gray-700 sm:text-2xl">Historical Performance</h1>
       </header>
 
       {/* Multi-Select Tree Dropdown */}
@@ -273,7 +273,7 @@ export default function Home() {
       <div className="w-full max-w-[90%] bg-gray-100 p-6 rounded-lg shadow-lg border border-gray-300 mb-8">
         <div className="flex flex-col mb-4">
           <span className="text-sm text-gray-500">Total Projects</span>
-          <h1 className="text-5xl font-bold mb-2 text-black">{totalViews}</h1>
+          <h1 className="mb-2 text-5xl font-bold text-black">{totalViews}</h1>
           <span className="text-gray-500">
       {chartData.length > 0 ? getActiveFilterText() : "Please select a time filter to display data"}
     </span>
@@ -283,8 +283,8 @@ export default function Home() {
   {chartData.length > 0 ? (
     <Chart data={chartData} />
   ) : (
-    <div className="flex justify-center items-center h-64">
-      <p className="text-gray-500 text-lg">No data available. Please select a time filter or the correct filter.</p>
+    <div className="flex items-center justify-center h-64">
+      <p className="text-lg text-gray-500">No data available. Please select a time filter or the correct filter.</p>
     </div>
   )}
 </div>
@@ -317,7 +317,7 @@ export default function Home() {
       <select
         value={selectedYear}
         onChange={(e) => handleYearChange(e.target.value)}
-        className="bg-gray-100 text-black p-2 rounded-lg border border-gray-300"
+        className="p-2 text-black bg-gray-100 border border-gray-300 rounded-lg"
       >
         {years.map((year) => (
           <option key={year} value={year}>
@@ -333,7 +333,7 @@ export default function Home() {
       <select
         value={selectedQuarter}
         onChange={(e) => handleQuarterChange(e.target.value)}
-        className="bg-gray-100 text-black p-2 rounded-lg border border-gray-300"
+        className="p-2 text-black bg-gray-100 border border-gray-300 rounded-lg"
       >
         {quarters.map((quarter) => (
           <option key={quarter} value={quarter}>
@@ -346,7 +346,7 @@ export default function Home() {
     </div>
 
       {/* Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
+      <div className="grid w-full max-w-5xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {cardData.map((data, index) => (
           <Card key={index} title={data.title} subtitle={data.subtitle} />
         ))}

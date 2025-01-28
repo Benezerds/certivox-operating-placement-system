@@ -118,7 +118,7 @@ const AddProjectForm = ({ onClose }) => {
       projectStatus,
       date: utcStartDate,
       quarter,
-      categoryString, // Store only the path
+      category: categoryString, // Store only the path
       brand,
       platform,
       platformLink,

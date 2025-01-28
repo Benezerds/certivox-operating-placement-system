@@ -107,7 +107,10 @@ const AddProjectForm = ({ onClose }) => {
     console.log("UID: ", uid);
   
     const utcStartDate = startDate ? parseISO(startDate).toISOString() : null;
+
+    // Ensure categoryRef is not null and save only the path as categoryString
     const categoryRef = category ? doc(db, "Categories", category) : null;
+    const categoryString = categoryRef ? categoryRef.path : null; 
   
     const projectData = {
       source,
@@ -115,7 +118,7 @@ const AddProjectForm = ({ onClose }) => {
       projectStatus,
       date: utcStartDate,
       quarter,
-      category: categoryRef,
+      categoryString, // Store only the path
       brand,
       platform,
       platformLink,

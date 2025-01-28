@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { format, parseISO, isValid } from "date-fns";
 import { addDoc, collection, doc, getDocs } from "firebase/firestore";
-import { db } from '@/app/firebase';
+import { auth, db } from '@/app/firebase';
 
 
 const AddProjectForm = ({ onClose }) => {
@@ -94,9 +94,21 @@ const AddProjectForm = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Get the current user's UID
+    const user = auth.currentUser;
+  
+    if (!user) {
+      console.error('User is not logged in');
+      return;
+    }
+  
+    const uid = user.uid; // Get UID of the currently logged-in user
+    console.log("UID: ", uid);
+  
     const utcStartDate = startDate ? parseISO(startDate).toISOString() : null;
     const categoryRef = category ? doc(db, "Categories", category) : null;
-
+  
     const projectData = {
       source,
       projectName,
@@ -115,11 +127,28 @@ const AddProjectForm = ({ onClose }) => {
           : sowType,
       division,
     };
-
+  
     try {
-      await addDoc(collection(db, "Projects"), projectData);
+      // Send POST request to the API route
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization-UID': uid, // Pass the UID of the logged-in user
+        },
+        body: JSON.stringify(projectData), // Send the project data
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to create project');
+      }
+  
+      const result = await response.json(); // Parse the response from the server
+      console.log('Project added successfully:', result);
+  
+      // After successful submission, close the form and reset fields
       onClose();
-
+  
       setSource('');
       setProjectName('');
       setProjectStatus('');
@@ -135,8 +164,9 @@ const AddProjectForm = ({ onClose }) => {
       setBundlingSowList([{ id: 1, sow: '', content: '' }]);
       setCustomSow('');
       setDivision('');
+      
     } catch (error) {
-      console.error('Error adding project:', error);
+      console.error('Error adding project:', error); // Handle any errors
     }
   };
   
@@ -148,7 +178,7 @@ const AddProjectForm = ({ onClose }) => {
         <select
           value={source}
           onChange={(e) => setSource(e.target.value)}
-          className="border border-gray-300 p-2 rounded w-full"
+          className="w-full p-2 border border-gray-300 rounded"
           required
         >
           <option value="">Choose one</option>
@@ -165,7 +195,7 @@ const AddProjectForm = ({ onClose }) => {
           value={projectName}
           onChange={(e) => setProjectName(e.target.value)}
           placeholder="Enter project name"
-          className="border border-gray-300 p-2 rounded w-full"
+          className="w-full p-2 border border-gray-300 rounded"
           required
         />
       </div>
@@ -177,7 +207,7 @@ const AddProjectForm = ({ onClose }) => {
           <select
             value={projectStatus}
             onChange={(e) => setProjectStatus(e.target.value)}
-            className="border border-gray-300 p-2 rounded w-full"
+            className="w-full p-2 border border-gray-300 rounded"
             required
           >
             <option value="">Choose one</option>
@@ -196,7 +226,7 @@ const AddProjectForm = ({ onClose }) => {
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)} // Update state with selected date
-            className="border border-gray-300 p-2 rounded w-full"
+            className="w-full p-2 border border-gray-300 rounded"
             required
             min="2000-01-01" // Set minimum date
             max={format(new Date(), "yyyy-MM-dd")}  // Set maximum date to today
@@ -210,7 +240,7 @@ const AddProjectForm = ({ onClose }) => {
         <select
           value={quarter}
           onChange={(e) => setQuarter(e.target.value)}
-          className="border border-gray-300 p-2 rounded w-full"
+          className="w-full p-2 border border-gray-300 rounded"
           required
         >
           <option value="">Choose one</option>
@@ -228,7 +258,7 @@ const AddProjectForm = ({ onClose }) => {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="border border-gray-300 p-2 rounded w-full"
+            className="w-full p-2 border border-gray-300 rounded"
             required
           >
             <option value="">Choose one</option>
@@ -248,7 +278,7 @@ const AddProjectForm = ({ onClose }) => {
           value={brand}
           onChange={(e) => setBrand(e.target.value)}
           placeholder="Enter brand"
-          className="border border-gray-300 p-2 rounded w-full"
+          className="w-full p-2 border border-gray-300 rounded"
           required
         />
       </div>
@@ -280,7 +310,7 @@ const AddProjectForm = ({ onClose }) => {
                   placeholder={`Enter ${plat} link`}
                   value={platformLink[plat] || ""}
                   onChange={(e) => handlePlatformLinkChange(plat, e.target.value)}
-                  className="border border-gray-300 p-2 rounded w-full"
+                  className="w-full p-2 border border-gray-300 rounded"
                 />
               </div>
             ))}
@@ -295,7 +325,7 @@ const AddProjectForm = ({ onClose }) => {
         <select
           value={sowType}
           onChange={handleSowChange}
-          className="border border-gray-300 p-2 rounded w-full"
+          className="w-full p-2 border border-gray-300 rounded"
           required
         >
           <option value="">Choose one</option>
@@ -311,7 +341,7 @@ const AddProjectForm = ({ onClose }) => {
             value={customSow}
             onChange={(e) => setCustomSow(e.target.value)}
             placeholder="Enter custom SOW"
-            className="border border-gray-300 p-2 rounded w-full"
+            className="w-full p-2 border border-gray-300 rounded"
             required
           />
         </div>
@@ -321,7 +351,7 @@ const AddProjectForm = ({ onClose }) => {
         <div>
           {bundlingSowList.map((sowItem, idx) => (
             <div key={idx} className="mb-4">
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <label className="font-semibold">SOW {sowItem.id}</label>
                 {bundlingSowList.length > 1 && (
                   <button
@@ -338,7 +368,7 @@ const AddProjectForm = ({ onClose }) => {
                 value={sowItem.sow}
                 onChange={(e) => handleBundlingSowInputChange(sowItem.id, 'sow', e.target.value)}
                 placeholder="Enter SOW"
-                className="border border-gray-300 p-2 rounded w-full mb-2"
+                className="w-full p-2 mb-2 border border-gray-300 rounded"
                 required
               />
               <input
@@ -346,14 +376,14 @@ const AddProjectForm = ({ onClose }) => {
                 value={sowItem.content}
                 onChange={(e) => handleBundlingSowInputChange(sowItem.id, 'content', e.target.value)}
                 placeholder="Enter Content"
-                className="border border-gray-300 p-2 rounded w-full"
+                className="w-full p-2 border border-gray-300 rounded"
                 required
               />
             </div>
           ))}
           <button
             type="button"
-            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
+            className="px-4 py-2 mt-2 text-white bg-blue-500 rounded-lg"
             onClick={addBundlingSowField}
           >
             + Add Another SOW
@@ -367,7 +397,7 @@ const AddProjectForm = ({ onClose }) => {
         <select
           value={division}
           onChange={(e) => setDivision(e.target.value)}
-          className="border border-gray-300 p-2 rounded w-full"
+          className="w-full p-2 border border-gray-300 rounded"
           required
         >
           <option value="">Choose one</option>
@@ -377,7 +407,7 @@ const AddProjectForm = ({ onClose }) => {
       </div>
 
       {/* Submit Button */}
-      <button type="submit" className="w-full bg-black text-white py-2 rounded-lg mt-4">
+      <button type="submit" className="w-full py-2 mt-4 text-white bg-black rounded-lg">
         Add Project
       </button>
     </form>

@@ -1,3 +1,4 @@
+import { auth } from "@/app/firebase";
 import React, { useState } from "react";
 
 const AddUserForm = ({ onClose, onUserAdded }) => {
@@ -14,27 +15,39 @@ const AddUserForm = ({ onClose, onUserAdded }) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage(null);
-
+  
     // Validate required fields
     if (!name || !email || !role || !password) {
       alert("All fields are required!");
       setIsSubmitting(false);
       return;
     }
-
+  
     try {
+      // Get the current user UID from Firebase Authentication
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error("User is not authenticated");
+      }
+
+      const uid = currentUser.uid;
+      console.log(uid);
+  
       // Send data to backend via /api/users endpoint
       const response = await fetch("/api/users", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization-UID": uid, // Pass UID for permission check
+        },
         body: JSON.stringify({ name, email, role, password }),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to add user");
       }
-
+  
       const newUser = await response.json();
       onUserAdded(newUser); // Notify parent component
       onClose(); // Close the form
@@ -44,7 +57,6 @@ const AddUserForm = ({ onClose, onUserAdded }) => {
     } finally {
       setIsSubmitting(false);
     }
-    console.log({ name, email, role, password });
   };
 
   return (

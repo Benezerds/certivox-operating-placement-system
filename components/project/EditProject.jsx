@@ -8,13 +8,14 @@ const EditProject = ({ project, onClose }) => {
   const [projectName, setProjectName] = useState("");
   const [projectStatus, setProjectStatus] = useState("");
   const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [quarter, setQuarter] = useState("");
+  const [priority, setPriority] = useState("");
   const [category, setCategory] = useState("");
   const [categories, setCategories] = useState([]);
   const [brand, setBrand] = useState("");
   const [platform, setPlatform] = useState("");
   const [platformLink, setPlatformLink] = useState({}); 
-  const [customPlatform, setCustomPlatform] = useState("");
   const [sowType, setSowType] = useState("");
   const [isSowCustom, setIsSowCustom] = useState(false);
   const [division, setDivision] = useState("");
@@ -39,14 +40,15 @@ const EditProject = ({ project, onClose }) => {
     fetchCategories();
   
     if (project) {
-      const validDate = project.date && isValid(new Date(project.date))
-        ? format(new Date(project.date), "yyyy-MM-dd")
-        : "";
-  
+      const validDate = project.date && isValid(new Date(project.date)) ? format(new Date(project.date), "yyyy-MM-dd"): "";
+      const validEndDate = project.endDate && isValid(new Date(project.endDate)) ? format(new Date(project.endDate), "yyyy-MM-dd") : "";
+
+      setPriority(project.priority || "");
       setSource(project.source || "");
       setProjectName(project.projectName || "");
       setProjectStatus(project.projectStatus || "");
       setStartDate(validDate);
+      setEndDate(validEndDate);
       setQuarter(project.quarter || "");
   
       // Ensure the category ID is set correctly
@@ -129,7 +131,9 @@ const EditProject = ({ project, onClose }) => {
       projectName,
       projectStatus,
       date: startDate ? format(parseISO(startDate), "yyyy-MM-dd'T'HH:mm:ssXXX") : null, // Convert to ISO string
+      endDate: endDate ? format(parseISO(endDate), "yyyy-MM-dd'T'HH:mm:ssXXX") : null,
       quarter,
+      priority,
       category: categoryRef,
       brand,
       platform, // Save platforms as an array
@@ -206,7 +210,7 @@ const EditProject = ({ project, onClose }) => {
           </div>
 
           {/* Project Status and Date */}
-          <div className="grid grid-cols-2 gap-4">
+         <div className="grid grid-cols-2 gap-4">
             <div>
             <label className="block font-semibold">Project Status<span style={{ color: 'red' }}>*</span></label>
               <select
@@ -226,7 +230,22 @@ const EditProject = ({ project, onClose }) => {
             </div>
 
             <div>
-            <label className="block font-semibold">Date<span style={{ color: 'red' }}>*</span></label>
+              <label className="block font-semibold">Priority Level<span style={{ color: 'red' }}>*</span></label>
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                className="border border-gray-300 p-2 rounded w-full"
+                required
+              >
+                <option value="">Choose one</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+            <label className="block font-semibold">Start Date<span style={{ color: 'red' }}>*</span></label>
               <input
                 type="date"
                 value={startDate}
@@ -236,8 +255,21 @@ const EditProject = ({ project, onClose }) => {
                 readOnly // Makes the field uneditable
               />
             </div>
-
           </div>
+
+          <div>
+            <label className="block font-semibold">
+              End Date<span style={{ color: 'red' }}>*</span>
+            </label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)} // Handle the input change
+              className="border border-gray-300 p-2 rounded w-full"
+              min="2000-01-01" // Minimum date
+            />
+          </div>
+        </div>
 
           {/* Quarter */}
           <div>

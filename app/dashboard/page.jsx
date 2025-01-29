@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
-import { useRouter } from "next/navigation";
-import { auth } from "@/app/firebase";
-import PerformanceMetrics from "@/components/dashboard/PerformanceMetrics";
+import { useState, useEffect } from "react";
+import { getYear, parseISO } from "date-fns";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "@/app/firebase"; // Ensure Firebase is set up correctly
+import ProjectTable from "@/components/project/ProjectTable";
+import ProjectTableNoFunctionality from "@/components/dashboard/ProjectTableNoFunctionality";
 import BrandCategory from "@/components/visualizations/BrandCategory";
 import PlatformCategory from "@/components/visualizations/PlatformCategory";
+
+import StatusProgress from "@/components/visualizations/StatusProgress";
 import ActivityLogCard from "@/components/visualizations/ActivityLogCard";
 
 function Dashboard() {
@@ -14,6 +17,10 @@ function Dashboard() {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [filteredProjects, setFilteredProjects] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1); // Track the current page
+  const itemsPerPage = 4; // Number of items per page
   const router = useRouter();
 
   // ✅ 1. Authentication Listener
@@ -25,10 +32,54 @@ function Dashboard() {
       } else {
         setIsAuthenticated(true);
       }
+      
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "Projects"), (snapshot) => {
+      const fetchedProjects = snapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        .sort((a, b) => {
+          const yearA = a.createdAt?.toDate
+            ? a.createdAt.toDate().getFullYear()
+            : 0;
+          const yearB = b.createdAt?.toDate
+            ? b.createdAt.toDate().getFullYear()
+            : 0;
+          if (yearA !== yearB) {
+            return yearB - yearA;
+          }
+
+          const dateA = a.createdAt?.toDate
+            ? a.createdAt.toDate()
+            : new Date(0);
+          const dateB = b.createdAt?.toDate
+            ? b.createdAt.toDate()
+            : new Date(0);
+          return dateB - dateA;
+        });
+
+      setProjects(fetchedProjects);
+      setFilteredProjects(fetchedProjects);
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, []);
+
+  // Logic for paginated projects
+  const paginatedProjects = filteredProjects.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   // ✅ 2. Fetch Activities (Runs only when component mounts)
   useEffect(() => {
@@ -88,6 +139,6 @@ function Dashboard() {
       </div>
     </div>
   );
-}
+};
 
 export default Dashboard;

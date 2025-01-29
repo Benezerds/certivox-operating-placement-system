@@ -7,6 +7,8 @@ import {
   ClipboardDocumentIcon,
   ChartBarIcon,
   WalletIcon,
+  Statistic,
+  Bars2Icon,
   Bars3Icon,
   ChevronDoubleLeftIcon,
   ArrowLeftEndOnRectangleIcon,
@@ -25,11 +27,15 @@ const Sidebar = () => {
   const menuItems = [
     { name: "Home", icon: <HomeIcon className="w-6 h-6" />, path: "/dashboard" },
     { name: "Projects", icon: <ClipboardDocumentIcon className="w-6 h-6" />, path: "/dashboard/project" },
-    { name: "Comparison", icon: <ChartBarIcon className="w-6 h-6" />, path: "/dashboard/comparison" },
-    { name: "Management", icon: <WalletIcon className="w-6 h-6" />, path: "/dashboard/management" },
+
     { name: "Admin", icon: <UserCircleIcon className="w-6 h-6" />, path: "/dashboard/admin" },
     { name: "Users", icon: <UserIcon className="w-6 h-6" />, path: "/dashboard/admin/users" },
     { name: "Roles", icon: <AdjustmentsHorizontalIcon className="w-6 h-6" />, path: "/dashboard/admin/setup" },
+
+    { name: "Historical", icon: <ChartBarIcon className="w-6 h-6" />, path: "/dashboard/historical" },
+    { name: "Comparison", icon: <Bars2Icon className="w-6 h-6" />, path: "/dashboard/comparison" },
+    { name: "Category Management", icon: <WalletIcon className="w-6 h-6" />, path: "/dashboard/management" },
+
   ];
 
   const handleToggle = () => {

@@ -21,7 +21,7 @@ import EditProject from "@/components/project/EditProject";
 import ExportCSV from "@/components/project/ExportCsv";
 import ProjectProgress from "@/components/visualizations/ProjectProgress";
 
-const Tracker = () => {
+const Project = () => {
   const [projects, setProjects] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [showAddProject, setShowAddProject] = useState(false);
@@ -29,6 +29,7 @@ const Tracker = () => {
   const [selectedDivision, setSelectedDivision] = useState("all");
   const [selectedSource, setSelectedSource] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedPriority, setSelectedPriority] = useState("all");
   const [selectedYear, setSelectedYear] = useState("all");
   const [categories, setCategories] = useState([]); // Stores all categories from Firestore
   const [selectedCategories, setSelectedCategories] = useState([]); // Stores selected categories
@@ -76,7 +77,10 @@ const Tracker = () => {
           ...doc.data(),
         }))
         .filter((project) => {
-          // Filter by division
+          
+          const priorityMatch = 
+            selectedPriority ==="all" || project.priority === selectedPriority;
+            // Filter by division
           const divisionMatch =
             selectedDivision === "all" || project.division === selectedDivision;
           // Filter by year
@@ -99,7 +103,8 @@ const Tracker = () => {
             sourceMatch &&
             statusMatch &&
             brandMatch &&
-            categoryMatch
+            categoryMatch &&
+            priorityMatch
           );
         })
 
@@ -143,8 +148,9 @@ const Tracker = () => {
     selectedStatus,
     searchBrand,
     selectedCategories,
+    selectedPriority,
   ]);
-
+  
   // Function to safely handle different formats of the 'createdAt' field
   const getProjectDate = (project) => {
     if (project.createdAt?.toDate) {
@@ -263,6 +269,7 @@ const Tracker = () => {
       "Source",
       "Project",
       "Status",
+      "Priority",
       "Date",
       "Quarter",
       "Category",
@@ -330,6 +337,17 @@ const Tracker = () => {
         {/* Filter Options */}
         <div className="flex flex-wrap items-center justify-between w-full mb-4 overflow-hidden max-w-screen">
           <div className="flex flex-wrap items-center w-full gap-4 sm:w-auto">
+            <select
+              value={selectedPriority}
+              onChange={(e) => setSelectedPriority(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-lg sm:w-auto"
+            >
+              <option value="all">All Priorities</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+
             {/* Division Dropdown */}
             <select
               value={selectedDivision}
@@ -506,4 +524,4 @@ const Tracker = () => {
   );
 };
 
-export default Tracker;
+export default Project;

@@ -46,11 +46,20 @@ const getDateRanges = (filter) => {
 };
 
 // Helper to fetch and cache category names
-const fetchCategoryName = async (categoryId, categoryCache) => {
-  if (!categoryId) return "Unknown";
-  if (categoryCache[categoryId]) return categoryCache[categoryId];
+// Helper to fetch and cache category names
+const fetchCategoryName = async (category, categoryCache) => {
+  if (!category) return "Unknown";
+  if (categoryCache[category]) return categoryCache[category];
 
   try {
+    // If category is a string (i.e., path), extract the category ID and fetch
+    let categoryId = category;
+    if (typeof category === "string" && category.startsWith("Categories/")) {
+      const pathParts = category.split("/");
+      categoryId = pathParts[pathParts.length - 1]; // Get the document ID from the path
+    }
+
+    // Fetch category name from Categories collection
     const categoryDoc = await getDoc(doc(db, "Categories", categoryId));
     if (categoryDoc.exists()) {
       const categoryName = categoryDoc.data()?.category_name || "Unknown";
@@ -71,7 +80,10 @@ const BrandCategory = () => {
   const [percentageChange, setPercentageChange] = useState(0);
   const [chartData, setChartData] = useState([]);
 
-  const dateRanges = useMemo(() => getDateRanges(selectedFilter), [selectedFilter]);
+  const dateRanges = useMemo(
+    () => getDateRanges(selectedFilter),
+    [selectedFilter]
+  );
 
   const processProjectData = useCallback(
     async (snapshot) => {
@@ -89,8 +101,9 @@ const BrandCategory = () => {
         const project = docSnapshot.data();
         if (!project.date) continue;
 
+        // Use fetchCategoryName to get category name from category path or ID
         const categoryName = await fetchCategoryName(
-          project.category?.id,
+          project.category?.id || project.category, // Use project.category or project.category.id
           categoryCache
         );
         const projectDate = project.date.toDate?.() || new Date(project.date);
@@ -103,13 +116,18 @@ const BrandCategory = () => {
         isWithinInterval(project.date, { start: currentStart, end: new Date() })
       );
       const previousProjects = projects.filter((project) =>
-        isWithinInterval(project.date, { start: previousStart, end: previousEnd })
+        isWithinInterval(project.date, {
+          start: previousStart,
+          end: previousEnd,
+        })
       );
 
       const currentTotal = currentProjects.length;
       const previousTotal = previousProjects.length;
       const percentageChangeValue =
-        previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0;
+        previousTotal > 0
+          ? ((currentTotal - previousTotal) / previousTotal) * 100
+          : 0;
 
       setTotalProjects(currentTotal);
       setPercentageChange(percentageChangeValue);
@@ -130,7 +148,10 @@ const BrandCategory = () => {
   );
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "Projects"), processProjectData);
+    const unsubscribe = onSnapshot(
+      collection(db, "Projects"),
+      processProjectData
+    );
     return () => unsubscribe();
   }, [processProjectData]);
 
@@ -159,6 +180,7 @@ const BrandCategory = () => {
           : "Weekly"}
       </div>
 
+      {/* Filter Buttons */}
       <div className="flex mb-4 space-x-2">
         {["year", "monthly", "weekly"].map((filter) => (
           <button
@@ -170,7 +192,9 @@ const BrandCategory = () => {
                 : "bg-gray-200 text-gray-700"
             }`}
           >
-            {filter === "year" ? "Year to Date" : filter.charAt(0).toUpperCase() + filter.slice(1)}
+            {filter === "year"
+              ? "Year to Date"
+              : filter.charAt(0).toUpperCase() + filter.slice(1)}
           </button>
         ))}
       </div>

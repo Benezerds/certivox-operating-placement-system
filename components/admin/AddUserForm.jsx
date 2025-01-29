@@ -1,3 +1,4 @@
+import { auth } from "@/app/firebase";
 import React, { useState } from "react";
 
 const AddUserForm = ({ onClose, onUserAdded }) => {
@@ -10,30 +11,43 @@ const AddUserForm = ({ onClose, onUserAdded }) => {
   const [showPassword, setShowPassword] = useState(false); // Show/Hide password
 
   const handleSubmit = async (e) => {
+    console.log("Submitting Data...");
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage(null);
-
+  
     // Validate required fields
     if (!name || !email || !role || !password) {
       alert("All fields are required!");
       setIsSubmitting(false);
       return;
     }
-
+  
     try {
+      // Get the current user UID from Firebase Authentication
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error("User is not authenticated");
+      }
+
+      const uid = currentUser.uid;
+      console.log(uid);
+  
       // Send data to backend via /api/users endpoint
       const response = await fetch("/api/users", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization-UID": uid, // Pass UID for permission check
+        },
         body: JSON.stringify({ name, email, role, password }),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to add user");
       }
-
+  
       const newUser = await response.json();
       onUserAdded(newUser); // Notify parent component
       onClose(); // Close the form
@@ -43,7 +57,6 @@ const AddUserForm = ({ onClose, onUserAdded }) => {
     } finally {
       setIsSubmitting(false);
     }
-    console.log({ name, email, role, password });
   };
 
   return (
@@ -54,7 +67,7 @@ const AddUserForm = ({ onClose, onUserAdded }) => {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full border border-gray-300 p-2 rounded"
+          className="w-full p-2 border border-gray-300 rounded"
           required
         />
       </div>
@@ -64,7 +77,7 @@ const AddUserForm = ({ onClose, onUserAdded }) => {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border border-gray-300 p-2 rounded"
+          className="w-full p-2 border border-gray-300 rounded"
           required
         />
       </div>
@@ -73,7 +86,7 @@ const AddUserForm = ({ onClose, onUserAdded }) => {
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="w-full border border-gray-300 p-2 rounded"
+          className="w-full p-2 border border-gray-300 rounded"
           required
         >
           <option value="">Select Role</option>
@@ -88,12 +101,12 @@ const AddUserForm = ({ onClose, onUserAdded }) => {
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-gray-300 p-2 rounded"
+            className="w-full p-2 border border-gray-300 rounded"
             required
           />
           <button
             type="button"
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500"
+            className="absolute text-sm text-gray-500 transform -translate-y-1/2 right-3 top-1/2"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? "Hide" : "Show"}
@@ -101,7 +114,7 @@ const AddUserForm = ({ onClose, onUserAdded }) => {
         </div>
       </div>
       {errorMessage && (
-        <div className="text-red-500 text-sm">{errorMessage}</div>
+        <div className="text-sm text-red-500">{errorMessage}</div>
       )}
       <button
         type="submit"

@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth } from "@/app/firebase";
-import AddUser from "../../components/admin/AddUser";
-import EditUser from "../../components/admin/EditUser";
-import CsvExport from "../../components/admin/CsvExport";
-import UserTable from "../../components/admin/UserTable";
+import AddUser from "@/components/admin/AddUser";
+import EditUser from "@/components/admin/EditUser";
+import CsvExport from "@/components/admin/CsvExport";
+import UserTable from "@/components/admin/UserTable";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/app/firebase";
+
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -130,14 +131,17 @@ const AdminPage = () => {
         setIsAuthenticated(true);
 
         // Set up Firestore real-time listener for users
-        const unsubscribeFirestore = onSnapshot(collection(db, "Users"), (snapshot) => {
-          const userList = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setUsers(userList);
-          setFilteredUsers(userList);
-        });
+        const unsubscribeFirestore = onSnapshot(
+          collection(db, "Users"),
+          (snapshot) => {
+            const userList = snapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+            setUsers(userList);
+            setFilteredUsers(userList);
+          }
+        );
 
         // Cleanup Firestore listener when component unmounts
         return () => unsubscribeFirestore();

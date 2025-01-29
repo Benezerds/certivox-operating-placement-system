@@ -200,13 +200,33 @@ const Project = () => {
 
   const handleAddProject = async (projectData) => {
     try {
-      await addDoc(collection(db, "Projects"), {
-        ...projectData,
-        createdAt: serverTimestamp(), // Add server timestamp
+      // Get the current user's UID using Firebase Auth
+      const user = auth.currentUser;
+
+      if (!user) {
+        throw new Error("User is not logged in");
+      }
+
+      const uid = user.uid; // Get UID of the currently logged-in user
+
+      // Send a POST request to the server API (api/projects)
+      const response = await fetch("/api/projects", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization-UID": uid, // Pass the UID of the logged-in user
+        },
+        body: JSON.stringify(projectData), // Send the project data as JSON
       });
-      console.log("Project added successfully.");
+
+      if (!response.ok) {
+        throw new Error("Failed to create project");
+      }
+
+      const result = await response.json(); // Parse the JSON response
+      console.log("Project added successfully:", result); // Log the successful response
     } catch (error) {
-      console.error("Error adding project:", error);
+      console.error("Error adding project:", error); // Handle any errors
     }
   };
 

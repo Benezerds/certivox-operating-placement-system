@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { getYear, parseISO } from "date-fns";
 import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "@/app/firebase"; // Ensure Firebase is set up correctly
+import { auth, db } from "@/app/firebase"; // Ensure Firebase is set up correctly
 import ProjectTable from "@/components/project/ProjectTable";
 import ProjectTableNoFunctionality from "@/components/dashboard/ProjectTableNoFunctionality";
 import BrandCategory from "@/components/visualizations/BrandCategory";
@@ -11,6 +11,8 @@ import PlatformCategory from "@/components/visualizations/PlatformCategory";
 
 import StatusProgress from "@/components/visualizations/StatusProgress";
 import ActivityLogCard from "@/components/visualizations/ActivityLogCard";
+import { useRouter } from "next/navigation";
+import { onAuthStateChanged } from "firebase/auth";
 
 function Dashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -32,6 +34,8 @@ function Dashboard() {
       } else {
         setIsAuthenticated(true);
       }
+    });
+  },);
       
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "Projects"), (snapshot) => {

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { format, isValid, parseISO } from "date-fns";
-import { collection, getDoc, updateDoc, doc } from "firebase/firestore"; // Firestore methods
+import { getDoc, updateDoc, doc } from "firebase/firestore"; // Firestore methods
 import { useRouter } from "next/navigation";
-import { db } from "@/app/firebase";
+import { db } from "@/app/firebase"; // Ensure Firebase config is imported
 
 const ProjectTable = ({ projects, onDelete, onEdit }) => {
   const [resolvedProjects, setResolvedProjects] = useState([]); // Store processed projects
@@ -13,44 +13,35 @@ const ProjectTable = ({ projects, onDelete, onEdit }) => {
   const router = useRouter();
 
   // Process and resolve project data (e.g., resolving category references) and sort by date
-  
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "Projects"), async (querySnapshot) => {
-      const updatedProjects = [];
-
-      // Loop through each document in the snapshot
-      for (let docSnap of querySnapshot.docs) {
-        const project = docSnap.data();
-        let categoryName = "N/A"; // Default value
-
-        // Check if category is a Firestore DocumentReference
-        if (project.category && project.category.id) {
-          try {
-            const categoryRef = doc(db, "Categories", project.category.id); // Create reference
-            const categoryDoc = await getDoc(categoryRef); // Resolve reference to actual document
-            if (categoryDoc.exists()) {
-              categoryName = categoryDoc.data().category_name || "N/A";
-            } else {
-              categoryName = "Category not found";
+    const resolveProjectData = async () => {
+      const updatedProjects = await Promise.all(
+        projects.map(async (project) => {
+          let categoryName = "N/A"; // Default to "N/A"
+          if (typeof project.category === "object" && project.category.id) {
+            try {
+              const categoryDoc = await getDoc(project.category);
+              if (categoryDoc.exists()) {
+                categoryName = categoryDoc.data().category_name || "N/A";
+              } else {
+                categoryName = "Category not found"; // Handle missing category
+              }
+            } catch (error) {
+              console.error("Error fetching category:", error);
+              categoryName = "Category not found"; // Handle errors gracefully
             }
-          } catch (error) {
-            console.error("Error fetching category:", error);
-            categoryName = "Category not found";
           }
-        }
+          return { ...project, category: categoryName };
+        })
+      );
 
-        // Add the resolved category name to the project
-        updatedProjects.push({ ...project, category_name: categoryName });
-      }
+      // Sort projects by date (default to descending)
+      const sortedProjects = sortProjectsByDate(updatedProjects, "desc");
+      setResolvedProjects(sortedProjects);
+    };
 
-      // Update the state with the new project data
-      setProjects(updatedProjects);
-      setLoading(false);
-    });
-
-    // Cleanup function to unsubscribe from snapshot listener when component unmounts
-    return () => unsubscribe();
-  }, []);
+    resolveProjectData();
+  }, [projects]);
 
   // Sort projects by date (ascending or descending)
   const sortProjectsByDate = (projects, order) => {

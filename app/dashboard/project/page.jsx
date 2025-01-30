@@ -3,18 +3,14 @@
 import { useState, useEffect } from "react";
 import { getYear, parseISO } from "date-fns";
 import { format, isValid } from "date-fns";
-
 import {
   collection,
-  onSnapshot,
   doc,
   deleteDoc,
-  addDoc,
-  serverTimestamp,
-  getDoc,
   getDocs,
+  onSnapshot,
 } from "firebase/firestore";
-import { db } from "@/app/firebase"; // Ensure Firebase is set up correctly
+import { db } from "@/app/firebase"; 
 import AddProject from "components/project/AddProject"; // Import the AddProject component
 import ProjectTable from "@/components/project/ProjectTable";
 import EditProject from "@/components/project/EditProject";
@@ -158,34 +154,7 @@ const Project = () => {
     }
     return new Date(); // Default to the current date
   };
-  // const handleCheckboxChange = (brand) => {
-  // setSelectedBrands((prev) => {
-  // return prev.includes(brand)
-  // ? prev.filter((b) => b !== brand)  // Remove if already selected
-  // : [...prev, brand];  // Add if not selected
-  // });
-  // };
-
-  // const handleSearch = () => {
-  // if (selectedBrands.length === 0) {
-  //  setFilteredProjects(projects);  // Show all if no brand selected
-  // return;
-  // }
-
-  // const filtered = projects.filter((project) =>
-  // selectedBrands.some((brand) => project.brand === brand)  // Match exact brand
-  //);
-
-  // if (filtered.length > 0) {
-  // setFilteredProjects(filtered);
-  // } else {
-  //setNotification({
-  // message: "No projects match the selected brands",
-  // visible: true,
-  //  });
-  // setTimeout(() => setNotification({ message: "", visible: false }), 3000);
-  // }
-  // };
+  
   const handleDelete = async (id) => {
     try {
       await deleteDoc(doc(db, "Projects", id));

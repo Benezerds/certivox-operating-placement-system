@@ -8,7 +8,6 @@ import ProjectTable from "@/components/project/ProjectTable";
 import ProjectTableNoFunctionality from "@/components/dashboard/ProjectTableNoFunctionality";
 import BrandCategory from "@/components/visualizations/BrandCategory";
 import PlatformCategory from "@/components/visualizations/PlatformCategory";
-
 import StatusProgress from "@/components/visualizations/StatusProgress";
 import ActivityLogCard from "@/components/visualizations/ActivityLogCard";
 import { useRouter } from "next/navigation";
@@ -21,11 +20,11 @@ function Dashboard() {
   const [error, setError] = useState(null);
   const [projects, setProjects] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1); // Track the current page
-  const itemsPerPage = 4; // Number of items per page
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
   const router = useRouter();
 
-  // ✅ 1. Authentication Listener
+  // ✅ Authentication Listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
@@ -35,8 +34,10 @@ function Dashboard() {
         setIsAuthenticated(true);
       }
     });
-  },);
-      
+    return () => unsubscribe();
+  }, []);
+
+  // ✅ Fetch Projects
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "Projects"), (snapshot) => {
       const fetchedProjects = snapshot.docs
@@ -45,16 +46,6 @@ function Dashboard() {
           ...doc.data(),
         }))
         .sort((a, b) => {
-          const yearA = a.createdAt?.toDate
-            ? a.createdAt.toDate().getFullYear()
-            : 0;
-          const yearB = b.createdAt?.toDate
-            ? b.createdAt.toDate().getFullYear()
-            : 0;
-          if (yearA !== yearB) {
-            return yearB - yearA;
-          }
-
           const dateA = a.createdAt?.toDate
             ? a.createdAt.toDate()
             : new Date(0);
@@ -71,7 +62,7 @@ function Dashboard() {
     return () => unsubscribe();
   }, []);
 
-  // Logic for paginated projects
+  // ✅ Pagination Logic
   const paginatedProjects = filteredProjects.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -85,7 +76,13 @@ function Dashboard() {
     }
   };
 
-  // ✅ 2. Fetch Activities (Runs only when component mounts)
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // ✅ Fetch Activities
   useEffect(() => {
     const fetchActivities = async () => {
       try {
@@ -103,7 +100,7 @@ function Dashboard() {
     fetchActivities();
   }, []);
 
-  // ✅ 3. Render Component (Avoid Hooks Conditional Execution)
+  // ✅ Render Component
   if (!isAuthenticated) {
     return <div>Loading...</div>;
   }
@@ -123,7 +120,7 @@ function Dashboard() {
           <PlatformCategory className="flex-1" />
         </div>
 
-        {/* Right Column: Activity Logs (Matches height of left column) */}
+        {/* Right Column: Activity Logs */}
         <div className="flex flex-col w-1/3 p-4 bg-white border rounded-lg shadow-md">
           <h2 className="mb-2 text-lg font-semibold">Recent Activities</h2>
           {loading ? (
@@ -141,8 +138,56 @@ function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* Project Table Section */}
+      <div className="flex-1 my-8">
+        <ProjectTableNoFunctionality
+          projects={paginatedProjects}
+          getProjectDate={(project) =>
+            project.createdAt?.toDate ? project.createdAt.toDate() : new Date()
+          }
+        />
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-center gap-4 mt-4">
+        <button
+          onClick={handlePreviousPage}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 rounded-lg border ${
+            currentPage === 1
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-white text-black hover:bg-gray-100"
+          }`}
+        >
+          &lt; Back
+        </button>
+        <span className="px-4 py-2 text-lg font-semibold">{currentPage}</span>
+        <button
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-2 rounded-lg border ${
+            currentPage === totalPages
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-white text-black hover:bg-gray-100"
+          }`}
+        >
+          Next &gt;
+        </button>
+      </div>
+
+      {/* Display Total Projects */}
+      <p className="mt-2 text-center">
+        Total Projects: {filteredProjects.length}
+      </p>
+
+      {/* Status Progress Section
+      <div className="mt-8">
+        <h2 className="mb-4 text-xl font-semibold">Project Status Progress</h2>
+        <StatusProgress />
+      </div> */}
     </div>
   );
-};
+}
 
 export default Dashboard;

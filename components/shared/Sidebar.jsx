@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -7,7 +7,6 @@ import {
   ClipboardDocumentIcon,
   ChartBarIcon,
   WalletIcon,
-  Statistic,
   Bars2Icon,
   Bars3Icon,
   ChevronDoubleLeftIcon,
@@ -20,20 +19,10 @@ import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/app/firebase";
 
 const Sidebar = () => {
-  const [isExpanded, setIsExpanded] = useState(true); // Sidebar starts expanded
-  const [currentPath, setCurrentPath] = useState(""); // Track current path
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [currentPath, setCurrentPath] = useState("");
+  const [userRole, setUserRole] = useState(null); // Store user role
   const router = useRouter();
-
-  const menuItems = [
-    { name: "Home", icon: <HomeIcon className="w-6 h-6" />, path: "/dashboard" },
-    { name: "Projects", icon: <ClipboardDocumentIcon className="w-6 h-6" />, path: "/dashboard/project" },
-    { name: "Historical", icon: <ChartBarIcon className="w-6 h-6" />, path: "/dashboard/historical" },
-    { name: "Comparison", icon: <Bars2Icon className="w-6 h-6" />, path: "/dashboard/comparison" },
-    { name: "Category Management", icon: <WalletIcon className="w-6 h-6" />, path: "/dashboard/management" },
-    { name: "Admin", icon: <UserCircleIcon className="w-6 h-6" />, path: "/dashboard/admin" },
-    { name: "Users", icon: <UserIcon className="w-6 h-6" />, path: "/dashboard/admin/users" },
-    { name: "Roles", icon: <AdjustmentsHorizontalIcon className="w-6 h-6" />, path: "/dashboard/admin/setup" },
-  ];
 
   const handleToggle = () => {
     setIsExpanded((prev) => !prev);
@@ -41,19 +30,68 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth); // Firebase sign-out
-      router.push("/auth"); // Redirect to the login page
+      await signOut(auth);
+      router.push("/auth");
     } catch (error) {
       console.error("Logout error:", error);
     }
   };
 
-  // Track the current path manually
+  const fetchUserRole = async (uid) => {
+    console.log("Fetching role for UID:", uid);
+  
+    try {
+      const res = await fetch(`/api/users/${uid}`);
+      if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+  
+      const data = await res.json();
+      console.log("User role response:", data); // Debugging
+  
+      if (data && data.role) {
+        setUserRole(data.role);
+      } else {
+        console.error("Role not found in API response");
+      }
+    } catch (error) {
+      console.error("Failed to fetch user role:", error);
+    }
+  };
+  
+  // Fetch user role on mount
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("User logged in:", user.uid);
+        fetchUserRole(user.uid);
+      } else {
+        console.log("No user logged in");
+      }
+    });
+  
+    return () => unsubscribe();
+  }, []);
+
+  // Define menu items
+  const menuItems = [
+    { name: "Home", icon: <HomeIcon className="w-6 h-6" />, path: "/dashboard" },
+    { name: "Projects", icon: <ClipboardDocumentIcon className="w-6 h-6" />, path: "/dashboard/project" },
+    { name: "Historical", icon: <ChartBarIcon className="w-6 h-6" />, path: "/dashboard/historical" },
+    { name: "Comparison", icon: <Bars2Icon className="w-6 h-6" />, path: "/dashboard/comparison" },
+    { name: "Category Management", icon: <WalletIcon className="w-6 h-6" />, path: "/dashboard/management" },
+    { name: "Admin", icon: <UserCircleIcon className="w-6 h-6" />, path: "/dashboard/admin", restricted: true },
+    { name: "Users", icon: <UserIcon className="w-6 h-6" />, path: "/dashboard/admin/users", restricted: true },
+    { name: "Roles", icon: <AdjustmentsHorizontalIcon className="w-6 h-6" />, path: "/dashboard/admin/setup", restricted: true },
+  ];
+
+  // Remove restricted items if user is not an Admin
+  const filteredMenuItems = userRole === "Admin" ? menuItems : menuItems.filter(item => !item.restricted);
+
+  // Track the current path
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setCurrentPath(window.location.pathname); // Get the current path from the window object
+      setCurrentPath(window.location.pathname);
     }
-  }, [router]); // Update when router changes
+  }, [router]);
 
   return (
     <aside
@@ -64,7 +102,6 @@ const Sidebar = () => {
       {/* Logo and Toggle */}
       <div className="flex items-center justify-between px-6 py-4 border-b">
         <h1 className={`text-xl font-bold ${!isExpanded && "hidden"}`}>
-          {/* Actual Logo */}
           <img
             src="/cretivox_logo.png"
             alt="Cretivox Logo"
@@ -73,7 +110,6 @@ const Sidebar = () => {
             }`}
           />
         </h1>
-        {/* Toggle Button */}
         <button
           onClick={handleToggle}
           className="text-gray-500 hover:text-gray-900 focus:outline-none"
@@ -81,27 +117,26 @@ const Sidebar = () => {
           {isExpanded ? (
             <ChevronDoubleLeftIcon className="w-6 h-6" />
           ) : (
-            <Bars3Icon className="flex items-center w-6 h-6" />
+            <Bars3Icon className="w-6 h-6" />
           )}
         </button>
       </div>
-
+  
       {/* Navigation Menu */}
       <nav className="mt-4">
         <ul className="space-y-2">
-          {menuItems.map((item, index) => (
+          {filteredMenuItems.map((item, index) => (
             <li key={index}>
               <a
                 onClick={() => {
-                  router.push(item.path)
-                  setCurrentPath(item.path); // Update the current path on click
+                  router.push(item.path);
+                  setCurrentPath(item.path);
                 }}
-                
-                className={`flex items-center px-6 py-2 rounded-md cursor-pointer hover:bg-gray-100 hover:text-gray-900 transition ${
+                className={`flex items-center px-6 py-2 rounded-md cursor-pointer transition ${
                   currentPath === item.path
-                  ? "bg-gray-200 text-gray-900" : "hover:bg-gray-100 hover:text-gray-900"}
-                  isExpanded ? "justify-start" : "justify-center"
-                }`}
+                    ? "bg-gray-200 text-gray-900"
+                    : "hover:bg-gray-100 hover:text-gray-900"
+                } ${isExpanded ? "justify-start" : "justify-center"}`}
               >
                 <div className="flex items-center justify-center w-8 h-8 mr-3">
                   {item.icon}
@@ -114,6 +149,15 @@ const Sidebar = () => {
           ))}
         </ul>
       </nav>
+  
+      {/* Role Display */}
+      <div className={`px-6 py-4 mt-4 text-sm font-medium text-gray-600 ${isExpanded ? "text-left" : "text-center"}`}>
+        <span className="block text-gray-500">Role:</span>
+        <span className={`font-bold ${userRole === "Admin" ? "text-green-600" : "text-gray-700"}`}>
+          {userRole}
+        </span>
+      </div>
+  
       {/* Logout Button */}
       <div className="p-4 mt-auto border-t">
         <button
@@ -123,13 +167,14 @@ const Sidebar = () => {
           }`}
         >
           <span className="flex items-center">
-          <ArrowLeftEndOnRectangleIcon className="w-6 h-6" />
-          {isExpanded && <span className="ml-2">Logout</span>}
+            <ArrowLeftEndOnRectangleIcon className="w-6 h-6" />
+            {isExpanded && <span className="ml-2">Logout</span>}
           </span>
         </button>
       </div>
     </aside>
   );
+  
 };
 
 export default Sidebar;

@@ -12,63 +12,57 @@ import {
 import { collection, getDoc, onSnapshot } from "firebase/firestore"; // Import Firestore functions
 import { db } from "@/app/firebase";
 
-const BarChartComparison = ({ category1, category2 }) => {
+const BarChartComparison = ({ categories, category1, category2 }) => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch Projects Data from API
+  // Fetch Projects Data
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "Projects"), async (querySnapshot) => {
-      const updatedProjects = [];
-
-      for (let docSnap of querySnapshot.docs) {
-        const project = docSnap.data();
-        let categoryName = "N/A"; // Default value
-
-        // Check if category is a reference and resolve it
-        if (project.category) {
-          try {
-            const categoryRef = doc(db, "Categories", project.category.id);
-            const categoryDoc = await getDoc(categoryRef);
-            if (categoryDoc.exists()) {
-              categoryName = categoryDoc.data().category_name || "N/A";
-            } else {
-              categoryName = "Category not found";
-            }
-          } catch (error) {
-            console.error("Error fetching category:", error);
-            categoryName = "Category not found";
-          }
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch("/api/projects");
+        if (!response.ok) {
+          throw new Error("Failed to fetch projects");
         }
-
-        updatedProjects.push({ ...project, category_name: categoryName });
+        const data = await response.json();
+        setProjects(data);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      setProjects(updatedProjects);
-      setLoading(false);
-    });
-
-    // Cleanup function to unsubscribe from snapshot listener when component unmounts
-    return () => unsubscribe();
+    fetchProjects();
   }, []);
-  
 
   // Function to aggregate metrics for selected category
-const aggregateMetricsForCategory = (category) => {
-  let aggregatedData = { likes: 0, comments: 0, views: 0 };
-
-  // Loop through each project and accumulate values for matching category
-  projects.forEach((project) => {
-    console.log(project.category_name);
-    if (project.category_name === category.category_name) {
-      aggregatedData.likes += project.likes;
-      aggregatedData.comments += project.comments;
-      aggregatedData.views += project.views;
-    }
-  });
-
-  return aggregatedData;
-};
+  const aggregateMetricsForCategory = (category) => {
+    let aggregatedData = { likes: 0, comments: 0, views: 0 };
+  
+    projects.forEach((project) => {
+      // Extract document ID from the category reference string
+      const categoryParts = project.category.split("/");
+      const projectCategoryId = categoryParts[categoryParts.length - 1]; // Get the last part, which is the ID
+  
+      console.log("Projectid:", projectCategoryId, "CategoryId:", category.id);
+  
+      if (projectCategoryId === category.id) {
+        // Only add values if they are valid numbers (not null or undefined)
+        if (typeof project.likes === "number") {
+          aggregatedData.likes += project.likes;
+        }
+        if (typeof project.comments === "number") {
+          aggregatedData.comments += project.comments;
+        }
+        if (typeof project.views === "number") {
+          aggregatedData.views += project.views;
+        }
+      }
+    });
+  
+    return aggregatedData;
+  };
 
   // Aggregate data for both selected categories
   const aggregatedDataCategory1 = aggregateMetricsForCategory(category1);
@@ -96,7 +90,7 @@ const aggregateMetricsForCategory = (category) => {
   const hasData =
     data.some((d) => d.likes > 0 || d.comments > 0 || d.views > 0) &&
     data.some((d) => d.category !== "N/A");
-    console.log("Has data to display:", hasData);
+  console.log("Has data to display:", hasData);
 
   return (
     <div style={{ width: "100%", height: "400px", margin: "0 auto" }}>

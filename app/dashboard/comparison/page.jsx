@@ -94,7 +94,7 @@ const Comparison = () => {
           {/* Comparison Charts */}
           {category1 && category2 ? (
             <div className="space-y-8">
-              <BarChartComparison category1={category1} category2={category2} />
+              <BarChartComparison categories={categories} category1={category1} category2={category2} />
             </div>
           ) : (
             <p className="text-center text-gray-500">

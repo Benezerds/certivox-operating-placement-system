@@ -1,6 +1,7 @@
 "use client";
 
 import BarChartComparison from "@/components/comparison/BarChartComparison";
+import RadarChartComparison from "@/components/comparison/RadarChartComparison";
 import React, { useState, useEffect } from "react";
 
 const Comparison = () => {
@@ -16,6 +17,7 @@ const Comparison = () => {
         const response = await fetch("/api/categories");
         const data = await response.json();
         setCategories(data); // Assume API returns an array of categories
+        console.log(categories);
       } catch (error) {
         console.error("Error fetching categories:", error);
       } finally {
@@ -94,7 +96,8 @@ const Comparison = () => {
           {/* Comparison Charts */}
           {category1 && category2 ? (
             <div className="space-y-8">
-              <BarChartComparison categories={categories} category1={category1} category2={category2} />
+              {/* <BarChartComparison categories={categories} category1={category1} category2={category2} /> */}
+              <RadarChartComparison category1={category1} category2={category2} />
             </div>
           ) : (
             <p className="text-center text-gray-500">
